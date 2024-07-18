@@ -11,8 +11,8 @@ void Main() {
 }
 
 void Render() {
-    if (
-        !S_Enabled
+    if (false
+        || !S_Enabled
         || (S_HideWithGame && !UI::IsGameUIVisible())
         || (S_HideWithOP && !UI::IsOverlayShown())
     )
