@@ -9,6 +9,8 @@ This is of course inspired by the [Champion Medals](https://openplanet.dev/plugi
 
 Medals may be manually adjusted due to physics changes or for being more difficult than a Champion medal. They will only ever be adjusted to be easier, not more difficult. [Message me on Discord](https://discord.gg/uu9kUZGte6) or [create a GitHub issue](https://github.com/ezio416/tm-warrior-medals/issues) if you feel like a Warrior medal does not make sense in some way.
 
+This plugin does not collect any of your personal information. This is solely for your own personal use.
+
 Seasonal campaign:
 -
 - 2 weeks after the season starts
