@@ -2,11 +2,18 @@
 // m 2024-07-19
 
 const string color = "\\$3CF";
+UI::Texture@ icon32;
 dictionary@  maps  = dictionary();
+uint         pb    = uint(-1);
 const float  scale = UI::GetScale();
 const string title = color + Icons::Circle + "\\$G Warrior Medals";
 
 void Main() {
+    IO::FileSource iconFile("assets/warrior_32.png");
+    @icon32 = UI::LoadTexture(iconFile.Read(iconFile.Size()));
+
+    startnew(PBLoop);
+
     bool inMap = InMap();
     bool wasInMap = false;
 
@@ -14,6 +21,7 @@ void Main() {
         yield();
 
         if (!S_Enabled) {
+            pb = uint(-1);
             wasInMap = false;
             continue;
         }
@@ -34,10 +42,18 @@ void Render() {
         || !S_Enabled
         || (S_HideWithGame && !UI::IsGameUIVisible())
         || (S_HideWithOP && !UI::IsOverlayShown())
+        || icon32 is null
+        || !InMap()
     )
         return;
 
-    if (!InMap())
+    CTrackMania@ App = cast<CTrackMania@>(GetApp());
+    const string uid = App.RootMap.EdChallengeId;
+    if (!maps.Exists(uid))
+        return;
+
+    Map@ map = cast<Map@>(maps[uid]);
+    if (map is null)
         return;
 
     int flags = UI::WindowFlags::AlwaysAutoResize | UI::WindowFlags::NoTitleBar;
@@ -45,24 +61,31 @@ void Render() {
         flags |= UI::WindowFlags::NoMove;
 
     if (UI::Begin(title, S_Enabled, flags)) {
-        CTrackMania@ App = cast<CTrackMania@>(GetApp());
+        const uint warrior = map.custom > 0 ? map.custom : map.warrior;
+        const bool delta = S_Delta && pb != uint(-1);
 
-        const string uid = App.RootMap.EdChallengeId;
+        if (UI::BeginTable("##table-times", delta ? 4 : 3)) {
+            UI::TableNextRow();
 
-        string reason;
-        string text = "none";
+            UI::TableNextColumn();
+            UI::Image(icon32, vec2(scale * 16.0f));
 
-        if (maps.Exists(uid)) {
-            Map@ map = cast<Map@>(maps[uid]);
-            if (map !is null) {
-                reason = map.reason;
-                text = Time::Format(map.custom > 0 ? map.custom : map.warrior);
+            UI::TableNextColumn();
+            UI::Text("Warrior");
+
+            UI::TableNextColumn();
+            UI::Text(Time::Format(warrior));
+
+            if (delta) {
+                UI::TableNextColumn();
+                UI::Text((pb <= warrior ? "\\$77F\u2212" : "\\$F77+") + Time::Format(uint(Math::Abs(pb - warrior))));
             }
+
+            UI::EndTable();
         }
 
-        UI::Text(color + Icons::Circle + "\\$G Warrior: " + text);
-        if (reason.Length > 0)
-            HoverTooltip("Custom medal time due to: \\$FA6" + reason);
+        if (map.reason.Length > 0)
+            HoverTooltip("Custom medal time due to: \\$FA6" + map.reason);
     }
     UI::End();
 }
@@ -70,4 +93,15 @@ void Render() {
 void RenderMenu() {
     if (UI::MenuItem(title, "", S_Enabled))
         S_Enabled = !S_Enabled;
+}
+
+void PBLoop() {
+    while (true) {
+        sleep(500);
+
+        if (!S_Enabled)
+            continue;
+
+        pb = GetPB();
+    }
 }

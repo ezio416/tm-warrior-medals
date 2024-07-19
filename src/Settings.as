@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2024-07-18
+// m 2024-07-19
 
 [Setting category="General" name="Enabled"]
 bool S_Enabled = true;
@@ -9,6 +9,9 @@ bool S_HideWithGame = true;
 
 [Setting category="General" name="Show/hide with Openplanet UI"]
 bool S_HideWithOP = false;
+
+[Setting category="General" name="Show PB delta"]
+bool S_Delta = true;
 
 [SettingsTab name="Debug" icon="Bug"]
 void Debug() {
@@ -20,7 +23,7 @@ void Debug() {
         UI::PushStyleColor(UI::Col::TableRowBgAlt, vec4(0.0f, 0.0f, 0.0f, 0.5f));
 
         UI::TableSetupScrollFreeze(0, 1);
-        UI::TableSetupColumn("uid",      UI::TableColumnFlags::WidthFixed, scale * 250.0f);
+        UI::TableSetupColumn("uid",      UI::TableColumnFlags::WidthFixed, scale * 230.0f);
         UI::TableSetupColumn("name");
         UI::TableSetupColumn("wr",       UI::TableColumnFlags::WidthFixed, scale * 60.0f);
         UI::TableSetupColumn("wm",       UI::TableColumnFlags::WidthFixed, scale * 60.0f);
