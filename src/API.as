@@ -1,52 +1,31 @@
 // c 2024-07-18
-// m 2024-07-18
+// m 2024-07-19
 
-const string apiUrl = "https://e416.dev/api/tm/warrior";
+const string apiUrl  = "https://e416.dev/api/tm/warrior";
+bool         getting = false;
 
-void GetAllWarriorTimesAsync() {
-    trace("getting all warrior times");
-
-    Net::HttpRequest@ req = Net::HttpGet(apiUrl);
-    while (!req.Finished())
-        yield();
-
-    const int respCode = req.ResponseCode();
-    switch (respCode) {
-        case 200:
-            break;
-        case 429:
-            error("GetAllWarriorTimesAsync: too many requests");
-            return;
-        default:
-            error("GetAllWarriorTimesAsync: code: " + respCode + " | msg: " + req.String().Replace("\n", ""));
-            return;
-    }
-
-    Json::Value@ all = req.Json();
-    if (CheckJsonType(all, Json::Type::Object, "all")) {
-        maps.DeleteAll();
-
-        string[]@ uids = all.GetKeys();
-        for (uint i = 0; i < uids.Length; i++) {
-            const string uid = uids[i];
-
-            Map@ map = Map(all[uid]);
-            maps[uid] = @map;
-        }
-    }
-
-    trace("got all warrior times");
-}
-
-void GetCurrentWarriorTimeAsync() {
+void GetMapInfoAsync() {
     CTrackMania@ App = cast<CTrackMania@>(GetApp());
 
     if (App.RootMap is null)
         return;
 
-    const string uid = App.RootMap.EdChallengeId;
+    GetMapInfoAsync(App.RootMap.EdChallengeId);
+}
 
-    trace("getting warrior time for " + uid);
+void GetMapInfoAsync(const string &in uid) {
+    if (maps.Exists(uid))
+        return;
+
+    while (getting)
+        yield();
+
+    if (maps.Exists(uid))  // safeguard in case multiple things call this at once
+        return;
+
+    getting = true;
+
+    trace("getting map info for " + uid);
 
     Net::HttpRequest@ req = Net::HttpGet(apiUrl + "?uid=" + uid);
     while (!req.Finished())
@@ -57,19 +36,23 @@ void GetCurrentWarriorTimeAsync() {
         case 200:
             break;
         case 429:
-            error("GetCurrentWarriorTimeAsync: too many requests");
+            error("GetMapInfoAsync: too many requests");
+            getting = false;
             return;
         default:
-            error("GetCurrentWarriorTimeAsync: code: " + respCode + " | msg: " + req.String().Replace("\n", ""));
+            error("GetMapInfoAsync: code: " + respCode + " | msg: " + req.String().Replace("\n", " "));
+            getting = false;
             return;
     }
 
-    Json::Value@ single = req.Json();
-    if (CheckJsonType(single, Json::Type::Object, "single") && single.GetKeys().Length > 0) {
-        Map@ map = Map(single);
+    Json::Value@ mapInfo = req.Json();
+    if (CheckJsonType(mapInfo, Json::Type::Object, "mapInfo") && mapInfo.GetKeys().Length > 0) {
+        Map@ map = Map(mapInfo);
         maps[uid] = @map;
 
-        trace("got warrior time for " + uid);
+        trace("got map info for " + uid);
     } else
-        warn("warrior time not found for " + uid);
+        warn("map info not found for " + uid);
+
+    getting = false;
 }

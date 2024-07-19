@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2024-07-18
+// m 2024-07-19
 
 const string color = "\\$3CF";
 dictionary@  maps  = dictionary();
@@ -7,8 +7,6 @@ const float  scale = UI::GetScale();
 const string title = color + Icons::Circle + "\\$G Warrior Medals";
 
 void Main() {
-    GetAllWarriorTimesAsync();
-
     bool inMap = InMap();
     bool wasInMap = false;
 
@@ -25,8 +23,8 @@ void Main() {
         if (wasInMap != inMap) {
             wasInMap = inMap;
 
-            if (inMap && !maps.Exists(cast<CTrackMania@>(GetApp()).RootMap.EdChallengeId))
-                GetCurrentWarriorTimeAsync();
+            if (inMap)
+                GetMapInfoAsync();
         }
     }
 }
