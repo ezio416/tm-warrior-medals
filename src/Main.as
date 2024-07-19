@@ -82,9 +82,6 @@ void Render() {
 
             UI::EndTable();
         }
-
-        if (map.reason.Length > 0)
-            HoverTooltip("Custom medal time due to: \\$FA6" + map.reason);
     }
     UI::End();
 }
