@@ -15,6 +15,8 @@ There are currently no plans to add any other medals, though I'm not necessarily
 
 This plugin does not collect any of your personal information. This is solely for your own personal use. Please feel free to look through the source code on [Github](https://github.com/ezio416/tm-warrior-medals) to verify this for yourself.
 
+This plugin, like all of mine, is licensed under [MIT](https://opensource.org/license/mit), which is one of the most lenient. You may also use Warrior medal data in whichever way you like without permission, though if you want to get it directly from my API, please at least discuss it with me first so we can work out a good solution for your needs.
+
 Seasonal campaign:
 -
 - 2 weeks after the season starts
