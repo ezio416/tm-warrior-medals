@@ -52,6 +52,24 @@ def get_warrior_time(author_time: int, world_record: int, totd: bool = False) ->
     return author_time - diff
 ```
 
+Exports:
+-
+Please use this plugin as a dependency! While it's useful on its own, I would love to see integration in some more popular plugins.
+
+`uint GetWMTime()`
+`uint GetWMTime(const string &in uid)`\
+Gets the warrior medal time for the current map or given map UID.
+If there is an error or the map does not have a Warrior medal, returns 0.
+This does not query the API for a time, so the plugin must already have it cached for this to return a time.
+Only use these if you need a synchronous function.
+
+`uint GetWMTimeAsync()`
+`uint GetWMTimeAsync(const string &in uid)`\
+Gets the warrior medal time for the current map or given map UID.
+If there is an error or the map does not have a Warrior medal, returns 0.
+Queries the API for a medal time if the plugin does not have it cached.
+Use these instead of the synchronous versions if possible.
+
 <!-- ![Signed](https://img.shields.io/badge/Signed-Yes-00AA00) -->
 <!-- ![Signed](https://img.shields.io/badge/Signed-School_Mode-CC1199) -->
 <!-- ![Game Maniaplanet](https://img.shields.io/badge/Game-Maniaplanet_4-blue) -->
