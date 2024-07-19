@@ -3,7 +3,7 @@
 
 # Warrior Medals
 
-Are author medals too easy for you, but Champion medals still seem out of reach? Are you looking for something in-between?
+Are author medals too easy for you, but Champion medals still seem out of reach? Do you need something in-between?
 
 This is of course inspired by the [Champion Medals](https://openplanet.dev/plugin/championmedals) plugin. Warrior medals are available for every official campaign (including training and the TMO discoveries) and every Track of the Day. Warrior medals may also be added for custom campaigns by request from the campaign's author/maintainer. [Message me on Discord](https://discord.gg/uu9kUZGte6) to request Warrior medals for your campaign.
 
@@ -56,3 +56,5 @@ def get_warrior_time(author_time: int, world_record: int, totd: bool = False) ->
 <!-- ![Version](https://img.shields.io/badge/dynamic/json?query=version&url=https%3A%2F%2Fopenplanet.dev%2Fapi%2Fplugin%2F___&label=Version&color=red) -->
 <!-- ![Game Maniaplanet](https://img.shields.io/badge/Game-Maniaplanet_4-blue) -->
 <!-- ![Game Turbo](https://img.shields.io/badge/Game-Turbo-blue) -->
+
+![image](images/warrior-medals.png)
