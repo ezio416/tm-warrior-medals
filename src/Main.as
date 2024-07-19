@@ -21,7 +21,6 @@ void Main() {
         yield();
 
         if (!S_Enabled) {
-            pb = uint(-1);
             wasInMap = false;
             continue;
         }
@@ -60,7 +59,7 @@ void Render() {
     if (!UI::IsOverlayShown())
         flags |= UI::WindowFlags::NoMove;
 
-    if (UI::Begin(title, S_Enabled, flags)) {
+    if (UI::Begin(title + "###window-main-" + Meta::ExecutingPlugin().ID, S_Enabled, flags)) {
         const uint warrior = map.custom > 0 ? map.custom : map.warrior;
         const bool delta = S_Delta && pb != uint(-1);
 
