@@ -13,7 +13,7 @@ Medals may be manually adjusted due to physics changes or for being more difficu
 
 There are currently no plans to add any other medals, though I'm not necessarily opposed to the idea. With enough user requests I may add another medal, but you must also suggest a good name for it, and the change will not happen quickly.
 
-This plugin does not collect any of your personal information. This is solely for your own personal use.
+This plugin does not collect any of your personal information. This is solely for your own personal use. Please feel free to look through the source code on [Github](https://github.com/ezio416/tm-warrior-medals) to verify this for yourself.
 
 Seasonal campaign:
 -
