@@ -3,6 +3,7 @@ name = "Warrior Medals"
 author = "Ezio"
 category = "Race"
 version = "0.1.0"
+siteid = 590
 
 [script]
 module = "WarriorMedals"
