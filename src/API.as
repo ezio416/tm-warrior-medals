@@ -3,6 +3,7 @@
 
 const string apiUrl  = "https://e416.dev/api/tm/warrior";
 bool         getting = false;
+dictionary@  missing = dictionary();
 
 void GetMapInfoAsync() {
     CTrackMania@ App = cast<CTrackMania@>(GetApp());
@@ -19,6 +20,13 @@ void GetMapInfoAsync(const string &in uid) {
 
     while (getting)
         yield();
+
+    if (missing.Exists(uid)) {
+        if (Time::Stamp < int64(missing[uid]))
+            return;
+
+        missing.Delete(uid);
+    }
 
     if (maps.Exists(uid))  // safeguard in case multiple things call this at once
         return;
@@ -51,8 +59,10 @@ void GetMapInfoAsync(const string &in uid) {
         maps[uid] = @map;
 
         trace("got map info for " + uid);
-    } else
+    } else {
         warn("map info not found for " + uid);
+        missing[uid] = Time::Stamp + 600;  // wait 10 minutes to check map again
+    }
 
     getting = false;
 }
