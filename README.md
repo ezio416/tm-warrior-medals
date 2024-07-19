@@ -54,7 +54,7 @@ def get_warrior_time(author_time: int, world_record: int, totd: bool = False) ->
 
 Exports:
 -
-Please use this plugin as a dependency! While it's useful on its own, I would love to see integration in some more popular plugins.
+Please use this plugin as a dependency! While it's useful on its own, I would love to see integration in some more popular plugins. Include this in your `info.toml`: `optional_dependencies = [ "WarriorMedals" ]`
 
 `uint GetWMTime()`
 `uint GetWMTime(const string &in uid)`\
