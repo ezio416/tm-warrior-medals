@@ -9,7 +9,7 @@ Are author medals too easy for you, but Champion medals still seem out of reach?
 
 This is of course inspired by the [Champion Medals](https://openplanet.dev/plugin/championmedals) plugin. Warrior medals are available for every official campaign (including training and the TMO discoveries) and every Track of the Day. Warrior medals may also be added for custom campaigns by request from the campaign's author/maintainer. [Message me on Discord](https://discord.gg/uu9kUZGte6) to request Warrior medals for your campaign.
 
-Medals may be manually adjusted due to physics changes or for being more difficult than they should be. They will only ever be adjusted to be easier, not more difficult. [Message me on Discord](https://discord.gg/uu9kUZGte6) or [create a GitHub issue](https://github.com/ezio416/tm-warrior-medals/issues) if you feel like a Warrior medal does not make sense in some way. Do not ask for Warrior medals to be harder - grind for the Champion medal instead.
+Medals may be manually adjusted due to physics changes or for being more difficult than they should be. [Message me on Discord](https://discord.gg/uu9kUZGte6) or [create a GitHub issue](https://github.com/ezio416/tm-warrior-medals/issues) if you feel like a Warrior medal does not make sense in some way. Do not ask for Warrior medals to be harder - grind for the Champion medal instead.
 
 There are currently no plans to add any other medals, though I'm not necessarily opposed to the idea. With enough user requests I may add another medal, but you must also suggest a good name for it, and the change will not happen quickly.
 
