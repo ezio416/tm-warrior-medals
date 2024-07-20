@@ -35,6 +35,7 @@ Track of the Day:
     - 1/8 of the way between author and world record
     - otherwise 1 ms faster than author
 - much more lenient than the seasonal campaign as these authors like to hunt their times
+- does not account for Champion medal times, so it may be equal or faster
 - example (arbitrary numbers):
 
     |Author|World Record|Warrior|

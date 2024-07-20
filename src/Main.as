@@ -1,7 +1,7 @@
 // c 2024-07-17
 // m 2024-07-19
 
-const string color = "\\$3CF";
+const string color = "\\$3CF";  // 0.2, 0.8, 1.0
 UI::Texture@ icon32;
 dictionary@  maps  = dictionary();
 uint         pb    = uint(-1);
