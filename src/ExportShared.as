@@ -1,6 +1,9 @@
 // c 2024-07-21
 // m 2024-07-21
 
+/*
+Exports from the Warrior Medals plugin.
+*/
 namespace WarriorMedals {
     /*
     Simple function for checking if a given Json::Value@ is of the correct type.

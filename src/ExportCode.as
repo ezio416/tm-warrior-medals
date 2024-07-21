@@ -1,6 +1,9 @@
 // c 2024-07-17
 // m 2024-07-21
 
+/*
+Exports from the Warrior Medals plugin.
+*/
 namespace WarriorMedals {
     /*
     Returns the plugin's main color as a string.
@@ -44,7 +47,7 @@ namespace WarriorMedals {
     Returns all cached map data.
     Keys are map UIDs and values are of type WarriorMedals::Map@.
     */
-    dictionary@ GetMaps() {
+    const dictionary@ GetMaps() {
         return maps;
     }
 
