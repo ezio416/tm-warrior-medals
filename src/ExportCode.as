@@ -22,7 +22,7 @@ namespace WarriorMedals {
     /*
     Returns the Warrior medal icon (32x32).
     */
-    UI::Texture@ GetIcon32() {
+    const UI::Texture@ GetIcon32() {
         if (icon32 is null) {
             IO::FileSource file("assets/warrior_32.png");
             @icon32 = UI::LoadTexture(file.Read(file.Size()));
@@ -34,7 +34,7 @@ namespace WarriorMedals {
     /*
     Returns the Warrior medal icon (512x512).
     */
-    UI::Texture@ GetIcon512() {
+    const UI::Texture@ GetIcon512() {
         if (icon512 is null) {
             IO::FileSource file("assets/warrior_512.png");
             @icon512 = UI::LoadTexture(file.Read(file.Size()));

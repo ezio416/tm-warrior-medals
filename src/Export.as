@@ -18,12 +18,12 @@ namespace WarriorMedals {
     /*
     Returns the Warrior medal icon (32x32).
     */
-    import UI::Texture@ GetIcon32() from "WarriorMedals";
+    import const UI::Texture@ GetIcon32() from "WarriorMedals";
 
     /*
     Returns the Warrior medal icon (512x512).
     */
-    import UI::Texture@ GetIcon512() from "WarriorMedals";
+    import const UI::Texture@ GetIcon512() from "WarriorMedals";
 
     /*
     Returns all cached map data.

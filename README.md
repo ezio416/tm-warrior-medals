@@ -62,8 +62,8 @@ Please use this plugin as a dependency! While it's useful on its own, I would lo
 `vec3 GetColorVec()`\
 Returns the plugin's main color as a string or a vec3.
 
-`UI::Texture@ GetIcon32()`\
-`UI::Texture@ GetIcon512()`\
+`const UI::Texture@ GetIcon32()`\
+`const UI::Texture@ GetIcon512()`\
 Returns the Warrior medal icon with a size of 32x32 or 512x512.
 
 `const dictionary@ GetMaps()`\
