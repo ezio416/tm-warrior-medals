@@ -12,6 +12,8 @@ const string title       = colorStr + Icons::Circle + "\\$G Warrior Medals";
 const string windowTitle = title + "###window-main-" + Meta::ExecutingPlugin().ID;
 
 void Main() {
+    startnew(GetAllMapInfosAsync);
+
     WarriorMedals::GetIcon32();
 
     startnew(PBLoop);

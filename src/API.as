@@ -1,9 +1,43 @@
 // c 2024-07-18
-// m 2024-07-19
+// m 2024-07-21
 
-const string apiUrl  = "https://e416.dev/api/tm/warrior";
-bool         getting = false;
-dictionary@  missing = dictionary();
+const string e416devApiUrl = "https://e416.dev/api";
+bool         getting       = false;
+const string githubUrl     = "https://raw.githubusercontent.com/ezio416/warrior-medal-times/main/warriors.json";
+dictionary@  missing       = dictionary();
+
+void GetAllMapInfosAsync() {
+    getting = true;
+
+    Net::HttpRequest@ req = Net::HttpGet(githubUrl);
+    while (!req.Finished())
+        yield();
+
+    const int respCode = req.ResponseCode();
+    if (respCode != 200) {
+        error("GetAllMapInfosAsync: code: " + respCode + " | msg: " + req.String().Replace("\n", " "));
+        getting = false;
+        return;
+    }
+
+    Json::Value@ data = req.Json();
+    if (!CheckJsonType(data, Json::Type::Object, "data")) {
+        getting = false;
+        return;
+    }
+
+    yield();
+
+    string[]@ uids = data.GetKeys();
+    for (uint i = 0; i < uids.Length; i++) {
+        const string uid = uids[i];
+
+        Map@ map = Map(data[uid]);
+        maps[uid] = @map;
+    }
+
+    getting = false;
+}
 
 void GetMapInfoAsync() {
     CTrackMania@ App = cast<CTrackMania@>(GetApp());
@@ -35,7 +69,7 @@ void GetMapInfoAsync(const string &in uid) {
 
     trace("getting map info for " + uid);
 
-    Net::HttpRequest@ req = Net::HttpGet(apiUrl + "?uid=" + uid);
+    Net::HttpRequest@ req = Net::HttpGet(e416devApiUrl + "/tm/warrior?uid=" + uid);
     while (!req.Finished())
         yield();
 
