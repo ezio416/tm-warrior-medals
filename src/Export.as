@@ -29,7 +29,7 @@ namespace WarriorMedals {
     Returns all cached map data.
     Keys are map UIDs and values are of type WarriorMedals::Map@.
     */
-    import dictionary@ GetMaps() from "WarriorMedals";
+    import const dictionary@ GetMaps() from "WarriorMedals";
 
     /*
     Gets the warrior medal time for the current map.

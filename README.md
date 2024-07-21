@@ -66,7 +66,7 @@ Returns the plugin's main color as a string or a vec3.
 `UI::Texture@ GetIcon512()`\
 Returns the Warrior medal icon with a size of 32x32 or 512x512.
 
-`dictionary@ GetMaps()`\
+`const dictionary@ GetMaps()`\
 Returns all cached map data.\
 Keys are map UIDs and values are of type `WarriorMedals::Map@`.
 
