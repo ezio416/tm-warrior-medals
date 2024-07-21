@@ -21,7 +21,7 @@ void GetAllMapInfosAsync() {
     }
 
     Json::Value@ data = req.Json();
-    if (!CheckJsonType(data, Json::Type::Object, "data")) {
+    if (!WarriorMedals::CheckJsonType(data, Json::Type::Object, "data")) {
         getting = false;
         return;
     }
@@ -32,7 +32,7 @@ void GetAllMapInfosAsync() {
     for (uint i = 0; i < uids.Length; i++) {
         const string uid = uids[i];
 
-        Map@ map = Map(data[uid]);
+        WarriorMedals::Map@ map = WarriorMedals::Map(data[uid]);
         maps[uid] = @map;
     }
 
@@ -88,8 +88,8 @@ void GetMapInfoAsync(const string &in uid) {
     }
 
     Json::Value@ mapInfo = req.Json();
-    if (CheckJsonType(mapInfo, Json::Type::Object, "mapInfo") && mapInfo.GetKeys().Length > 0) {
-        Map@ map = Map(mapInfo);
+    if (WarriorMedals::CheckJsonType(mapInfo, Json::Type::Object, "mapInfo") && mapInfo.GetKeys().Length > 0) {
+        WarriorMedals::Map@ map = WarriorMedals::Map(mapInfo);
         maps[uid] = @map;
 
         trace("got map info for " + uid);

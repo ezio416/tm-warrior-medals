@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2024-07-19
+// m 2024-07-21
 
 namespace WarriorMedals {
     /*
@@ -21,6 +21,12 @@ namespace WarriorMedals {
     Returns the Warrior medal icon (512x512).
     */
     import UI::Texture@ GetIcon512() from "WarriorMedals";
+
+    /*
+    Returns all cached map data.
+    Keys are map UIDs and values are of type WarriorMedals::Map@.
+    */
+    import dictionary@ GetMaps() from "WarriorMedals";
 
     /*
     Gets the warrior medal time for the current map.

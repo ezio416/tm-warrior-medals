@@ -8,3 +8,4 @@ siteid = 590
 [script]
 module = "WarriorMedals"
 exports = [ "src/Export.as" ]
+shared_exports = [ "src/ExportShared.as" ]

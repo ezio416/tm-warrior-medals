@@ -50,7 +50,7 @@ void Render() {
     if (!maps.Exists(uid))
         return;
 
-    Map@ map = cast<Map@>(maps[uid]);
+    WarriorMedals::Map@ map = cast<WarriorMedals::Map@>(maps[uid]);
     if (map is null)
         return;
 

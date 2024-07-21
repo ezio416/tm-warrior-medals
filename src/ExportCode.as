@@ -41,6 +41,14 @@ namespace WarriorMedals {
     }
 
     /*
+    Returns all cached map data.
+    Keys are map UIDs and values are of type WarriorMedals::Map@.
+    */
+    dictionary@ GetMaps() {
+        return maps;
+    }
+
+    /*
     Gets the warrior medal time for the current map.
     If there is an error or the map does not have a Warrior medal, returns 0.
     This does not query the API for a time, so the plugin must already have it cached for this to return a time.

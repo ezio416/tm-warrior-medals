@@ -1,22 +1,5 @@
 // c 2024-07-18
-// m 2024-07-19
-
-bool CheckJsonType(Json::Value@ value, Json::Type desired, const string &in name, bool warning = true) {
-    if (value is null) {
-        if (warning)
-            warn(name + " is null");
-        return false;
-    }
-
-    const Json::Type type = value.GetType();
-    if (type != desired) {
-        if (warning)
-            warn(name + " is a(n) " + tostring(type) + ", not a(n) " + tostring(desired));
-        return false;
-    }
-
-    return true;
-}
+// m 2024-07-21
 
 uint GetPB() {
     return GetPB(cast<CTrackMania@>(GetApp()).RootMap);

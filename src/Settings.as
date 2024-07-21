@@ -45,7 +45,7 @@ void Settings_Debug() {
         UI::ListClipper clipper(uids.Length);
         while (clipper.Step()) {
             for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++) {
-                Map@ map = cast<Map@>(maps[uids[i]]);
+                WarriorMedals::Map@ map = cast<WarriorMedals::Map@>(maps[uids[i]]);
 
                 UI::TableNextRow();
 
