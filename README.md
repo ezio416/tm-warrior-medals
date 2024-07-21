@@ -58,19 +58,27 @@ Exports:
 -
 Please use this plugin as a dependency! While it's useful on its own, I would love to see integration in some more popular plugins. Include this in your `info.toml`: `optional_dependencies = [ "WarriorMedals" ]`
 
-`uint GetWMTime()`
-`uint GetWMTime(const string &in uid)`\
-Gets the warrior medal time for the current map or given map UID.
-If there is an error or the map does not have a Warrior medal, returns 0.
-This does not query the API for a time, so the plugin must already have it cached for this to return a time.
-Only use these if you need a synchronous function.
+`string GetColorStr()`\
+`vec3 GetColorVec()`\
+Returns the plugin's main color as a string or a vec3.
 
-`uint GetWMTimeAsync()`
+`UI::Texture@ GetIcon32()`\
+`UI::Texture@ GetIcon512()`\
+Returns the Warrior medal icon with a size of 32x32 or 512x512.
+
+`uint GetWMTime()`\
+`uint GetWMTime(const string &in uid)`\
+Returns the Warrior medal time for the current map or given map UID.
+If there is an error or the map does not have a Warrior medal, returns 0.
+Does not query the API for a time, so the plugin must already have it cached for this to return a time.
+Only use this if you need a synchronous function.
+
+`uint GetWMTimeAsync()`\
 `uint GetWMTimeAsync(const string &in uid)`\
-Gets the warrior medal time for the current map or given map UID.
+Returns the Warrior medal time for the current map or given map UID.
 If there is an error or the map does not have a Warrior medal, returns 0.
 Queries the API for a medal time if the plugin does not have it cached.
-Use these instead of the synchronous versions if possible.
+Use this instead of the synchronous version if possible.
 
 <!-- ![Signed](https://img.shields.io/badge/Signed-Yes-00AA00) -->
 <!-- ![Signed](https://img.shields.io/badge/Signed-School_Mode-CC1199) -->

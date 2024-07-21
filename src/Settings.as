@@ -1,20 +1,28 @@
 // c 2024-07-17
-// m 2024-07-19
+// m 2024-07-21
 
-[Setting category="General" name="Enabled"]
-bool S_Enabled = true;
+[Setting hidden] bool S_Window       = true;
+[Setting hidden] bool S_HideWithGame = true;
+[Setting hidden] bool S_HideWithOP   = false;
+[Setting hidden] bool S_Delta        = true;
 
-[Setting category="General" name="Show/hide with game UI"]
-bool S_HideWithGame = true;
+[SettingsTab name="Medal Window" icon="Circle"]
+void Settings_MedalWindow() {
+    if (UI::Button("Reset to default")) {
+        Meta::PluginSetting@[]@ settings = Meta::ExecutingPlugin().GetSettings();
 
-[Setting category="General" name="Show/hide with Openplanet UI"]
-bool S_HideWithOP = false;
+        for (uint i = 0; i < settings.Length; i++)
+            settings[i].Reset();
+    }
 
-[Setting category="General" name="Show PB delta"]
-bool S_Delta = true;
+    S_Window       = UI::Checkbox("Show Warrior medal window",    S_Window);
+    S_HideWithGame = UI::Checkbox("Show/hide with game UI",       S_HideWithGame);
+    S_HideWithOP   = UI::Checkbox("Show/hide with Openplanet UI", S_HideWithOP);
+    S_Delta        = UI::Checkbox("Show PB delta",                S_Delta);
+}
 
-[SettingsTab name="Debug" icon="Bug"]
-void Debug() {
+[SettingsTab name="Debug" icon="Bug" order=1]
+void Settings_Debug() {
     string[]@ uids = maps.GetKeys();
 
     UI::Text("maps: " + uids.Length);

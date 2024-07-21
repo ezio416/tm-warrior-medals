@@ -3,6 +3,26 @@
 
 namespace WarriorMedals {
     /*
+    Returns the plugin's main color as a string.
+    */
+    import string GetColorStr() from "WarriorMedals";
+
+    /*
+    Returns the plugin's main color as a vec3.
+    */
+    import vec3 GetColorVec() from "WarriorMedals";
+
+    /*
+    Returns the Warrior medal icon (32x32).
+    */
+    import UI::Texture@ GetIcon32() from "WarriorMedals";
+
+    /*
+    Returns the Warrior medal icon (512x512).
+    */
+    import UI::Texture@ GetIcon512() from "WarriorMedals";
+
+    /*
     Gets the warrior medal time for the current map.
     If there is an error or the map does not have a Warrior medal, returns 0.
     This does not query the API for a time, so the plugin must already have it cached for this to return a time.

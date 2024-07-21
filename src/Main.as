@@ -1,16 +1,18 @@
 // c 2024-07-17
-// m 2024-07-19
+// m 2024-07-21
 
-const string color = "\\$3CF";  // 0.2, 0.8, 1.0
+const string colorStr    = "\\$3CF";
+const vec3   colorVec    = vec3(0.2f, 0.8f, 1.0f);
 UI::Texture@ icon32;
-dictionary@  maps  = dictionary();
-uint         pb    = uint(-1);
-const float  scale = UI::GetScale();
-const string title = color + Icons::Circle + "\\$G Warrior Medals";
+UI::Texture@ icon512;
+dictionary@  maps        = dictionary();
+uint         pb          = uint(-1);
+const float  scale       = UI::GetScale();
+const string title       = colorStr + Icons::Circle + "\\$G Warrior Medals";
+const string windowTitle = title + "###window-main-" + Meta::ExecutingPlugin().ID;
 
 void Main() {
-    IO::FileSource iconFile("assets/warrior_32.png");
-    @icon32 = UI::LoadTexture(iconFile.Read(iconFile.Size()));
+    WarriorMedals::GetIcon32();
 
     startnew(PBLoop);
 
@@ -19,11 +21,6 @@ void Main() {
 
     while (true) {
         yield();
-
-        if (!S_Enabled) {
-            wasInMap = false;
-            continue;
-        }
 
         inMap = InMap();
 
@@ -38,7 +35,7 @@ void Main() {
 
 void Render() {
     if (false
-        || !S_Enabled
+        || !S_Window
         || (S_HideWithGame && !UI::IsGameUIVisible())
         || (S_HideWithOP && !UI::IsOverlayShown())
         || icon32 is null
@@ -59,7 +56,7 @@ void Render() {
     if (!UI::IsOverlayShown())
         flags |= UI::WindowFlags::NoMove;
 
-    if (UI::Begin(title + "###window-main-" + Meta::ExecutingPlugin().ID, S_Enabled, flags)) {
+    if (UI::Begin(windowTitle, S_Window, flags)) {
         const uint warrior = map.custom > 0 ? map.custom : map.warrior;
         const bool delta = S_Delta && pb != uint(-1);
 
@@ -87,17 +84,13 @@ void Render() {
 }
 
 void RenderMenu() {
-    if (UI::MenuItem(title, "", S_Enabled))
-        S_Enabled = !S_Enabled;
+    if (UI::MenuItem(title, "", S_Window))
+        S_Window = !S_Window;
 }
 
 void PBLoop() {
     while (true) {
         sleep(500);
-
-        if (!S_Enabled)
-            continue;
-
         pb = GetPB();
     }
 }

@@ -1,7 +1,45 @@
 // c 2024-07-17
-// m 2024-07-19
+// m 2024-07-21
 
 namespace WarriorMedals {
+    /*
+    Returns the plugin's main color as a string.
+    */
+    string GetColorStr() {
+        return colorStr;
+    }
+
+    /*
+    Returns the plugin's main color as a vec3.
+    */
+    vec3 GetColorVec() {
+        return colorVec;
+    }
+
+    /*
+    Returns the Warrior medal icon (32x32).
+    */
+    UI::Texture@ GetIcon32() {
+        if (icon32 is null) {
+            IO::FileSource file("assets/warrior_32.png");
+            @icon32 = UI::LoadTexture(file.Read(file.Size()));
+        }
+
+        return icon32;
+    }
+
+    /*
+    Returns the Warrior medal icon (512x512).
+    */
+    UI::Texture@ GetIcon512() {
+        if (icon512 is null) {
+            IO::FileSource file("assets/warrior_512.png");
+            @icon512 = UI::LoadTexture(file.Read(file.Size()));
+        }
+
+        return icon512;
+    }
+
     /*
     Gets the warrior medal time for the current map.
     If there is an error or the map does not have a Warrior medal, returns 0.
