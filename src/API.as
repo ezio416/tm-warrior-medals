@@ -62,7 +62,7 @@ void GetMapInfoAsync(const string &in uid) {
         missing.Delete(uid);
     }
 
-    if (maps.Exists(uid))  // safeguard in case multiple things call this at once
+    if (maps.Exists(uid))
         return;
 
     getting = true;
