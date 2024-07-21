@@ -1,5 +1,5 @@
 # c 2023-12-28
-# m 2024-01-22
+# m 2024-07-21
 
 import os
 from zipfile import ZipFile, ZIP_DEFLATED
@@ -12,6 +12,12 @@ def main():
     if not os.path.isdir(src):
         print('src folder missing!')
         return
+
+    has_assets: bool = True
+    assets: str = dir + '/assets'
+    if not os.path.isdir(assets):
+        print('assets folder missing!')
+        has_assets = False
 
     license: str = dir + '/LICENSE.txt'
     if not os.path.isfile(license):
@@ -28,12 +34,16 @@ def main():
 
     for line in lines:
         if 'version' in line:
-            zipname: str = dir.split('\\')[-1] + '_' + line.split(' ')[2].replace('"', '').replace('\n', '') + '.op'
+            zip_name: str = dir.split('\\')[-1] + '_' + line.split(' ')[2].replace('"', '').replace('\n', '') + '.op'
             break
 
-    new_zipname: str = dir + '/versions/unsigned/' + zipname
+    new_zip_name: str = dir + '/versions/unsigned/' + zip_name
 
-    with ZipFile(zipname, 'w', ZIP_DEFLATED) as z:
+    if os.path.isfile(new_zip_name):
+        print(zip_name + ' already exists in unsigned folder!')
+        return
+
+    with ZipFile(zip_name, 'w', ZIP_DEFLATED) as z:
         z.write(info, os.path.basename(info))
         z.write(license, os.path.basename(license))
 
@@ -42,11 +52,13 @@ def main():
                 abspath: str = os.path.join(dir, file)
                 z.write(abspath, os.path.relpath(abspath, os.path.join(src, '..')))
 
-    if os.path.isfile(new_zipname):
-        print(zipname + ' already exists in unsigned folder!')
-        return
+        if has_assets:
+            for dir, subdirs, files in os.walk(assets):
+                for file in files:
+                    abspath: str = os.path.join(dir, file)
+                    z.write(abspath, os.path.relpath(abspath, os.path.join(assets, '..')))
 
-    os.rename(zipname, new_zipname)
+    os.rename(zip_name, new_zip_name)
 
 
 if __name__ == '__main__':
