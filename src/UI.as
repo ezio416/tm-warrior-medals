@@ -170,13 +170,13 @@ void DrawOverTotdPage(CGameManialinkPage@ Page) {
         const float h = Draw::GetHeight();
         const float unit = (w / h < 16.0f / 9.0f) ? w / 320.0f : h / 180.0f;
         const vec2 offset = vec2(-118.2f, 1.2f);
-        const vec2 rowOffset = vec2(29.1f, 0.0f);
-        const vec2 columnOffset = vec2(-2.02f, -11.5f);
+        const vec2 columnOffset = vec2(29.1f, 0.0f);
+        const vec2 rowOffset = vec2(-2.02f, -11.5f);
         const vec2 coords = vec2(w * 0.5f, h * 0.5f)
             + vec2(unit, -unit) * (
                 offset
-                + ((i % 7) * rowOffset)
-                + ((i / 7) * columnOffset)
+                + ((i % 7) * columnOffset)
+                + ((i / 7) * rowOffset)
             )
         ;
 
