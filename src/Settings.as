@@ -1,5 +1,8 @@
 // c 2024-07-17
-// m 2024-07-21
+// m 2024-07-22
+
+[Setting category="General" name="Display medal icons in UI"]
+bool S_DrawOverUI = true;
 
 [Setting hidden] bool S_Window       = true;
 [Setting hidden] bool S_HideWithGame = true;

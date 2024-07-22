@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2024-07-21
+// m 2024-07-22
 
 const string colorStr    = "\\$3CF";
 const vec3   colorVec    = vec3(0.2f, 0.8f, 1.0f);
@@ -88,6 +88,10 @@ void Render() {
 void RenderMenu() {
     if (UI::MenuItem(title, "", S_Window))
         S_Window = !S_Window;
+}
+
+void Update(float) {
+    DrawOverUI();
 }
 
 void PBLoop() {
