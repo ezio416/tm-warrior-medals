@@ -158,8 +158,6 @@ void DrawOverTraining(CGameManialinkPage@ Page) {
         if (MedalStack is null || !MedalStack.Visible)
             continue;
 
-        bool club = true;
-
         const float w = Draw::GetWidth();
         const float h = Draw::GetHeight();
         const float unit = (w / h < 16.0f / 9.0f) ? w / 320.0f : h / 180.0f;
