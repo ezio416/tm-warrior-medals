@@ -9,7 +9,7 @@ void DrawOverUI() {
             && !S_MedalsSeasonalCampaign
             && !S_MedalsClubCampaign
             // && !S_MedalsTotd
-            // && !S_MedalsTraining
+            && !S_MedalsTraining
         )
     )
         return;
@@ -44,10 +44,12 @@ void DrawOverUI() {
         return;
 
     CGameManialinkPage@ Campaign;
+    CGameManialinkPage@ Training;
 
     for (uint i = 0; i < Title.UILayers.Length; i++) {
         if (true
             && Campaign !is null
+            && Training !is null
         )
             break;
 
@@ -59,11 +61,21 @@ void DrawOverUI() {
         )
             continue;
 
-        if ((S_MedalsSeasonalCampaign || S_MedalsClubCampaign) && Layer.ManialinkPageUtf8.Trim().SubStr(17, 20) == "Page_CampaignDisplay")
+        const string pageName = Layer.ManialinkPageUtf8.Trim();
+
+        if ((S_MedalsSeasonalCampaign || S_MedalsClubCampaign) && pageName.SubStr(17, 20) == "Page_CampaignDisplay") {
             @Campaign = Layer.LocalPage;
+            continue;
+        }
+
+        if (S_MedalsTraining && pageName.SubStr(17, 20) == "Page_TrainingDisplay") {
+            @Training = Layer.LocalPage;
+            continue;
+        }
     }
 
     DrawOverCampaign(Campaign);
+    DrawOverTraining(Training);
 }
 
 void DrawOverCampaign(CGameManialinkPage@ Page) {
@@ -113,6 +125,45 @@ void DrawOverCampaign(CGameManialinkPage@ Page) {
         const float h = Draw::GetHeight();
         const float unit = (w / h < 16.0f / 9.0f) ? w / 320.0f : h / 180.0f;
         const vec2 offset = vec2(-99.8f, 1.05f) + (club ? vec2(0.4f, 2.51f) : vec2());
+        const vec2 rowOffset = vec2(-2.02f, -11.5f);
+        const vec2 columnOffset = vec2(36.0f, 0.0f);
+        const vec2 coords = vec2(w * 0.5f, h * 0.5f)
+            + vec2(unit, -unit) * (
+                offset
+                + ((i % 5) * rowOffset)
+                + ((i / 5) * columnOffset)
+            )
+        ;
+
+        nvg::BeginPath();
+        nvg::FillPaint(nvg::TexturePattern(coords, vec2(116.0f), 0.0f, icon, 1.0f));
+        nvg::Fill();
+    }
+}
+
+void DrawOverTraining(CGameManialinkPage@ Page) {
+    if (Page is null)
+        return;
+
+    CGameManialinkFrame@ Maps = cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-maps"));
+    if (Maps is null)
+        return;
+
+    for (uint i = 0; i < Maps.Controls.Length; i++) {
+        CGameManialinkFrame@ Map = cast<CGameManialinkFrame@>(Maps.Controls[i]);
+        if (Map is null)
+            continue;
+
+        CGameManialinkFrame@ MedalStack = cast<CGameManialinkFrame@>(Map.GetFirstChild("frame-medalstack"));
+        if (MedalStack is null || !MedalStack.Visible)
+            continue;
+
+        bool club = true;
+
+        const float w = Draw::GetWidth();
+        const float h = Draw::GetHeight();
+        const float unit = (w / h < 16.0f / 9.0f) ? w / 320.0f : h / 180.0f;
+        const vec2 offset = vec2(-99.4f, 3.56f);
         const vec2 rowOffset = vec2(-2.02f, -11.5f);
         const vec2 columnOffset = vec2(36.0f, 0.0f);
         const vec2 coords = vec2(w * 0.5f, h * 0.5f)
