@@ -1,6 +1,7 @@
 // c 2024-07-22
 // m 2024-07-22
 
+bool addedThing = false;
 bool nodExplored = false;
 
 void DrawOverUI() {
@@ -49,34 +50,55 @@ void DrawOverUI() {
                 if (Map is null)
                     continue;
 
-                nvg::BeginPath();
-                nvg::FillColor(vec4(colorVec, 1.0f));
-                // nvg::Circle(Map.AbsolutePosition_V3, 20.0f);
-                nvg::Circle(RegularCampaignMedalCoords(j), 10.0f);
-                nvg::Fill();
+                // CGameManialinkQuad@ MedalStack = cast<CGameManialinkQuad@>(Map.GetFirstChild("frame-medalstack"));
+                // if (MedalStack is null)
+                //     continue;
+
+                // CControlFrame@ StackControl = cast<CControlFrame@>(MedalStack.Control);
+                // if (StackControl is null)
+                //     continue;
+
+                // if (!addedThing) {
+                //     print("adding thing");
+
+                //     StackControl.AddLabel(
+                //         "label-id-" + i + j,
+                //         Map.AbsolutePosition,
+                //         "hello",
+                //         CControlStyle()
+                //     );
+
+                //     addedThing = true;
+                // }
+
+                // nvg::BeginPath();
+                // nvg::FillColor(vec4(colorVec, 1.0f));
+                // // nvg::Circle(Map.AbsolutePosition_V3, 20.0f);
+                // nvg::Circle(RegularCampaignMedalCoords(j), 10.0f);
+                // nvg::Fill();
             }
         }
     }
 }
 
-vec2 MenuCoordsToScreenSpace(vec2 coords) {
-    float w = Draw::GetWidth();
-    float h = Draw::GetHeight();
+// vec2 MenuCoordsToScreenSpace(vec2 coords) {
+//     float w = Draw::GetWidth();
+//     float h = Draw::GetHeight();
 
-    float unit = (w / h < 16.0f / 9.0f) ? w / 320.0f : h / 180.0f;
+//     float unit = (w / h < 16.0f / 9.0f) ? w / 320.0f : h / 180.0f;
 
-    return vec2(Draw::GetWidth() * 0.5f, Draw::GetHeight() * 0.5f) + coords * vec2(unit, -unit);
-}
+//     return vec2(Draw::GetWidth() * 0.5f, Draw::GetHeight() * 0.5f) + coords * vec2(unit, -unit);
+// }
 
-vec2 RegularCampaignMedalCoords(uint index) {
-    uint row = index % 5;
-    uint column = index / 5;
+// vec2 RegularCampaignMedalCoords(uint index) {
+//     uint row = index % 5;
+//     uint column = index / 5;
 
-    return MenuCoordsToScreenSpace(
-        topLeft + (row * dx) + (column * dy) + vec2(2.2f, -7.8f)
-    );
-}
+//     return MenuCoordsToScreenSpace(
+//         topLeft + (row * dx) + (column * dy) + vec2(2.2f, -7.8f)
+//     );
+// }
 
-const vec2 topLeft = vec2(-126.2056f, 0.25f);
-const vec2 dx      = vec2(-2.0277f,   -11.5f);
-const vec2 dy      = vec2(36.0f,      0.0f);
+// const vec2 topLeft = vec2(-126.2056f, 0.25f);
+// const vec2 dx      = vec2(-2.0277f,   -11.5f);
+// const vec2 dy      = vec2(36.0f,      0.0f);
