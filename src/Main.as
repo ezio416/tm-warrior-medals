@@ -1,20 +1,24 @@
 // c 2024-07-17
 // m 2024-07-22
 
-const string colorStr    = "\\$3CF";
-const vec3   colorVec    = vec3(0.2f, 0.8f, 1.0f);
-UI::Texture@ icon32;
-UI::Texture@ icon512;
-dictionary@  maps        = dictionary();
-uint         pb          = uint(-1);
-const float  scale       = UI::GetScale();
-const string title       = colorStr + Icons::Circle + "\\$G Warrior Medals";
-const string windowTitle = title + "###window-main-" + Meta::ExecutingPlugin().ID;
+const string  colorStr    = "\\$3CF";
+const vec3    colorVec    = vec3(0.2f, 0.8f, 1.0f);
+nvg::Texture@ icon;
+UI::Texture@  icon32;
+UI::Texture@  icon512;
+dictionary@   maps        = dictionary();
+uint          pb          = uint(-1);
+const float   scale       = UI::GetScale();
+const string  title       = colorStr + Icons::Circle + "\\$G Warrior Medals";
+const string  windowTitle = title + "###window-main-" + Meta::ExecutingPlugin().ID;
 
 void Main() {
     startnew(GetAllMapInfosAsync);
 
     WarriorMedals::GetIcon32();
+
+    IO::FileSource file("assets/warrior_512.png");
+    @icon = nvg::LoadTexture(file.Read(file.Size()));
 
     startnew(PBLoop);
 
@@ -85,13 +89,13 @@ void Render() {
     UI::End();
 }
 
+void RenderEarly() {
+    DrawOverUI();
+}
+
 void RenderMenu() {
     if (UI::MenuItem(title, "", S_Window))
         S_Window = !S_Window;
-}
-
-void Update(float) {
-    DrawOverUI();
 }
 
 void PBLoop() {

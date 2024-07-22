@@ -1,11 +1,15 @@
 // c 2024-07-22
 // m 2024-07-22
 
-bool addedThing = false;
-bool nodExplored = false;
-
 void DrawOverUI() {
-    if (!S_DrawOverUI)
+    if (false
+        || icon is null
+        || !S_MedalsInUI
+        || (true
+            && !S_MedalsSeasonalCampaign
+            && !S_MedalsTotd
+        )
+    )
         return;
 
     CTrackMania@ App = cast<CTrackMania@>(GetApp());
@@ -23,82 +27,41 @@ void DrawOverUI() {
         if (Layer is null)
             continue;
 
-        if (Layer.ManialinkPageUtf8.Trim().SubStr(17, 20) == "Page_CampaignDisplay") {
-            CGameManialinkPage@ Page = Layer.LocalPage;
-            if (Page is null || Page.ControlsCache.Length == 0)
-                return;
-
-            CGameManialinkFrame@ Global = cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-global"));
-            if (Global is null)
-                return;
-
-            CGameManialinkFrame@ Campaign = cast<CGameManialinkFrame@>(Global.GetFirstChild("frame-campaign"));
-            if (Campaign is null)
-                return;
-
-            CGameManialinkFrame@ Maps = cast<CGameManialinkFrame@>(Campaign.GetFirstChild("frame-maps"));
-            if (Maps is null)
-                return;
-
-            if (!nodExplored) {
-                ExploreNod("frame-maps", Maps);
-                nodExplored = true;
-            }
-
-            for (uint j = 0; j < Maps.Controls.Length; j++) {
-                CGameManialinkFrame@ Map = cast<CGameManialinkFrame@>(Maps.Controls[j]);
-                if (Map is null)
-                    continue;
-
-                // CGameManialinkQuad@ MedalStack = cast<CGameManialinkQuad@>(Map.GetFirstChild("frame-medalstack"));
-                // if (MedalStack is null)
-                //     continue;
-
-                // CControlFrame@ StackControl = cast<CControlFrame@>(MedalStack.Control);
-                // if (StackControl is null)
-                //     continue;
-
-                // if (!addedThing) {
-                //     print("adding thing");
-
-                //     StackControl.AddLabel(
-                //         "label-id-" + i + j,
-                //         Map.AbsolutePosition,
-                //         "hello",
-                //         CControlStyle()
-                //     );
-
-                //     addedThing = true;
-                // }
-
-                // nvg::BeginPath();
-                // nvg::FillColor(vec4(colorVec, 1.0f));
-                // // nvg::Circle(Map.AbsolutePosition_V3, 20.0f);
-                // nvg::Circle(RegularCampaignMedalCoords(j), 10.0f);
-                // nvg::Fill();
-            }
-        }
+        if (S_MedalsSeasonalCampaign && Layer.ManialinkPageUtf8.Trim().SubStr(17, 20) == "Page_CampaignDisplay")
+            DrawOverSeasonalCampaign(Layer.LocalPage);
     }
 }
 
-// vec2 MenuCoordsToScreenSpace(vec2 coords) {
-//     float w = Draw::GetWidth();
-//     float h = Draw::GetHeight();
+void DrawOverSeasonalCampaign(CGameManialinkPage@ Page) {
+    if (Page is null)
+        return;
 
-//     float unit = (w / h < 16.0f / 9.0f) ? w / 320.0f : h / 180.0f;
+    CGameManialinkFrame@ Maps = cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-maps"));
+    if (Maps is null)
+        return;
 
-//     return vec2(Draw::GetWidth() * 0.5f, Draw::GetHeight() * 0.5f) + coords * vec2(unit, -unit);
-// }
+    for (uint j = 0; j < Maps.Controls.Length; j++) {
+        CGameManialinkFrame@ Map = cast<CGameManialinkFrame@>(Maps.Controls[j]);
+        if (Map is null)
+            continue;
 
-// vec2 RegularCampaignMedalCoords(uint index) {
-//     uint row = index % 5;
-//     uint column = index / 5;
+        CGameManialinkFrame@ MedalStack = cast<CGameManialinkFrame@>(Map.GetFirstChild("frame-medalstack"));
+        if (MedalStack is null || !MedalStack.Visible)
+            continue;
 
-//     return MenuCoordsToScreenSpace(
-//         topLeft + (row * dx) + (column * dy) + vec2(2.2f, -7.8f)
-//     );
-// }
+        const float w = Draw::GetWidth();
+        const float h = Draw::GetHeight();
+        const float unit = (w / h < 16.0f / 9.0f) ? w / 320.0f : h / 180.0f;
+        const vec2 coords = vec2(w * 0.5f, h * 0.5f)
+            + vec2(unit, -unit) * (
+                vec2(-99.8f, 1.05f)
+                + ((j % 5) * vec2(-2.02f, -11.5f))
+                + ((j / 5) * vec2(36.0f, 0.0f))
+            )
+        ;
 
-// const vec2 topLeft = vec2(-126.2056f, 0.25f);
-// const vec2 dx      = vec2(-2.0277f,   -11.5f);
-// const vec2 dy      = vec2(36.0f,      0.0f);
+        nvg::BeginPath();
+        nvg::FillPaint(nvg::TexturePattern(coords, vec2(116.0f), 0.0f, icon, 1.0f));
+        nvg::Fill();
+    }
+}

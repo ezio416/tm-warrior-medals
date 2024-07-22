@@ -1,30 +1,44 @@
 // c 2024-07-17
 // m 2024-07-22
 
-[Setting category="General" name="Display medal icons in UI"]
-bool S_DrawOverUI = true;
-
 [Setting hidden] bool S_Window       = true;
 [Setting hidden] bool S_HideWithGame = true;
 [Setting hidden] bool S_HideWithOP   = false;
 [Setting hidden] bool S_Delta        = true;
-
 [SettingsTab name="Medal Window" icon="Circle"]
 void Settings_MedalWindow() {
-    if (UI::Button("Reset to default")) {
-        Meta::PluginSetting@[]@ settings = Meta::ExecutingPlugin().GetSettings();
+    S_Window = UI::Checkbox("Show Warrior medal window when playing", S_Window);
 
-        for (uint i = 0; i < settings.Length; i++)
-            settings[i].Reset();
+    if (S_Window) {
+        S_HideWithGame = UI::Checkbox("Show/hide with game UI",       S_HideWithGame);
+        S_HideWithOP   = UI::Checkbox("Show/hide with Openplanet UI", S_HideWithOP);
+        S_Delta        = UI::Checkbox("Show PB delta",                S_Delta);
     }
-
-    S_Window       = UI::Checkbox("Show Warrior medal window",    S_Window);
-    S_HideWithGame = UI::Checkbox("Show/hide with game UI",       S_HideWithGame);
-    S_HideWithOP   = UI::Checkbox("Show/hide with Openplanet UI", S_HideWithOP);
-    S_Delta        = UI::Checkbox("Show PB delta",                S_Delta);
 }
 
-[SettingsTab name="Debug" icon="Bug" order=1]
+[Setting hidden] bool S_MedalsInUI             = false;
+[Setting hidden] bool S_MedalsSeasonalCampaign = true;
+[Setting hidden] bool S_MedalsTotd             = true;
+[SettingsTab name="Medals in UI" icon="ListAlt" order=1]
+void Settings_MedalsInUI() {
+    UI::TextWrapped("Showing Warrior medal icons in the UI can be laggy, though it is a nice touch to see them more easily in a vanilla-looking way.");
+
+    S_MedalsInUI = UI::Checkbox("Show medals in UI", S_MedalsInUI);
+
+    if (S_MedalsInUI) {
+        UI::Separator();
+
+        UI::Text("\\$IMenu");
+        S_MedalsSeasonalCampaign = UI::Checkbox("Seasonal campaign", S_MedalsSeasonalCampaign);
+        // S_MedalsTotd             = UI::Checkbox("Track of the Day",  S_MedalsTotd);
+
+        // UI::Separator();
+
+        // UI::Text("\\$IIn-Game");
+    }
+}
+
+[SettingsTab name="Debug" icon="Bug" order=2]
 void Settings_Debug() {
     string[]@ uids = maps.GetKeys();
 
