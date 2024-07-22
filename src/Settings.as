@@ -19,7 +19,7 @@ void Settings_MedalWindow() {
 [Setting hidden] bool S_MedalsInUI             = false;
 [Setting hidden] bool S_MedalsSeasonalCampaign = true;
 [Setting hidden] bool S_MedalsClubCampaign     = true;
-// [Setting hidden] bool S_MedalsTotd             = true;
+[Setting hidden] bool S_MedalsTotd             = true;
 [Setting hidden] bool S_MedalsTraining         = true;
 [SettingsTab name="Medals in UI" icon="ListAlt" order=1]
 void Settings_MedalsInUI() {
@@ -33,7 +33,7 @@ void Settings_MedalsInUI() {
         UI::Text("\\$IMenu");
         S_MedalsSeasonalCampaign = UI::Checkbox("Seasonal campaign", S_MedalsSeasonalCampaign);
         S_MedalsClubCampaign     = UI::Checkbox("Club campaign",     S_MedalsClubCampaign);
-        // S_MedalsTotd             = UI::Checkbox("Track of the Day",  S_MedalsTotd);
+        S_MedalsTotd             = UI::Checkbox("Track of the Day",  S_MedalsTotd);
         S_MedalsTraining         = UI::Checkbox("Training",          S_MedalsTraining);
 
         // UI::Separator();
