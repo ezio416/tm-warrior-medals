@@ -33,6 +33,7 @@ void Settings_MedalsInUI() {
         UI::Text("\\$IMenu");
         S_MedalsSeasonalCampaign = UI::Checkbox("Seasonal campaign", S_MedalsSeasonalCampaign);
         S_MedalsClubCampaign     = UI::Checkbox("Club campaign",     S_MedalsClubCampaign);
+        HoverTooltipSetting("May be inaccurate if a club campaign shares a name with an official one.");
         S_MedalsTotd             = UI::Checkbox("Track of the Day",  S_MedalsTotd);
         S_MedalsTraining         = UI::Checkbox("Training",          S_MedalsTraining);
 
@@ -110,4 +111,16 @@ void Settings_Debug() {
         UI::PopStyleColor();
         UI::EndTable();
     }
+}
+
+void HoverTooltipSetting(const string &in msg, const string &in color = "666") {
+    UI::SameLine();
+    UI::Text("\\$" + color + Icons::QuestionCircle);
+    if (!UI::IsItemHovered())
+        return;
+
+    UI::SetNextWindowSize(int(Math::Min(Draw::MeasureString(msg).x, 400.0f)), 0.0f);
+    UI::BeginTooltip();
+    UI::TextWrapped(msg);
+    UI::EndTooltip();
 }
