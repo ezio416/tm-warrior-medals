@@ -61,6 +61,8 @@ namespace WarriorMedals {
     Data container for a map with a Warrior medal.
     */
     shared class Map {
+        private bool gettingUrl = false;
+
         private uint _pb = uint(-1);
         uint get_pb() { return _pb; }
         private void set_pb(uint p) { _pb = p; }
@@ -84,6 +86,10 @@ namespace WarriorMedals {
         private string _date;
         string get_date() { return _date; }
         private void set_date(const string &in d) { _date = d; }
+
+        private string _downloadUrl;
+        string get_downloadUrl() { return _downloadUrl; }
+        private void set_downloadUrl(const string &in d) { _downloadUrl = d; }
 
         // private uint8 _index = uint8(-1);
         // uint8 get_index() { return _index; }
@@ -178,15 +184,109 @@ namespace WarriorMedals {
             pb = App.MenuManager.MenuCustom_CurrentManiaApp.ScoreMgr.Map_GetRecord_v2(App.UserManagerScript.Users[0].Id, uid, "PersonalBest", "", "TimeAttack", "");
         }
 
-        void Play() {
-            ;
+        void GetUrlAsync() {
+            if (gettingUrl)
+                return;
+
+            gettingUrl = true;
+
+            const uint64 start = Time::Now;
+            trace("getting URL for " + name);
+
+            if (uid.Length != 26 && uid.Length != 27) {
+                warn("getting URL for " + name + " failed: bad uid: " + uid);
+                gettingUrl = false;
+                return;
+            }
+
+            CTrackMania@ App = cast<CTrackMania@>(GetApp());
+
+            CTrackManiaMenus@ Menus = cast<CTrackManiaMenus@>(App.MenuManager);
+            if (Menus is null) {
+                warn("getting URL for " + name + " failed: null Menus");
+                gettingUrl = false;
+                return;
+            }
+
+            CGameManiaAppTitle@ Title = Menus.MenuCustom_CurrentManiaApp;
+            if (Title is null) {
+                warn("getting URL for " + name + " failed: null Title");
+                gettingUrl = false;
+                return;
+            }
+
+            if (false
+                || Title.UserMgr is null
+                || Title.UserMgr.Users.Length == 0
+                || Title.UserMgr.Users[0] is null
+                || Title.DataFileMgr is null
+            ) {
+                warn("getting URL for " + name + " failed: something is null/empty");
+                gettingUrl = false;
+                return;
+            }
+
+            CWebServicesTaskResult_NadeoServicesMapScript@ task = Title.DataFileMgr.Map_NadeoServices_GetFromUid(Title.UserMgr.Users[0].Id, uid);
+
+            while (task.IsProcessing)
+                yield();
+
+            if (task !is null && task.HasSucceeded) {
+                CNadeoServicesMap@ Map = task.Map;
+                if (Map !is null) {
+                    downloadUrl = Map.FileUrl;
+                    trace("getting URL for " + name + " done after " + (Time::Now - start) + "ms");
+                }
+
+                if (Title !is null && Title.DataFileMgr !is null)
+                    Title.DataFileMgr.TaskResult_Release(task.Id);
+            } else
+                warn("getting URL for " + name + " failed after " + (Time::Now - start) + "ms");
+
+            gettingUrl = false;
+        }
+
+        void PlayAsync() {
+            if (!Permissions::PlayLocalMap()) {  // extra safeguard because this is shared
+                warn("user doesn't have permission to play local maps");
+                return;
+            }
+
+            if (loading)
+                return;
+
+            if (downloadUrl.Length == 0) {
+                GetUrlAsync();
+
+                if (downloadUrl.Length == 0) {
+                    warn("can't play " + name + ": blank url");
+                    return;
+                }
+            }
 
             loading = true;
             trace("loading " + name);
 
-            ;
+            ReturnToMenuAsync();
+
+            CTrackMania@ App = cast<CTrackMania@>(GetApp());
+            App.ManiaTitleControlScriptAPI.PlayMap(downloadUrl, "TrackMania/TM_PlayMap_Local", "");
+
+            sleep(5000);
 
             loading = false;
+        }
+
+        private void ReturnToMenuAsync() {
+            CTrackMania@ App = cast<CTrackMania@>(GetApp());
+
+            if (App.Network.PlaygroundClientScriptAPI.IsInGameMenuDisplayed)
+                App.Network.PlaygroundInterfaceScriptHandler.CloseInGameMenu(CGameScriptHandlerPlaygroundInterface::EInGameMenuResult::Quit);
+
+            App.BackToMainMenu();
+
+            while (!App.ManiaTitleControlScriptAPI.IsReady)
+                yield();
         }
     }
 }

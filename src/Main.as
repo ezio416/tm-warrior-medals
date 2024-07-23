@@ -4,24 +4,23 @@
 Campaign@     activeSeasonalCampaign;
 Campaign@     activeTotdMonth;
 Json::Value@  campaignIndices;
-dictionary@   campaigns         = dictionary();
+dictionary@   campaigns = dictionary();
 Campaign@[]   campaignsArr;
-const string  colorStr          = "\\$3CF";
-const vec3    colorVec          = vec3(0.2f, 0.8f, 1.0f);
+const string  colorStr  = "\\$3CF";
+const vec3    colorVec  = vec3(0.2f, 0.8f, 1.0f);
+uint          currentPB = uint(-1);
 UI::Font@     fontHeader;
 UI::Font@     fontSubHeader;
-bool          hasPlayPermission = false;
 nvg::Texture@ iconUI;
 UI::Texture@  icon32;
 UI::Texture@  icon512;
-dictionary@   maps              = dictionary();
-uint          pb                = uint(-1);
-const float   scale             = UI::GetScale();
+bool          loading   = false;
+dictionary@   maps      = dictionary();
+const float   scale     = UI::GetScale();
 vec3[]        seasonColors;
-const string  title             = colorStr + Icons::Circle + "\\$G Warrior Medals";
+const string  title     = colorStr + Icons::Circle + "\\$G Warrior Medals";
 
 void Main() {
-    hasPlayPermission = Permissions::PlayLocalMap();
     OnSettingsChanged();
     startnew(GetAllMapInfosAsync);
     WarriorMedals::GetIcon32();
@@ -143,7 +142,7 @@ void MedalWindow() {
 
     if (UI::Begin(title + "-medal", S_MedalWindow, flags)) {
         const uint warrior = map.custom > 0 ? map.custom : map.warrior;
-        const bool delta = S_MedalDelta && pb != uint(-1);
+        const bool delta = S_MedalDelta && currentPB != uint(-1);
 
         if (UI::BeginTable("##table-times", delta ? 4 : 3)) {
             UI::TableNextRow();
@@ -159,7 +158,7 @@ void MedalWindow() {
 
             if (delta) {
                 UI::TableNextColumn();
-                UI::Text((pb <= warrior ? "\\$77F\u2212" : "\\$F77+") + Time::Format(uint(Math::Abs(pb - warrior))));
+                UI::Text((currentPB <= warrior ? "\\$77F\u2212" : "\\$F77+") + Time::Format(uint(Math::Abs(currentPB - warrior))));
             }
 
             UI::EndTable();
@@ -171,7 +170,7 @@ void MedalWindow() {
 void PBLoop() {
     while (true) {
         sleep(500);
-        pb = GetPB();
+        currentPB = GetPB();
     }
 }
 
@@ -237,9 +236,9 @@ bool Tab_Campaign(Campaign@ campaign, bool selected) {
             UI::Text(map.pb != uint(-1) ? (map.pb <= warrior ? "\\$77F\u2212" : "\\$F77+") + Time::Format(uint(Math::Abs(map.pb - warrior))) : "");
 
             UI::TableNextColumn();
-            UI::BeginDisabled(map.loading);
+            UI::BeginDisabled(map.loading || loading);
             if (UI::Button(Icons::Play + "##" + map.name))
-                startnew(CoroutineFunc(map.Play));
+                startnew(PlayMapAsync, @map);
             UI::EndDisabled();
             HoverTooltip("Play " + map.name);
         }

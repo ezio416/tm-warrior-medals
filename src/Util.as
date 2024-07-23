@@ -70,3 +70,20 @@ bool InMap() {
         && App.Editor is null
     ;
 }
+
+void PlayMapAsync(ref@ m) {
+    if (!Permissions::PlayLocalMap()) {
+        warn("user doesn't have permission to play local maps");
+        return;
+    }
+
+    WarriorMedals::Map@ map = cast<WarriorMedals::Map@>(m);
+    if (map is null) {
+        warn("given map is null");
+        return;
+    }
+
+    loading = true;
+    map.PlayAsync();
+    loading = false;
+}
