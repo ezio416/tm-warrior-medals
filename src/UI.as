@@ -101,8 +101,7 @@ void DrawCampaign(CGameManialinkFrame@ Maps, const string &in campaignName, bool
             if (map.pb < (map.custom > 0 ? map.custom : map.warrior))
                 indicesToShow.InsertLast(map.index);
         }
-    } else
-        UI::Text(campaignName);
+    }
 
     for (uint i = 0; i < Maps.Controls.Length; i++) {
         if (indicesToShow.Length == 0)
