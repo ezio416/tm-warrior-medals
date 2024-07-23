@@ -9,7 +9,6 @@ dictionary@   campaigns = dictionary();
 Campaign@[]   campaignsArr;
 const string  colorStr  = "\\$3CF";
 const vec3    colorVec  = vec3(0.2f, 0.8f, 1.0f);
-uint          currentPB = uint(-1);
 UI::Font@     fontHeader;
 UI::Font@     fontSubHeader;
 nvg::Texture@ iconUI;
@@ -143,7 +142,7 @@ void MedalWindow() {
 
     if (UI::Begin(title + "-medal", S_MedalWindow, flags)) {
         const uint warrior = map.custom > 0 ? map.custom : map.warrior;
-        const bool delta = S_MedalDelta && currentPB != uint(-1);
+        const bool delta = S_MedalDelta && map.pb != uint(-1);
 
         if (UI::BeginTable("##table-times", delta ? 4 : 3)) {
             UI::TableNextRow();
@@ -159,7 +158,7 @@ void MedalWindow() {
 
             if (delta) {
                 UI::TableNextColumn();
-                UI::Text((currentPB <= warrior ? "\\$77F\u2212" : "\\$F77+") + Time::Format(uint(Math::Abs(currentPB - warrior))));
+                UI::Text((map.pb <= warrior ? "\\$77F\u2212" : "\\$F77+") + Time::Format(uint(Math::Abs(map.pb - warrior))));
             }
 
             UI::EndTable();
@@ -171,7 +170,14 @@ void MedalWindow() {
 void PBLoop() {
     while (true) {
         sleep(500);
-        currentPB = GetPB();
+
+        CTrackMania@ App = cast<CTrackMania@>(GetApp());
+        if (App.RootMap is null || !maps.Exists(App.RootMap.EdChallengeId))
+            continue;
+
+        WarriorMedals::Map@ map = cast<WarriorMedals::Map@>(maps[App.RootMap.EdChallengeId]);
+        if (map !is null)
+            startnew(CoroutineFunc(map.GetPBAsync));
     }
 }
 

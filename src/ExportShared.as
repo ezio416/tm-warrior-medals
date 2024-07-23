@@ -61,6 +61,7 @@ namespace WarriorMedals {
     Data container for a map with a Warrior medal.
     */
     shared class Map {
+        private bool gettingPB  = false;
         private bool gettingUrl = false;
 
         private uint _pb = uint(-1);
@@ -178,10 +179,25 @@ namespace WarriorMedals {
                 || App.UserManagerScript is null
                 || App.UserManagerScript.Users.Length == 0
                 || App.UserManagerScript.Users[0] is null
-            )
+            ) {
                 pb = uint(-1);
+                return;
+            }
 
             pb = App.MenuManager.MenuCustom_CurrentManiaApp.ScoreMgr.Map_GetRecord_v2(App.UserManagerScript.Users[0].Id, uid, "PersonalBest", "", "TimeAttack", "");
+        }
+
+        void GetPBAsync() {
+            if (gettingPB)
+                return;
+
+            gettingPB = true;
+
+            GetPB();
+
+            sleep(500);
+
+            gettingPB = false;
         }
 
         void GetUrlAsync() {
