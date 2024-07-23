@@ -34,7 +34,7 @@ void Settings_General() {
         UI::NewLine(); UI::SameLine();
         S_MainHideWithOP   = UI::Checkbox("Show/hide with Openplanet UI##main", S_MainHideWithOP);
         UI::NewLine(); UI::SameLine();
-        S_MainAutoResize   = UI::Checkbox("Auto-resize window",                 S_MainAutoResize);
+        S_MainAutoResize   = UI::Checkbox("Auto-resize",                        S_MainAutoResize);
     }
 
     UI::Separator();
