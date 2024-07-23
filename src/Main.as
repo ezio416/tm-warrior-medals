@@ -93,6 +93,15 @@ void MainWindow() {
         return;
 
     if (UI::Begin(title, S_MainWindow, UI::WindowFlags::None)) {
+        UI::PushStyleColor(UI::Col::Button,        vec4(colorVec - vec3(0.2f), 1.0f));
+        UI::PushStyleColor(UI::Col::ButtonActive,  vec4(colorVec - vec3(0.4f), 1.0f));
+        UI::PushStyleColor(UI::Col::ButtonHovered, vec4(colorVec,              1.0f));
+        UI::BeginDisabled(getting);
+        if (UI::Button(Icons::Refresh + " Refresh" + (getting  ? "ing..." : " Maps")))
+            startnew(GetAllMapInfosAsync);
+        UI::EndDisabled();
+        UI::PopStyleColor(3);
+
         UI::PushStyleColor(UI::Col::Tab,        vec4(colorVec - vec3(0.4f),  1.0f));
         UI::PushStyleColor(UI::Col::TabActive,  vec4(colorVec - vec3(0.15f), 1.0f));
         UI::PushStyleColor(UI::Col::TabHovered, vec4(colorVec - vec3(0.15f), 1.0f));
@@ -256,7 +265,7 @@ void Tab_Totd() {
     if (!UI::BeginTabItem(Icons::Calendar + " Tracks of the Day"))
         return;
 
-    bool switchTab = false;
+    bool selected = false;
 
     UI::BeginTabBar("##tab-bar-totd");
         if (UI::BeginTabItem(Icons::List + " List")) {
@@ -288,7 +297,7 @@ void Tab_Totd() {
 
                 if (UI::Button(campaign.name.SubStr(0, campaign.name.Length - 5) + "##" + campaign.name, vec2(scale * 100.0f, scale * 25.0f))) {
                     @activeTotdMonth = campaign;
-                    switchTab = true;
+                    selected = true;
                 }
 
                 if (colored)
@@ -301,19 +310,7 @@ void Tab_Totd() {
             UI::EndTabItem();
         }
 
-        bool tabOpen = activeTotdMonth !is null;
-        if (tabOpen && UI::BeginTabItem(activeTotdMonth.name, tabOpen, switchTab ? UI::TabItemFlags::SetSelected : UI::TabItemFlags::None)) {
-            for (uint i = 0; i < activeTotdMonth.mapsArr.Length; i++) {
-                WarriorMedals::Map@ map = activeTotdMonth.mapsArr[i];
-                if (map is null)
-                    continue;
-
-                UI::Text(map.name);
-            }
-
-            UI::EndTabItem();
-        }
-        if (!tabOpen)
+        if (!Tab_Campaign(activeTotdMonth, selected))
             @activeTotdMonth = null;
 
     UI::EndTabBar();

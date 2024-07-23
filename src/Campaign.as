@@ -97,6 +97,7 @@ void BuildCampaigns() {
     trace("building campaigns");
 
     campaigns.DeleteAll();
+    campaignsArr = {};
 
     const string[]@ uids = maps.GetKeys();
 
