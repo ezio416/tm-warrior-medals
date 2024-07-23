@@ -1,40 +1,126 @@
 // c 2024-07-17
 // m 2024-07-23
 
-[Setting hidden] bool S_MainWindow   = false;
-[Setting hidden] bool S_MedalWindow  = true;
-[Setting hidden] bool S_HideWithGame = true;
-[Setting hidden] bool S_HideWithOP   = false;
-[Setting hidden] bool S_Delta        = true;
+[Setting hidden] vec3 S_ColorFall         = vec3(1.0f, 0.5f, 0.0f);
+[Setting hidden] vec3 S_ColorSpring       = vec3(0.3f, 0.9f, 0.3f);
+[Setting hidden] vec3 S_ColorSummer       = vec3(1.0f, 0.8f, 0.0f);
+[Setting hidden] vec3 S_ColorWinter       = vec3(0.0f, 0.8f, 1.0f);
+[Setting hidden] bool S_MainHideWithGame  = true;
+[Setting hidden] bool S_MainHideWithOP    = true;
+[Setting hidden] bool S_MainWindow        = false;
+[Setting hidden] bool S_MedalDelta        = true;
+[Setting hidden] bool S_MedalHideWithGame = true;
+[Setting hidden] bool S_MedalHideWithOP   = false;
+[Setting hidden] bool S_MedalWindow       = true;
 [SettingsTab name="General" icon="Cogs"]
 void Settings_General() {
+    UI::PushFont(headerFont);
+    UI::Text("Main Window");
+    UI::PopFont();
+
+    if (UI::Button("Reset to default##main")) {
+        Meta::Plugin@ plugin = Meta::ExecutingPlugin();
+        plugin.GetSetting("S_MainWindow").Reset();
+        plugin.GetSetting("S_MainHideWithGame").Reset();
+        plugin.GetSetting("S_MainHideWithOP").Reset();
+    }
+
     S_MainWindow = UI::Checkbox("Show main window", S_MainWindow);
+    if (S_MainWindow) {
+        UI::NewLine(); UI::SameLine();
+        S_MainHideWithGame = UI::Checkbox("Show/hide with game UI##main",       S_MainHideWithGame);
+        UI::NewLine(); UI::SameLine();
+        S_MainHideWithOP   = UI::Checkbox("Show/hide with Openplanet UI##main", S_MainHideWithOP);
+    }
 
     UI::Separator();
 
+    UI::PushFont(headerFont);
+    UI::Text("Medal Window");
+    UI::PopFont();
+
+    if (UI::Button("Reset to default##medal")) {
+        Meta::Plugin@ plugin = Meta::ExecutingPlugin();
+        plugin.GetSetting("S_MedalWindow").Reset();
+        plugin.GetSetting("S_MedalHideWithGame").Reset();
+        plugin.GetSetting("S_MedalHideWithOP").Reset();
+        plugin.GetSetting("S_MedalDelta").Reset();
+    }
+
     S_MedalWindow = UI::Checkbox("Show medal window when playing", S_MedalWindow);
     if (S_MedalWindow) {
-        S_HideWithGame = UI::Checkbox("Show/hide with game UI",       S_HideWithGame);
-        S_HideWithOP   = UI::Checkbox("Show/hide with Openplanet UI", S_HideWithOP);
-        S_Delta        = UI::Checkbox("Show PB delta",                S_Delta);
+        UI::NewLine(); UI::SameLine();
+        S_MedalHideWithGame = UI::Checkbox("Show/hide with game UI##medal",       S_MedalHideWithGame);
+        UI::NewLine(); UI::SameLine();
+        S_MedalHideWithOP   = UI::Checkbox("Show/hide with Openplanet UI##medal", S_MedalHideWithOP);
+        UI::NewLine(); UI::SameLine();
+        S_MedalDelta        = UI::Checkbox("Show PB delta",                       S_MedalDelta);
     }
+
+    UI::Separator();
+
+    UI::PushFont(headerFont);
+    UI::Text("Colors");
+    UI::PopFont();
+
+    if (UI::Button("Reset to default##colors")) {
+        Meta::Plugin@ plugin = Meta::ExecutingPlugin();
+        plugin.GetSetting("S_ColorWinter").Reset();
+        plugin.GetSetting("S_ColorSpring").Reset();
+        plugin.GetSetting("S_ColorSummer").Reset();
+        plugin.GetSetting("S_ColorFall").Reset();
+    }
+
+    S_ColorWinter = UI::InputColor3("Winter/Jan-Mar", S_ColorWinter);
+    S_ColorSpring = UI::InputColor3("Spring/Apr-Jun", S_ColorSpring);
+    S_ColorSummer = UI::InputColor3("Summer/Jul-Sep", S_ColorSummer);
+    S_ColorFall   = UI::InputColor3("Fall/Oct-Dec",   S_ColorFall);
+
+    const vec3[] newColors = {
+        S_ColorWinter,
+        S_ColorSpring,
+        S_ColorSummer,
+        S_ColorFall
+    };
+
+    if (newColors != seasonColors)
+        OnSettingsChanged();
 }
 
+[Setting hidden] bool S_MedalsClubCampaign     = false;
 [Setting hidden] bool S_MedalsInUI             = false;
 [Setting hidden] bool S_MedalsSeasonalCampaign = true;
-[Setting hidden] bool S_MedalsClubCampaign     = true;
 [Setting hidden] bool S_MedalsTotd             = true;
 [Setting hidden] bool S_MedalsTraining         = true;
 [SettingsTab name="Medals in UI" icon="ListAlt" order=1]
 void Settings_MedalsInUI() {
-    UI::TextWrapped("Showing Warrior medal icons in the UI can be laggy, though it is a nice touch to see them more easily in a vanilla-looking way.");
+    UI::PushFont(headerFont);
+    UI::Text("Main Toggle");
+    UI::PopFont();
+
+    if (UI::Button("Reset to default##main")) {
+        Meta::Plugin@ plugin = Meta::ExecutingPlugin();
+        plugin.GetSetting("S_MedalsInUI").Reset();
+    }
 
     S_MedalsInUI = UI::Checkbox("Show medals in UI", S_MedalsInUI);
+    HoverTooltipSetting("Showing Warrior medal icons in the UI can be laggy, though it is a nice touch to see them more easily in a vanilla-looking way.");
 
     if (S_MedalsInUI) {
         UI::Separator();
 
-        UI::Text("\\$IMenu");
+        UI::PushFont(headerFont);
+        UI::Text("Menu");
+        UI::PopFont();
+
+        if (UI::Button("Reset to default##menu")) {
+            Meta::Plugin@ plugin = Meta::ExecutingPlugin();
+            plugin.GetSetting("S_MedalsSeasonalCampaign").Reset();
+            plugin.GetSetting("S_MedalsClubCampaign").Reset();
+            plugin.GetSetting("S_MedalsTotd").Reset();
+            plugin.GetSetting("S_MedalsTraining").Reset();
+        }
+
         S_MedalsSeasonalCampaign = UI::Checkbox("Seasonal campaign", S_MedalsSeasonalCampaign);
         S_MedalsClubCampaign     = UI::Checkbox("Club campaign",     S_MedalsClubCampaign);
         HoverTooltipSetting("May be inaccurate if a club campaign shares a name with an official one.");
@@ -43,7 +129,16 @@ void Settings_MedalsInUI() {
 
         // UI::Separator();
 
-        // UI::Text("\\$IIn-Game");
+        // UI::PushFont(headerFont);
+        // UI::Text("In-Game");
+        // UI::PopFont();
+
+        // if (UI::Button("Reset to default##ingame")) {
+        //     Meta::Plugin@ plugin = Meta::ExecutingPlugin();
+        //     plugin.GetSetting("").Reset();
+        // }
+
+        // ;
     }
 }
 

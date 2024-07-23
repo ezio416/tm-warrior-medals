@@ -1,19 +1,16 @@
 // c 2024-07-22
 // m 2024-07-23
 
-const vec3 colorFall   = vec3(1.0f, 0.5f, 0.0f);
-const vec3 colorSpring = vec3(0.3f, 0.9f, 0.3f);
-const vec3 colorSummer = vec3(1.0f, 0.8f, 0.0f);
-const vec3 colorWinter = vec3(0.0f, 0.8f, 1.0f);
-
 class Campaign {
-    vec3                        color;
-    uint                        index = uint(-1);
-    dictionary@                 maps  = dictionary();
+    uint                        colorIndex = uint(-1);
+    uint                        index      = uint(-1);
+    dictionary@                 maps       = dictionary();
     WarriorMedals::Map@[]       mapsArr;
+    uint                        month;
     string                      name;
     string                      nameLower;
-    WarriorMedals::CampaignType type  = WarriorMedals::CampaignType::Unknown;
+    WarriorMedals::CampaignType type       = WarriorMedals::CampaignType::Unknown;
+    uint                        year;
 
     Campaign(const string &in name) {
         this.name = name;
@@ -33,25 +30,40 @@ class Campaign {
         if (index != uint(-1))
             return;
 
-        const uint year = Text::ParseUInt(map.campaign.SubStr(map.campaign.Length - 4)) - 2020;
+        year = Text::ParseUInt(map.campaign.SubStr(map.campaign.Length - 4)) - 2020;
 
         if (type == WarriorMedals::CampaignType::Seasonal) {
             if (map.campaign.StartsWith("Summer")) {
                 index = 0 + 4 * year;
-                color = colorSummer;
+                colorIndex = 2;
             } else if (map.campaign.StartsWith("Fall")) {
                 index = 1 + 4 * year;
-                color = colorFall;
+                colorIndex  =3;
             } else if (map.campaign.StartsWith("Winter")) {
                 index = 2 + 4 * (year - 1);
-                color = colorWinter;
+                colorIndex = 0;
             } else {
                 index = 3 + 4 * (year - 1);
-                color = colorSpring;
+                colorIndex = 1;
             }
         } else if (type == WarriorMedals::CampaignType::TrackOfTheDay) {
-            const uint month = Text::ParseUInt(map.date.SubStr(5, 2));
+            month = Text::ParseUInt(map.date.SubStr(5, 2));
+
             index = ((month + 5) % 12) + 12 * (year - (month < 7 ? 1 : 0));
+
+            switch (month) {
+                case 1: case 2: case 3:
+                    colorIndex = 0;
+                    break;
+                case 4: case 5: case 6:
+                    colorIndex = 1;
+                    break;
+                case 7: case 8: case 9:
+                    colorIndex = 2;
+                    break;
+                default:
+                    colorIndex = 3;
+            }
         } else
             SetOtherCampaignIndex();
     }

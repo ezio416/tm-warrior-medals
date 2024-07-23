@@ -2,6 +2,7 @@
 // m 2024-07-23
 
 Campaign@     activeSeasonalCampaign;
+Campaign@     activeTotdMonth;
 Json::Value@  campaignIndices;
 dictionary@   campaigns = dictionary();
 Campaign@[]   campaignsArr;
@@ -14,9 +15,12 @@ UI::Texture@  icon512;
 dictionary@   maps      = dictionary();
 uint          pb        = uint(-1);
 const float   scale     = UI::GetScale();
+vec3[]        seasonColors;
 const string  title     = colorStr + Icons::Circle + "\\$G Warrior Medals";
 
 void Main() {
+    OnSettingsChanged();
+
     startnew(GetAllMapInfosAsync);
     startnew(TryGetCampaignIndicesAsync);
 
@@ -50,14 +54,16 @@ void Main() {
     }
 }
 
-void Render() {
-    if (false
-        || (S_HideWithGame && !UI::IsGameUIVisible())
-        || (S_HideWithOP && !UI::IsOverlayShown())
-        || icon32 is null
-    )
-        return;
+void OnSettingsChanged() {
+    seasonColors = {
+        S_ColorWinter,
+        S_ColorSpring,
+        S_ColorSummer,
+        S_ColorFall
+    };
+}
 
+void Render() {
     MainWindow();
     MedalWindow();
 }
@@ -79,7 +85,11 @@ void RenderMenu() {
 }
 
 void MainWindow() {
-    if (!S_MainWindow)
+    if (false
+        || !S_MainWindow
+        || (S_MainHideWithGame && !UI::IsGameUIVisible())
+        || (S_MainHideWithOP && !UI::IsOverlayShown())
+    )
         return;
 
     if (UI::Begin(title, S_MainWindow, UI::WindowFlags::None)) {
@@ -97,7 +107,12 @@ void MainWindow() {
 }
 
 void MedalWindow() {
-    if (!S_MedalWindow || !InMap())
+    if (false
+        || !S_MedalWindow
+        || (S_MedalHideWithGame && !UI::IsGameUIVisible())
+        || (S_MedalHideWithOP && !UI::IsOverlayShown())
+        || !InMap()
+    )
         return;
 
     const string uid = cast<CTrackMania@>(GetApp()).RootMap.EdChallengeId;
@@ -114,7 +129,7 @@ void MedalWindow() {
 
     if (UI::Begin(title + "-medal", S_MedalWindow, flags)) {
         const uint warrior = map.custom > 0 ? map.custom : map.warrior;
-        const bool delta = S_Delta && pb != uint(-1);
+        const bool delta = S_MedalDelta && pb != uint(-1);
 
         if (UI::BeginTable("##table-times", delta ? 4 : 3)) {
             UI::TableNextRow();
@@ -146,6 +161,24 @@ void PBLoop() {
     }
 }
 
+bool Tab_Campaign(Campaign@ campaign, bool selected) {
+    bool open = campaign !is null;
+
+    if (open && UI::BeginTabItem(campaign.name, open, selected ? UI::TabItemFlags::SetSelected : UI::TabItemFlags::None)) {
+        for (uint i = 0; i < campaign.mapsArr.Length; i++) {
+            WarriorMedals::Map@ map = campaign.mapsArr[i];
+            if (map is null)
+                continue;
+
+            UI::Text(map.name);
+        }
+
+        UI::EndTabItem();
+    }
+
+    return open;
+}
+
 void Tab_Other() {
     if (!UI::BeginTabItem(Icons::QuestionCircle + " Other Campaigns"))
         return;
@@ -165,7 +198,7 @@ void Tab_Seasonal() {
     if (!UI::BeginTabItem(Icons::SnowflakeO + " Seasonal Campaigns"))
         return;
 
-    bool switchTab = false;
+    bool selected = false;
 
     UI::BeginTabBar("##tab-bar-seasonal");
         if (UI::BeginTabItem(Icons::List + " List")) {
@@ -176,28 +209,34 @@ void Tab_Seasonal() {
                 if (campaign is null || campaign.type != WarriorMedals::CampaignType::Seasonal)
                     continue;
 
-                const uint year = Text::ParseUInt(campaign.name.SubStr(campaign.name.Length - 4));
-                if (lastYear != year) {
+                if (lastYear != campaign.year) {
                     if (lastYear > 0) {
                         UI::NewLine();
                         UI::Separator();
                     }
 
-                    lastYear = year;
+                    lastYear = campaign.year;
 
                     UI::PushFont(headerFont);
-                    UI::Text(tostring(year));
+                    UI::Text(tostring(campaign.year + 2020));
                     UI::PopFont();
                 }
 
-                UI::PushStyleColor(UI::Col::Button,        vec4(campaign.color - vec3(0.1f), 1.0f));
-                UI::PushStyleColor(UI::Col::ButtonActive,  vec4(campaign.color - vec3(0.4f), 1.0f));
-                UI::PushStyleColor(UI::Col::ButtonHovered, vec4(campaign.color,              1.0f));
+                bool colored = false;
+                if (seasonColors.Length == 4 && campaign.colorIndex < 4) {
+                    UI::PushStyleColor(UI::Col::Button,        vec4(seasonColors[campaign.colorIndex] - vec3(0.1f), 1.0f));
+                    UI::PushStyleColor(UI::Col::ButtonActive,  vec4(seasonColors[campaign.colorIndex] - vec3(0.4f), 1.0f));
+                    UI::PushStyleColor(UI::Col::ButtonHovered, vec4(seasonColors[campaign.colorIndex],              1.0f));
+                    colored = true;
+                }
+
                 if (UI::Button(campaign.name.SubStr(0, campaign.name.Length - 5) + "##" + campaign.name, vec2(scale * 100.0f, scale * 25.0f))) {
                     @activeSeasonalCampaign = campaign;
-                    switchTab = true;
+                    selected = true;
                 }
-                UI::PopStyleColor(3);
+
+                if (colored)
+                    UI::PopStyleColor(3);
 
                 UI::SameLine();
             }
@@ -205,19 +244,7 @@ void Tab_Seasonal() {
             UI::EndTabItem();
         }
 
-        bool seasonTabOpen = activeSeasonalCampaign !is null;
-        if (seasonTabOpen && UI::BeginTabItem(activeSeasonalCampaign.name, seasonTabOpen, switchTab ? UI::TabItemFlags::SetSelected : UI::TabItemFlags::None)) {
-            for (uint i = 0; i < activeSeasonalCampaign.mapsArr.Length; i++) {
-                WarriorMedals::Map@ map = activeSeasonalCampaign.mapsArr[i];
-                if (map is null)
-                    continue;
-
-                UI::Text(map.name);
-            }
-
-            UI::EndTabItem();
-        }
-        if (!seasonTabOpen)
+        if (!Tab_Campaign(activeSeasonalCampaign, selected))
             @activeSeasonalCampaign = null;
 
     UI::EndTabBar();
@@ -229,13 +256,67 @@ void Tab_Totd() {
     if (!UI::BeginTabItem(Icons::Calendar + " Tracks of the Day"))
         return;
 
-    for (uint i = 0; i < campaignsArr.Length; i++) {
-        Campaign@ campaign = campaignsArr[i];
-        if (campaign is null || campaign.type != WarriorMedals::CampaignType::TrackOfTheDay)
-            continue;
+    bool switchTab = false;
 
-        UI::Text(campaign.name);
-    }
+    UI::BeginTabBar("##tab-bar-totd");
+        if (UI::BeginTabItem(Icons::List + " List")) {
+            uint lastYear = 0;
+
+            for (uint i = 0; i < campaignsArr.Length; i++) {
+                Campaign@ campaign = campaignsArr[i];
+                if (campaign is null || campaign.type != WarriorMedals::CampaignType::TrackOfTheDay)
+                    continue;
+
+                if (lastYear != campaign.year) {
+                    if (lastYear > 0)
+                        UI::Separator();
+
+                    lastYear = campaign.year;
+
+                    UI::PushFont(headerFont);
+                    UI::Text(tostring(campaign.year + 2020));
+                    UI::PopFont();
+                }
+
+                bool colored = false;
+                if (seasonColors.Length == 4 && campaign.colorIndex < 4) {
+                    UI::PushStyleColor(UI::Col::Button,        vec4(seasonColors[campaign.colorIndex] - vec3(0.1f), 1.0f));
+                    UI::PushStyleColor(UI::Col::ButtonActive,  vec4(seasonColors[campaign.colorIndex] - vec3(0.4f), 1.0f));
+                    UI::PushStyleColor(UI::Col::ButtonHovered, vec4(seasonColors[campaign.colorIndex],              1.0f));
+                    colored = true;
+                }
+
+                if (UI::Button(campaign.name.SubStr(0, campaign.name.Length - 5) + "##" + campaign.name, vec2(scale * 100.0f, scale * 25.0f))) {
+                    @activeTotdMonth = campaign;
+                    switchTab = true;
+                }
+
+                if (colored)
+                    UI::PopStyleColor(3);
+
+                if ((campaign.month - 1) % 3 > 0)
+                    UI::SameLine();
+            }
+
+            UI::EndTabItem();
+        }
+
+        bool tabOpen = activeTotdMonth !is null;
+        if (tabOpen && UI::BeginTabItem(activeTotdMonth.name, tabOpen, switchTab ? UI::TabItemFlags::SetSelected : UI::TabItemFlags::None)) {
+            for (uint i = 0; i < activeTotdMonth.mapsArr.Length; i++) {
+                WarriorMedals::Map@ map = activeTotdMonth.mapsArr[i];
+                if (map is null)
+                    continue;
+
+                UI::Text(map.name);
+            }
+
+            UI::EndTabItem();
+        }
+        if (!tabOpen)
+            @activeTotdMonth = null;
+
+    UI::EndTabBar();
 
     UI::EndTabItem();
 }
