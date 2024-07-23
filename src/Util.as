@@ -1,5 +1,5 @@
 // c 2024-07-18
-// m 2024-07-22
+// m 2024-07-23
 
 void GetAllPBsAsync() {
     const string[]@ uids = maps.GetKeys();
@@ -15,7 +15,6 @@ void GetAllPBsAsync() {
         if (now - lastYield > maxFrameTime) {
             lastYield = now;
             yield();
-            print("yield at index " + i);
         }
 
         WarriorMedals::Map@ map = cast<WarriorMedals::Map@>(maps[uids[i]]);
@@ -25,8 +24,7 @@ void GetAllPBsAsync() {
         map.GetPB();
     }
 
-    const uint64 end = Time::Now;
-    trace("getting all PBs done after " + (end - start) + "ms");
+    trace("getting all PBs done after " + (Time::Now - start) + "ms");
 }
 
 uint GetPB() {

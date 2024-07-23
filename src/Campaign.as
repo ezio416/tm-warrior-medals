@@ -94,6 +94,7 @@ class Campaign {
 }
 
 void BuildCampaigns() {
+    const uint64 start = Time::Now;
     trace("building campaigns");
 
     campaigns.DeleteAll();
@@ -118,9 +119,9 @@ void BuildCampaigns() {
         campaignsArr.InsertLast(@campaign);
     }
 
-    SortCampaigns();
+    trace("building campaigns done after " + (Time::Now - start) + "ms");
 
-    trace("building campaigns done");
+    SortCampaigns();
 }
 
 Campaign@ GetCampaign(const string &in name) {
@@ -131,6 +132,9 @@ Campaign@ GetCampaign(const string &in name) {
 }
 
 void SortCampaigns() {
+    const uint64 start = Time::Now;
+    trace("sorting campaigns and maps");
+
     for (uint i = 0; i < campaignsArr.Length; i++) {
         Campaign@ campaign = campaignsArr[i];
         if (campaign is null || campaign.mapsArr.Length < 2)
@@ -139,8 +143,8 @@ void SortCampaigns() {
         campaign.mapsArr.Sort(function(a, b) { return a.index < b.index; });
     }
 
-    if (campaignsArr.Length < 2)
-        return;
+    if (campaignsArr.Length > 1)
+        campaignsArr.Sort(function(a, b) { return a.index > b.index; });
 
-    campaignsArr.Sort(function(a, b) { return a.index > b.index; });
+    trace("sorting campaigns and maps done after " + (Time::Now - start) + "ms");
 }

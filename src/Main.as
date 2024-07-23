@@ -22,7 +22,6 @@ void Main() {
     OnSettingsChanged();
 
     startnew(GetAllMapInfosAsync);
-    startnew(TryGetCampaignIndicesAsync);
 
     WarriorMedals::GetIcon32();
 
@@ -97,8 +96,10 @@ void MainWindow() {
         UI::PushStyleColor(UI::Col::ButtonActive,  vec4(colorVec - vec3(0.4f), 1.0f));
         UI::PushStyleColor(UI::Col::ButtonHovered, vec4(colorVec,              1.0f));
         UI::BeginDisabled(getting);
-        if (UI::Button(Icons::Refresh + " Refresh" + (getting  ? "ing..." : " Maps")))
+        if (UI::Button(Icons::Refresh + " Refresh" + (getting  ? "ing..." : ""))) {
+            trace("refreshing...");
             startnew(GetAllMapInfosAsync);
+        }
         UI::EndDisabled();
         UI::PopStyleColor(3);
 

@@ -8,7 +8,12 @@ dictionary@  missing        = dictionary();
 const string opCampIndexUrl = "https://openplanet.dev/plugin/warriormedals/config/campaign-indices";
 
 void GetAllMapInfosAsync() {
+    startnew(TryGetCampaignIndicesAsync);
+
     getting = true;
+
+    const uint64 start = Time::Now;
+    trace("getting all map infos");
 
     Net::HttpRequest@ req = Net::HttpGet(githubUrl);
     while (!req.Finished())
@@ -16,13 +21,14 @@ void GetAllMapInfosAsync() {
 
     const int respCode = req.ResponseCode();
     if (respCode != 200) {
-        error("GetAllMapInfosAsync: code: " + respCode + " | msg: " + req.String().Replace("\n", " "));
+        error("getting all map infos failed after " + (Time::Now - start) + "ms: code: " + respCode + " | msg: " + req.String().Replace("\n", " "));
         getting = false;
         return;
     }
 
     Json::Value@ data = req.Json();
     if (!WarriorMedals::CheckJsonType(data, Json::Type::Object, "data")) {
+        error("getting all map infos failed after " + (Time::Now - start) + "ms");
         getting = false;
         return;
     }
@@ -37,6 +43,7 @@ void GetAllMapInfosAsync() {
         maps[uid] = @map;
     }
 
+    trace("getting all map infos done after " + (Time::Now - start) + "ms");
     getting = false;
 
     GetAllPBsAsync();
@@ -44,6 +51,7 @@ void GetAllMapInfosAsync() {
 }
 
 bool GetCampaignIndicesAsync() {
+    const uint64 start = Time::Now;
     trace("getting campaign indices");
 
     Net::HttpRequest@ req = Net::HttpGet(opCampIndexUrl);
@@ -52,16 +60,18 @@ bool GetCampaignIndicesAsync() {
 
     const int respCode = req.ResponseCode();
     if (respCode != 200) {
-        error("GetCampaignIndicesAsync: code: " + respCode + " | msg: " + req.String().Replace("\n", " "));
+        error("getting campaign indices failed after " + (Time::Now - start) + "ms: code: " + respCode + " | msg: " + req.String().Replace("\n", " "));
         return false;
     }
 
     @campaignIndices = req.Json();
 
-    if (!WarriorMedals::CheckJsonType(campaignIndices, Json::Type::Object, "campaignIndices", false))
+    if (!WarriorMedals::CheckJsonType(campaignIndices, Json::Type::Object, "campaignIndices", false)) {
+        error("getting campaign indices failed after " + (Time::Now - start) + "ms");
         return false;
+    }
 
-    trace("got campaign indices");
+    trace("getting campaign indices done after " + (Time::Now - start) + "ms");
     return true;
 }
 
@@ -93,6 +103,7 @@ void GetMapInfoAsync(const string &in uid) {
 
     getting = true;
 
+    const uint64 start = Time::Now;
     trace("getting map info for " + uid);
 
     Net::HttpRequest@ req = Net::HttpGet(e416devApiUrl + "/tm/warrior?uid=" + uid);
@@ -104,11 +115,11 @@ void GetMapInfoAsync(const string &in uid) {
         case 200:
             break;
         case 429:
-            error("GetMapInfoAsync: too many requests");
+            error("getting map info for " + uid + " failed after " + (Time::Now - start) + "ms: too many requests");
             getting = false;
             return;
         default:
-            error("GetMapInfoAsync: code: " + respCode + " | msg: " + req.String().Replace("\n", " "));
+            error("getting map info for " + uid + " failed after " + (Time::Now - start) + "ms: code: " + respCode + " | msg: " + req.String().Replace("\n", " "));
             getting = false;
             return;
     }
@@ -119,9 +130,9 @@ void GetMapInfoAsync(const string &in uid) {
         map.GetPB();
         maps[uid] = @map;
 
-        trace("got map info for " + uid);
+        trace("getting map info for " + uid + " done after " + (Time::Now - start) + "ms");
     } else {
-        warn("map info not found for " + uid);
+        warn("map info not found for " + uid + " after " + (Time::Now - start) + "ms");
         missing[uid] = Time::Stamp + 600;  // wait 10 minutes to check map again
     }
 
