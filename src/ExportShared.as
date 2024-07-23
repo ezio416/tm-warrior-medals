@@ -90,6 +90,10 @@ namespace WarriorMedals {
         // private void set_index(uint8 i) { _index = i; }
         uint8 index = uint8(-1);
 
+        private bool _loading = false;
+        bool get_loading() { return _loading; }
+        private void set_loading(bool l) { _loading = l; }
+
         private string _name;
         string get_name() { return _name; }
         private void set_name(const string &in n) { _name = n; }
@@ -172,6 +176,17 @@ namespace WarriorMedals {
                 pb = uint(-1);
 
             pb = App.MenuManager.MenuCustom_CurrentManiaApp.ScoreMgr.Map_GetRecord_v2(App.UserManagerScript.Users[0].Id, uid, "PersonalBest", "", "TimeAttack", "");
+        }
+
+        void Play() {
+            ;
+
+            loading = true;
+            trace("loading " + name);
+
+            ;
+
+            loading = false;
         }
     }
 }

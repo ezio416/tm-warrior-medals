@@ -5,6 +5,7 @@
 [Setting hidden] vec3 S_ColorSpring       = vec3(0.3f, 0.9f, 0.3f);
 [Setting hidden] vec3 S_ColorSummer       = vec3(1.0f, 0.8f, 0.0f);
 [Setting hidden] vec3 S_ColorWinter       = vec3(0.0f, 0.8f, 1.0f);
+[Setting hidden] bool S_MainAutoResize    = false;
 [Setting hidden] bool S_MainHideWithGame  = true;
 [Setting hidden] bool S_MainHideWithOP    = true;
 [Setting hidden] bool S_MainWindow        = false;
@@ -14,7 +15,7 @@
 [Setting hidden] bool S_MedalWindow       = true;
 [SettingsTab name="General" icon="Cogs"]
 void Settings_General() {
-    UI::PushFont(headerFont);
+    UI::PushFont(fontHeader);
     UI::Text("Main Window");
     UI::PopFont();
 
@@ -23,6 +24,7 @@ void Settings_General() {
         plugin.GetSetting("S_MainWindow").Reset();
         plugin.GetSetting("S_MainHideWithGame").Reset();
         plugin.GetSetting("S_MainHideWithOP").Reset();
+        plugin.GetSetting("S_MainAutoResize").Reset();
     }
 
     S_MainWindow = UI::Checkbox("Show main window", S_MainWindow);
@@ -31,11 +33,13 @@ void Settings_General() {
         S_MainHideWithGame = UI::Checkbox("Show/hide with game UI##main",       S_MainHideWithGame);
         UI::NewLine(); UI::SameLine();
         S_MainHideWithOP   = UI::Checkbox("Show/hide with Openplanet UI##main", S_MainHideWithOP);
+        UI::NewLine(); UI::SameLine();
+        S_MainAutoResize   = UI::Checkbox("Auto-resize window",                 S_MainAutoResize);
     }
 
     UI::Separator();
 
-    UI::PushFont(headerFont);
+    UI::PushFont(fontHeader);
     UI::Text("Medal Window");
     UI::PopFont();
 
@@ -59,7 +63,7 @@ void Settings_General() {
 
     UI::Separator();
 
-    UI::PushFont(headerFont);
+    UI::PushFont(fontHeader);
     UI::Text("Colors");
     UI::PopFont();
 
@@ -94,7 +98,7 @@ void Settings_General() {
 [Setting hidden] bool S_MedalsTraining         = true;
 [SettingsTab name="Medals in UI" icon="ListAlt" order=1]
 void Settings_MedalsInUI() {
-    UI::PushFont(headerFont);
+    UI::PushFont(fontHeader);
     UI::Text("Main Toggle");
     UI::PopFont();
 
@@ -109,7 +113,7 @@ void Settings_MedalsInUI() {
     if (S_MedalsInUI) {
         UI::Separator();
 
-        UI::PushFont(headerFont);
+        UI::PushFont(fontHeader);
         UI::Text("Menu");
         UI::PopFont();
 

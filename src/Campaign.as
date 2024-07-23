@@ -12,6 +12,21 @@ class Campaign {
     WarriorMedals::CampaignType type       = WarriorMedals::CampaignType::Unknown;
     uint                        year;
 
+    uint get_count() {
+        uint _count = 0;
+
+        for (uint i = 0; i < mapsArr.Length; i++) {
+            WarriorMedals::Map@ map = mapsArr[i];
+            if (map is null || map.pb == 0)
+                continue;
+
+            if (map.pb < (map.custom > 0 ? map.custom : map.warrior))
+                _count++;
+        }
+
+        return _count;
+    }
+
     Campaign(const string &in name) {
         this.name = name;
         nameLower = name.ToLower();
