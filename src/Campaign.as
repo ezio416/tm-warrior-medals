@@ -1,6 +1,11 @@
 // c 2024-07-22
 // m 2024-07-23
 
+const vec3 colorFall   = vec3(1.0f, 0.5f, 0.0f);
+const vec3 colorSpring = vec3(0.3f, 0.9f, 0.3f);
+const vec3 colorSummer = vec3(1.0f, 0.8f, 0.0f);
+const vec3 colorWinter = vec3(0.0f, 0.8f, 1.0f);
+
 class Campaign {
     vec3                        color;
     uint                        index = uint(-1);
@@ -33,16 +38,16 @@ class Campaign {
         if (type == WarriorMedals::CampaignType::Seasonal) {
             if (map.campaign.StartsWith("Summer")) {
                 index = 0 + 4 * year;
-                color = vec3(1.0f, 0.8f, 0.0f);
+                color = colorSummer;
             } else if (map.campaign.StartsWith("Fall")) {
                 index = 1 + 4 * year;
-                color = vec3(1.0f, 0.5f, 0.0f);
+                color = colorFall;
             } else if (map.campaign.StartsWith("Winter")) {
                 index = 2 + 4 * (year - 1);
-                color = vec3(0.0f, 0.8f, 1.0f);
+                color = colorWinter;
             } else {
                 index = 3 + 4 * (year - 1);
-                color = vec3(0.3f, 0.9f, 0.3f);
+                color = colorSpring;
             }
         } else if (type == WarriorMedals::CampaignType::TrackOfTheDay) {
             const uint month = Text::ParseUInt(map.date.SubStr(5, 2));
