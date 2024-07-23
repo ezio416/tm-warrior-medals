@@ -1,15 +1,19 @@
 // c 2024-07-17
-// m 2024-07-22
+// m 2024-07-23
 
-[Setting hidden] bool S_Window       = true;
+[Setting hidden] bool S_MainWindow   = false;
+[Setting hidden] bool S_MedalWindow  = true;
 [Setting hidden] bool S_HideWithGame = true;
 [Setting hidden] bool S_HideWithOP   = false;
 [Setting hidden] bool S_Delta        = true;
-[SettingsTab name="Medal Window" icon="Circle"]
-void Settings_MedalWindow() {
-    S_Window = UI::Checkbox("Show Warrior medal window when playing", S_Window);
+[SettingsTab name="General" icon="Cogs"]
+void Settings_General() {
+    S_MainWindow = UI::Checkbox("Show main window", S_MainWindow);
 
-    if (S_Window) {
+    UI::Separator();
+
+    S_MedalWindow = UI::Checkbox("Show medal window when playing", S_MedalWindow);
+    if (S_MedalWindow) {
         S_HideWithGame = UI::Checkbox("Show/hide with game UI",       S_HideWithGame);
         S_HideWithOP   = UI::Checkbox("Show/hide with Openplanet UI", S_HideWithOP);
         S_Delta        = UI::Checkbox("Show PB delta",                S_Delta);

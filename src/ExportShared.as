@@ -1,10 +1,20 @@
 // c 2024-07-21
-// m 2024-07-22
+// m 2024-07-23
 
 /*
 Exports from the Warrior Medals plugin.
 */
 namespace WarriorMedals {
+    /*
+    Enum describing the type a campaign is or the type of campaign a map is a part of.
+    */
+    shared enum CampaignType {
+        Seasonal,
+        TrackOfTheDay,
+        Other,
+        Unknown
+    }
+
     /*
     Simple function for checking if a given Json::Value@ is of the correct type.
     Only shared to make the compiler happy.
@@ -32,18 +42,18 @@ namespace WarriorMedals {
     */
     shared string MonthName(uint num) {
         switch (num) {
-            case 1:  return "january";
-            case 2:  return "february";
-            case 3:  return "march";
-            case 4:  return "april";
-            case 5:  return "may";
-            case 6:  return "june";
-            case 7:  return "july";
-            case 8:  return "august";
-            case 9:  return "september";
-            case 10: return "october";
-            case 11: return "november";
-            default: return "december";
+            case 1:  return "January";
+            case 2:  return "February";
+            case 3:  return "March";
+            case 4:  return "April";
+            case 5:  return "May";
+            case 6:  return "June";
+            case 7:  return "July";
+            case 8:  return "August";
+            case 9:  return "September";
+            case 10: return "October";
+            case 11: return "November";
+            default: return "December";
         }
     }
 
@@ -61,7 +71,11 @@ namespace WarriorMedals {
 
         private string _campaign;
         string get_campaign() { return _campaign; }
-        private void set_campaign(const string &in c) { _campaign = c.ToLower(); }
+        private void set_campaign(const string &in c) { _campaign = c; }
+
+        private CampaignType _campaignType;
+        CampaignType get_campaignType() { return _campaignType; }
+        private void set_campaignType(CampaignType c) { _campaignType = c; }
 
         private uint _custom = 0;
         uint get_custom() { return _custom; }
@@ -71,9 +85,10 @@ namespace WarriorMedals {
         string get_date() { return _date; }
         private void set_date(const string &in d) { _date = d; }
 
-        private uint8 _index = uint8(-1);
-        uint8 get_index() { return _index; }
-        private void set_index(uint8 i) { _index = i; }
+        // private uint8 _index = uint8(-1);
+        // uint8 get_index() { return _index; }
+        // private void set_index(uint8 i) { _index = i; }
+        uint8 index = uint8(-1);
 
         private string _name;
         string get_name() { return _name; }
@@ -98,15 +113,15 @@ namespace WarriorMedals {
         Map() { }
         Map(Json::Value@ map) {
             author      = uint(  map["authorTime"]);
-            name        = string(map["name"]);
+            name        = string(map["name"]).Trim();
             uid         = string(map["uid"]);
             warrior     = uint(  map["warriorTime"]);
             worldRecord = uint(  map["worldRecord"]);
 
-            bool seasonal = true;
+            campaignType = CampaignType::Seasonal;
 
             if (map.HasKey("campaign")) {
-                seasonal = false;
+                campaignType = CampaignType::Other;
 
                 Json::Value@ campaign = map["campaign"];
                 if (CheckJsonType(campaign, Json::Type::String, "campaign", false))
@@ -122,7 +137,7 @@ namespace WarriorMedals {
                 this.custom = uint(custom);
 
             if (map.HasKey("date")) {
-                seasonal = false;
+                campaignType = CampaignType::TrackOfTheDay;
 
                 Json::Value@ date = map["date"];
                 if (CheckJsonType(date, Json::Type::String, "date", false)) {
@@ -137,7 +152,7 @@ namespace WarriorMedals {
             if (CheckJsonType(reason, Json::Type::String, "reason", false))
                 this.reason = reason;
 
-            if (seasonal) {
+            if (campaignType == CampaignType::Seasonal) {
                 campaign = name.SubStr(0, name.Length - 5);
                 index = uint8(Text::ParseUInt(name.SubStr(name.Length - 2)) - 1);
             }

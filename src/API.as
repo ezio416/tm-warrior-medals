@@ -1,10 +1,11 @@
 // c 2024-07-18
-// m 2024-07-22
+// m 2024-07-23
 
-const string e416devApiUrl = "https://e416.dev/api";
-bool         getting       = false;
-const string githubUrl     = "https://raw.githubusercontent.com/ezio416/warrior-medal-times/main/warriors.json";
-dictionary@  missing       = dictionary();
+const string e416devApiUrl  = "https://e416.dev/api";
+bool         getting        = false;
+const string githubUrl      = "https://raw.githubusercontent.com/ezio416/warrior-medal-times/main/warriors.json";
+dictionary@  missing        = dictionary();
+const string opCampIndexUrl = "https://openplanet.dev/plugin/warriormedals/config/campaign-indices";
 
 void GetAllMapInfosAsync() {
     getting = true;
@@ -40,6 +41,28 @@ void GetAllMapInfosAsync() {
 
     GetAllPBsAsync();
     BuildCampaigns();
+}
+
+bool GetCampaignIndicesAsync() {
+    trace("getting campaign indices");
+
+    Net::HttpRequest@ req = Net::HttpGet(opCampIndexUrl);
+    while (!req.Finished())
+        yield();
+
+    const int respCode = req.ResponseCode();
+    if (respCode != 200) {
+        error("GetCampaignIndicesAsync: code: " + respCode + " | msg: " + req.String().Replace("\n", " "));
+        return false;
+    }
+
+    @campaignIndices = req.Json();
+
+    if (!WarriorMedals::CheckJsonType(campaignIndices, Json::Type::Object, "campaignIndices", false))
+        return false;
+
+    trace("got campaign indices");
+    return true;
 }
 
 void GetMapInfoAsync() {
@@ -103,4 +126,23 @@ void GetMapInfoAsync(const string &in uid) {
     }
 
     getting = false;
+}
+
+void TryGetCampaignIndicesAsync() {
+    while (true) {
+        if (GetCampaignIndicesAsync())
+            break;
+
+        sleep(5000);
+    }
+
+    for (uint i = 0; i < campaignsArr.Length; i++) {
+        Campaign@ campaign = campaignsArr[i];
+        if (campaign is null || campaign.type != WarriorMedals::CampaignType::Other)
+            continue;
+
+        campaign.SetOtherCampaignIndex();
+    }
+
+    SortCampaigns();
 }

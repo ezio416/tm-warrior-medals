@@ -1,22 +1,18 @@
 // c 2024-07-22
 // m 2024-07-23
 
-enum CampaignType {
-    Seasonal,
-    TrackOfTheDay,
-    Other,
-    Unknown
-}
-
 class Campaign {
-    dictionary@           maps = dictionary();
-    WarriorMedals::Map@[] mapsArr;
-    string                name;
-    CampaignType          type = CampaignType::Unknown;
+    vec3                        color;
+    uint                        index = uint(-1);
+    dictionary@                 maps  = dictionary();
+    WarriorMedals::Map@[]       mapsArr;
+    string                      name;
+    string                      nameLower;
+    WarriorMedals::CampaignType type  = WarriorMedals::CampaignType::Unknown;
 
-    Campaign() { }
     Campaign(const string &in name) {
         this.name = name;
+        nameLower = name.ToLower();
     }
 
     void AddMap(WarriorMedals::Map@ map) {
@@ -26,12 +22,33 @@ class Campaign {
         maps[map.uid] = @map;
         mapsArr.InsertLast(@map);
 
-        if (map.campaign.Length > 0)
-            type = CampaignType::Other;
-        else if (map.date.Length > 0)
-            type = CampaignType::TrackOfTheDay;
-        else
-            type = CampaignType::Seasonal;
+        if (type == WarriorMedals::CampaignType::Unknown)
+            type = map.campaignType;
+
+        if (index != uint(-1))
+            return;
+
+        const uint year = Text::ParseUInt(map.campaign.SubStr(map.campaign.Length - 4)) - 2020;
+
+        if (type == WarriorMedals::CampaignType::Seasonal) {
+            if (map.campaign.StartsWith("Summer")) {
+                index = 0 + 4 * year;
+                color = vec3(1.0f, 0.8f, 0.0f);
+            } else if (map.campaign.StartsWith("Fall")) {
+                index = 1 + 4 * year;
+                color = vec3(1.0f, 0.5f, 0.0f);
+            } else if (map.campaign.StartsWith("Winter")) {
+                index = 2 + 4 * (year - 1);
+                color = vec3(0.0f, 0.8f, 1.0f);
+            } else {
+                index = 3 + 4 * (year - 1);
+                color = vec3(0.3f, 0.9f, 0.3f);
+            }
+        } else if (type == WarriorMedals::CampaignType::TrackOfTheDay) {
+            const uint month = Text::ParseUInt(map.date.SubStr(5, 2));
+            index = ((month + 5) % 12) + 12 * (year - (month < 7 ? 1 : 0));
+        } else
+            SetOtherCampaignIndex();
     }
 
     WarriorMedals::Map@ GetMap(const string &in uid) {
@@ -52,6 +69,11 @@ class Campaign {
             map.GetPB();
         }
     }
+
+    void SetOtherCampaignIndex() {
+        if (campaignIndices !is null && campaignIndices.HasKey(nameLower))
+            index = uint(campaignIndices[nameLower]);
+    }
 }
 
 void BuildCampaigns() {
@@ -66,7 +88,7 @@ void BuildCampaigns() {
         if (map is null)
             continue;
 
-        Campaign@ campaign = GetCampaign(map.campaign);
+        Campaign@ campaign = GetCampaign(map.campaign.ToLower());
         if (campaign !is null) {
             campaign.AddMap(map);
             continue;
@@ -74,8 +96,11 @@ void BuildCampaigns() {
 
         @campaign = Campaign(map.campaign);
         campaign.AddMap(map);
-        campaigns[map.campaign] = @campaign;
+        campaigns[campaign.nameLower] = @campaign;
+        campaignsArr.InsertLast(@campaign);
     }
+
+    SortCampaigns();
 
     trace("building campaigns done");
 }
@@ -85,4 +110,19 @@ Campaign@ GetCampaign(const string &in name) {
         return null;
 
     return cast<Campaign@>(campaigns[name]);
+}
+
+void SortCampaigns() {
+    for (uint i = 0; i < campaignsArr.Length; i++) {
+        Campaign@ campaign = campaignsArr[i];
+        if (campaign is null || campaign.mapsArr.Length < 2)
+            continue;
+
+        campaign.mapsArr.Sort(function(a, b) { return a.index < b.index; });
+    }
+
+    if (campaignsArr.Length < 2)
+        return;
+
+    campaignsArr.Sort(function(a, b) { return a.index > b.index; });
 }
