@@ -1,6 +1,7 @@
 // c 2024-07-17
 // m 2024-07-23
 
+Campaign@     activeOtherCampaign;
 Campaign@     activeSeasonalCampaign;
 Campaign@     activeTotdMonth;
 Json::Value@  campaignIndices;
@@ -254,22 +255,43 @@ bool Tab_Campaign(Campaign@ campaign, bool selected) {
 }
 
 void Tab_Other() {
-    if (!UI::BeginTabItem(Icons::QuestionCircle + " Other Campaigns"))
+    if (!UI::BeginTabItem(Icons::QuestionCircle + " Other"))
         return;
 
-    for (uint i = 0; i < campaignsArr.Length; i++) {
-        Campaign@ campaign = campaignsArr[i];
-        if (campaign is null || campaign.type != WarriorMedals::CampaignType::Other)
-            continue;
+    bool selected = false;
 
-        UI::Text(campaign.name);
-    }
+    UI::BeginTabBar("##tab-bar-totd");
+        if (UI::BeginTabItem(Icons::List + " List")) {
+            UI::PushFont(fontHeader);
+            UI::Text("Official");
+            UI::PopFont();
+
+            for (uint i = 0; i < campaignsArr.Length; i++) {
+                Campaign@ campaign = campaignsArr[i];
+                if (campaign is null || campaign.type != WarriorMedals::CampaignType::Other)
+                    continue;
+
+                if (UI::Button(campaign.name, vec2(scale * 130.0f, scale * 25.0f))) {
+                    @activeOtherCampaign = campaign;
+                    selected = true;
+                }
+            }
+
+            // TODO: non-official campaigns if they are added
+
+            UI::EndTabItem();
+        }
+
+        if (!Tab_Campaign(activeOtherCampaign, selected))
+            @activeOtherCampaign = null;
+
+    UI::EndTabBar();
 
     UI::EndTabItem();
 }
 
 void Tab_Seasonal() {
-    if (!UI::BeginTabItem(Icons::SnowflakeO + " Seasonal Campaigns"))
+    if (!UI::BeginTabItem(Icons::SnowflakeO + " Seasonal"))
         return;
 
     bool selected = false;
@@ -327,7 +349,7 @@ void Tab_Seasonal() {
 }
 
 void Tab_Totd() {
-    if (!UI::BeginTabItem(Icons::Calendar + " Tracks of the Day"))
+    if (!UI::BeginTabItem(Icons::Calendar + " Track of the Day"))
         return;
 
     bool selected = false;
