@@ -1,10 +1,10 @@
 // c 2024-07-22
-// m 2024-07-22
+// m 2024-07-23
 
 void DrawOverUI() {
     if (false
-        || icon is null
         || !S_MedalsInUI
+        || iconUI is null
         || (true
             && !S_MedalsSeasonalCampaign
             && !S_MedalsClubCampaign
@@ -133,7 +133,7 @@ void DrawCampaign(CGameManialinkFrame@ Maps, const string &in campaignName, bool
         ;
 
         nvg::BeginPath();
-        nvg::FillPaint(nvg::TexturePattern(coords, vec2(116.0f), 0.0f, icon, 1.0f));
+        nvg::FillPaint(nvg::TexturePattern(coords, vec2(116.0f), 0.0f, iconUI, 1.0f));
         nvg::Fill();
     }
 }
@@ -230,7 +230,7 @@ void DrawOverTotdPage(CGameManialinkPage@ Page) {
         ;
 
         nvg::BeginPath();
-        nvg::FillPaint(nvg::TexturePattern(coords, vec2(109.8f), 0.0f, icon, 1.0f));
+        nvg::FillPaint(nvg::TexturePattern(coords, vec2(109.8f), 0.0f, iconUI, 1.0f));
         nvg::Fill();
     }
 }

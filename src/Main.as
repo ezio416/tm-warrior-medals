@@ -4,32 +4,32 @@
 Campaign@     activeSeasonalCampaign;
 Campaign@     activeTotdMonth;
 Json::Value@  campaignIndices;
-dictionary@   campaigns = dictionary();
+dictionary@   campaigns         = dictionary();
 Campaign@[]   campaignsArr;
-const string  colorStr  = "\\$3CF";
-const vec3    colorVec  = vec3(0.2f, 0.8f, 1.0f);
+const string  colorStr          = "\\$3CF";
+const vec3    colorVec          = vec3(0.2f, 0.8f, 1.0f);
 UI::Font@     fontHeader;
 UI::Font@     fontSubHeader;
-nvg::Texture@ icon;
+bool          hasPlayPermission = false;
+nvg::Texture@ iconUI;
 UI::Texture@  icon32;
 UI::Texture@  icon512;
-dictionary@   maps      = dictionary();
-uint          pb        = uint(-1);
-const float   scale     = UI::GetScale();
+dictionary@   maps              = dictionary();
+uint          pb                = uint(-1);
+const float   scale             = UI::GetScale();
 vec3[]        seasonColors;
-const string  title     = colorStr + Icons::Circle + "\\$G Warrior Medals";
+const string  title             = colorStr + Icons::Circle + "\\$G Warrior Medals";
 
 void Main() {
+    hasPlayPermission = Permissions::PlayLocalMap();
     OnSettingsChanged();
-
     startnew(GetAllMapInfosAsync);
-
     WarriorMedals::GetIcon32();
 
     yield();
 
     IO::FileSource file("assets/warrior_512.png");
-    @icon = nvg::LoadTexture(file.Read(file.Size()));
+    @iconUI = nvg::LoadTexture(file.Read(file.Size()));
 
     yield();
 
