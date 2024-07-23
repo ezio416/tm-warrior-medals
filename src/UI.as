@@ -86,11 +86,31 @@ void DrawOverUI() {
     DrawOverTrainingPage(Training);
 }
 
-void DrawCampaign(CGameManialinkFrame@ Maps, bool club = false) {
+void DrawCampaign(CGameManialinkFrame@ Maps, const string &in campaignName, bool club = false) {
     if (Maps is null)
         return;
 
+    uint[] indicesToShow;
+    Campaign@ campaign = GetCampaign(campaignName.ToLower());
+    if (campaign !is null) {
+        for (uint i = 0; i < campaign.mapsArr.Length; i++) {
+            WarriorMedals::Map@ map = campaign.mapsArr[i];
+            if (map is null)
+                continue;
+
+            if (map.pb < (map.custom > 0 ? map.custom : map.warrior))
+                indicesToShow.InsertLast(map.index);
+        }
+    } else
+        UI::Text(campaignName);
+
     for (uint i = 0; i < Maps.Controls.Length; i++) {
+        if (indicesToShow.Length == 0)
+            break;
+
+        if (indicesToShow.Find(i) == -1)
+            continue;
+
         CGameManialinkFrame@ Map = cast<CGameManialinkFrame@>(Maps.Controls[i]);
         if (Map is null)
             continue;
@@ -146,7 +166,7 @@ void DrawOverCampaignPage(CGameManialinkPage@ Page) {
         campaignName = campaignName.SubStr(19).Replace("\u0091", " ");
     }
 
-    DrawCampaign(cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-maps")), club);
+    DrawCampaign(cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-maps")), campaignName, club);
 }
 
 void DrawOverTotdPage(CGameManialinkPage@ Page) {
@@ -190,5 +210,5 @@ void DrawOverTrainingPage(CGameManialinkPage@ Page) {
     if (Page is null)
         return;
 
-    DrawCampaign(cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-maps")), true);
+    DrawCampaign(cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-maps")), "training", true);
 }

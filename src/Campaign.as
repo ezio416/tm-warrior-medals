@@ -5,7 +5,7 @@ dictionary@ campaigns = dictionary();
 
 class Campaign {
     dictionary@           maps = dictionary();
-    WarriorMedals::Map@[] mapsOrdered;
+    WarriorMedals::Map@[] mapsArr;
     string                name;
 
     Campaign() { }
@@ -18,11 +18,7 @@ class Campaign {
             return;
 
         maps[map.uid] = @map;
-
-        if (mapsOrdered.Length == 0 || mapsOrdered.Length < map.index)
-            mapsOrdered.InsertLast(@map);
-        else
-            mapsOrdered.InsertAt(map.index, @map);
+        mapsArr.InsertLast(@map);
     }
 
     WarriorMedals::Map@ GetMap(const string &in uid) {
