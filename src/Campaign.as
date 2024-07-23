@@ -1,12 +1,18 @@
 // c 2024-07-22
-// m 2024-07-22
+// m 2024-07-23
 
-dictionary@ campaigns = dictionary();
+enum CampaignType {
+    Seasonal,
+    TrackOfTheDay,
+    Other,
+    Unknown
+}
 
 class Campaign {
     dictionary@           maps = dictionary();
     WarriorMedals::Map@[] mapsArr;
     string                name;
+    CampaignType          type = CampaignType::Unknown;
 
     Campaign() { }
     Campaign(const string &in name) {
@@ -14,11 +20,18 @@ class Campaign {
     }
 
     void AddMap(WarriorMedals::Map@ map) {
-        if (map is null)
+        if (map is null || maps.Exists(map.uid))
             return;
 
         maps[map.uid] = @map;
         mapsArr.InsertLast(@map);
+
+        if (map.campaign.Length > 0)
+            type = CampaignType::Other;
+        else if (map.date.Length > 0)
+            type = CampaignType::TrackOfTheDay;
+        else
+            type = CampaignType::Seasonal;
     }
 
     WarriorMedals::Map@ GetMap(const string &in uid) {
