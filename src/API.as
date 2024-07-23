@@ -1,5 +1,5 @@
 // c 2024-07-18
-// m 2024-07-21
+// m 2024-07-22
 
 const string e416devApiUrl = "https://e416.dev/api";
 bool         getting       = false;
@@ -37,6 +37,9 @@ void GetAllMapInfosAsync() {
     }
 
     getting = false;
+
+    GetAllPBsAsync();
+    BuildCampaigns();
 }
 
 void GetMapInfoAsync() {
@@ -90,6 +93,7 @@ void GetMapInfoAsync(const string &in uid) {
     Json::Value@ mapInfo = req.Json();
     if (WarriorMedals::CheckJsonType(mapInfo, Json::Type::Object, "mapInfo") && mapInfo.GetKeys().Length > 0) {
         WarriorMedals::Map@ map = WarriorMedals::Map(mapInfo);
+        map.GetPB();
         maps[uid] = @map;
 
         trace("got map info for " + uid);
