@@ -176,9 +176,39 @@ void DrawOverTotdPage(CGameManialinkPage@ Page) {
     if (Maps is null)
         return;
 
+    string monthName;
+    CGameManialinkLabel@ MonthLabel = cast<CGameManialinkLabel@>(Page.GetFirstChild("label-title"));
+    if (MonthLabel !is null)
+        monthName = string(MonthLabel.Value).SubStr(12).Replace("%1\u0091", "");
+
+    uint[] indicesToShow;
+    Campaign@ campaign = GetCampaign(monthName.ToLower());
+    if (campaign !is null) {
+        for (uint i = 0; i < campaign.mapsArr.Length; i++) {
+            WarriorMedals::Map@ map = campaign.mapsArr[i];
+            if (map is null)
+                continue;
+
+            if (map.pb < (map.custom > 0 ? map.custom : map.warrior))
+                indicesToShow.InsertLast(map.index);
+        }
+    }
+
+    uint indexOffset = 0;
     for (uint i = 0; i < Maps.Controls.Length; i++) {
+        if (indexOffset > 6)
+            break;
+
         CGameManialinkFrame@ Map = cast<CGameManialinkFrame@>(Maps.Controls[i]);
-        if (Map is null || !Map.Visible)
+        if (Map is null || !Map.Visible) {
+            indexOffset++;
+            continue;
+        }
+
+        if (indicesToShow.Length == 0)
+            break;
+
+        if (indicesToShow.Find(i - indexOffset) == -1)
             continue;
 
         CGameManialinkFrame@ MedalStack = cast<CGameManialinkFrame@>(Map.GetFirstChild("frame-medalstack"));
