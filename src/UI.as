@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2024-07-23
+// m 2024-07-24
 
 void DrawOverUI() {
     if (false
@@ -291,14 +291,22 @@ void DrawOverPauseMenu(CGameManialinkPage@ Page) {
     if (Page is null)
         return;
 
+    CGameManialinkFrame@ MedalStack = cast<CGameManialinkFrame@>(Page.GetFirstChild("ComponentMedalStack_frame-global"));
+    if (MedalStack is null)
+        return;
+
     const float w = Draw::GetWidth();
     const float h = Draw::GetHeight();
-    const float unit = (w / h < 16.0f / 9.0f) ? w / 320.0f : h / 180.0f;
-    const vec2 offset = vec2(-33.4f, 40.83f);  // TODO: different for PlayMap and Training
-    const vec2 coords = vec2(w * 0.5f, h * 0.5f) + vec2(unit, -unit) * offset;
+    const float hUnit = h / 180.0f;
+    const vec2 size = vec2(19.584f) * hUnit;
+    const vec2 offset = vec2(0.0f, -size.y * 0.5f);
+    const vec2 coords = vec2(w * 0.5f, h * 0.5f) + offset
+        + vec2((w / h > 16.0f / 9.0f) ? hUnit : w / 320.0f, -hUnit) * (
+            MedalStack.AbsolutePosition_V3 + vec2(12.16f, 0.0f)
+        );
 
     nvg::BeginPath();
-    nvg::FillPaint(nvg::TexturePattern(coords, vec2(240.0f), 0.0f, iconUI, 1.0f));
+    nvg::FillPaint(nvg::TexturePattern(coords, size, 0.0f, iconUI, 1.0f));
     nvg::Fill();
 }
 
