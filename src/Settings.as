@@ -94,7 +94,7 @@ void Settings_General() {
 [Setting hidden] bool S_MedalsClubCampaign     = false;
 [Setting hidden] bool S_MedalsInUI             = false;
 [Setting hidden] bool S_MedalsLiveCampaign     = true;
-// [Setting hidden] bool S_MedalsLiveTotd         = true;
+[Setting hidden] bool S_MedalsLiveTotd         = false;
 [Setting hidden] bool S_MedalsSeasonalCampaign = true;
 [Setting hidden] bool S_MedalsTotd             = true;
 [Setting hidden] bool S_MedalsTraining         = true;

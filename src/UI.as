@@ -46,6 +46,7 @@ void DrawOverUI() {
 
     CGameManialinkPage@ Campaign;
     CGameManialinkPage@ LiveCampaign;
+    // CGameManialinkPage@ LiveTotd;
     CGameManialinkPage@ Totd;
     CGameManialinkPage@ Training;
 
@@ -53,6 +54,7 @@ void DrawOverUI() {
         if (true
             && !(Campaign     is null && (S_MedalsSeasonalCampaign || S_MedalsClubCampaign))
             && !(LiveCampaign is null && S_MedalsLiveCampaign)
+            // && !(LiveTotd     is null && S_MedalsLiveTotd)
             && !(Totd         is null && S_MedalsTotd)
             && !(Training     is null && S_MedalsTraining)
         )
@@ -63,10 +65,20 @@ void DrawOverUI() {
             || Layer is null
             || !Layer.IsVisible
             || Layer.Type != CGameUILayer::EUILayerType::Normal
+            || Layer.ManialinkPageUtf8.Length == 0
         )
             continue;
 
         const string pageName = Layer.ManialinkPageUtf8.Trim();
+
+        // if (true
+        //     && S_MedalsLiveTotd
+        //     && LiveTotd is null
+        //     && pageName.SubStr(17, 23) == "Page_TOTDChannelDisplay"
+        // ) {  // 27
+        //     @LiveTotd = Layer.LocalPage;
+        //     continue;
+        // }
 
         if (true
             && (S_MedalsSeasonalCampaign || S_MedalsClubCampaign)
@@ -107,6 +119,7 @@ void DrawOverUI() {
 
     DrawOverCampaignPage(Campaign);
     DrawOverLiveCampaignPage(LiveCampaign);
+    // DrawOverLiveTotdPage(LiveTotd);
     DrawOverTotdPage(Totd);
     DrawOverTrainingPage(Training);
 }
@@ -203,6 +216,33 @@ void DrawOverLiveCampaignPage(CGameManialinkPage@ Page) {
         campaignName = string(CampaignLabel.Value).SubStr(19).Replace("\u0091", " ");
 
     DrawCampaign(cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-maps")), campaignName, false);
+}
+
+void DrawOverLiveTotdPage(CGameManialinkPage@ Page) {
+    if (Page is null)
+        return;
+
+    CGameManialinkFrame@ PrevDay = cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-previous-day"));
+    if (PrevDay is null || !PrevDay.Visible)
+        return;
+
+    CGameManialinkLabel@ DayLabel = cast<CGameManialinkLabel@>(PrevDay.GetFirstChild("label-day"));
+    if (DayLabel is null)
+        return;
+
+    const string date = string(DayLabel.Value).SubStr(19).Replace("%1\u0091", "");
+    UI::Text(date);
+
+    uint month = 0;
+
+    const uint day = Text::ParseUInt(date.SubStr(date.Length - 2));
+    UI::Text(tostring(day));
+
+    CGameManialinkFrame@ MedalStack = cast<CGameManialinkFrame@>(PrevDay.GetFirstChild("frame-medal-stack"));
+    if (MedalStack is null || !MedalStack.Visible)
+        return;
+
+    UI::Text("medal stack");
 }
 
 void DrawOverTotdPage(CGameManialinkPage@ Page) {
