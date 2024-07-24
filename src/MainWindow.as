@@ -49,7 +49,7 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
 
         UI::TableNextColumn();
         UI::AlignTextToFramePadding();
-        UI::Text(" " + campaign.name);
+        UI::SeparatorText(campaign.name);
 
         UI::TableNextColumn();
         UI::Image(icon32, vec2(scale * 32.0f));
