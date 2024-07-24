@@ -213,7 +213,7 @@ void DrawCampaign(CGameManialinkFrame@ Maps, const string &in campaignName, bool
         ;
 
         nvg::BeginPath();
-        nvg::FillPaint(nvg::TexturePattern(coords, vec2(116.0f), 0.0f, iconUI, 1.0f));
+        nvg::FillPaint(nvg::TexturePattern(coords, vec2(unit * 9.6f), 0.0f, iconUI, 1.0f));
         nvg::Fill();
     }
 }
@@ -294,7 +294,7 @@ void DrawOverPauseMenu(CGameManialinkPage@ Page) {
     const float w = Draw::GetWidth();
     const float h = Draw::GetHeight();
     const float unit = (w / h < 16.0f / 9.0f) ? w / 320.0f : h / 180.0f;
-    const vec2 offset = vec2(-33.4f, 40.83f);
+    const vec2 offset = vec2(-33.4f, 40.83f);  // TODO: different for PlayMap and Training
     const vec2 coords = vec2(w * 0.5f, h * 0.5f) + vec2(unit, -unit) * offset;
 
     nvg::BeginPath();
@@ -364,7 +364,7 @@ void DrawOverTotdPage(CGameManialinkPage@ Page) {
         ;
 
         nvg::BeginPath();
-        nvg::FillPaint(nvg::TexturePattern(coords, vec2(109.8f), 0.0f, iconUI, 1.0f));
+        nvg::FillPaint(nvg::TexturePattern(coords, vec2(unit * 9.15f), 0.0f, iconUI, 1.0f));
         nvg::Fill();
     }
 }
