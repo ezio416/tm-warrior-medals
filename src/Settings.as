@@ -93,6 +93,8 @@ void Settings_General() {
 
 [Setting hidden] bool S_MedalsClubCampaign     = false;
 [Setting hidden] bool S_MedalsInUI             = false;
+[Setting hidden] bool S_MedalsLiveCampaign     = true;
+// [Setting hidden] bool S_MedalsLiveTotd         = true;
 [Setting hidden] bool S_MedalsSeasonalCampaign = true;
 [Setting hidden] bool S_MedalsTotd             = true;
 [Setting hidden] bool S_MedalsTraining         = true;
@@ -120,16 +122,21 @@ void Settings_MedalsInUI() {
         if (UI::Button("Reset to default##menu")) {
             Meta::Plugin@ plugin = Meta::ExecutingPlugin();
             plugin.GetSetting("S_MedalsSeasonalCampaign").Reset();
+            plugin.GetSetting("S_MedalsLiveCampaign").Reset();
             plugin.GetSetting("S_MedalsClubCampaign").Reset();
             plugin.GetSetting("S_MedalsTotd").Reset();
+            // plugin.GetSetting("S_MedalsLiveTotd").Reset();
             plugin.GetSetting("S_MedalsTraining").Reset();
         }
 
-        S_MedalsSeasonalCampaign = UI::Checkbox("Seasonal campaign", S_MedalsSeasonalCampaign);
-        S_MedalsClubCampaign     = UI::Checkbox("Club campaign",     S_MedalsClubCampaign);
-        HoverTooltipSetting("May be inaccurate if a club campaign shares a name with an official one.");
-        S_MedalsTotd             = UI::Checkbox("Track of the Day",  S_MedalsTotd);
-        S_MedalsTraining         = UI::Checkbox("Training",          S_MedalsTraining);
+        S_MedalsSeasonalCampaign = UI::Checkbox("Seasonal campaign",        S_MedalsSeasonalCampaign);
+        S_MedalsLiveCampaign     = UI::Checkbox("Seasonal campaign (live)", S_MedalsLiveCampaign);
+        HoverTooltipSetting("In the arcade");
+        S_MedalsTotd             = UI::Checkbox("Track of the Day",         S_MedalsTotd);
+        // S_MedalsLiveTotd         = UI::Checkbox("Track of the Day (live)",  S_MedalsLiveTotd);
+        S_MedalsClubCampaign     = UI::Checkbox("Club campaign",            S_MedalsClubCampaign);
+        HoverTooltipSetting("May be inaccurate if a club campaign shares a name with an official one");
+        S_MedalsTraining         = UI::Checkbox("Training",                 S_MedalsTraining);
 
         // UI::Separator();
 

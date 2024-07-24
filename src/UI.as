@@ -7,8 +7,9 @@ void DrawOverUI() {
         || iconUI is null
         || (true
             && !S_MedalsSeasonalCampaign
-            && !S_MedalsClubCampaign
+            && !S_MedalsLiveCampaign
             && !S_MedalsTotd
+            && !S_MedalsClubCampaign
             && !S_MedalsTraining
         )
     )
@@ -44,14 +45,16 @@ void DrawOverUI() {
         return;
 
     CGameManialinkPage@ Campaign;
+    CGameManialinkPage@ LiveCampaign;
     CGameManialinkPage@ Totd;
     CGameManialinkPage@ Training;
 
     for (uint i = 0; i < Title.UILayers.Length; i++) {
         if (true
-            && Campaign !is null
-            && Totd !is null
-            && Training !is null
+            && !(Campaign     is null && (S_MedalsSeasonalCampaign || S_MedalsClubCampaign))
+            && !(LiveCampaign is null && S_MedalsLiveCampaign)
+            && !(Totd         is null && S_MedalsTotd)
+            && !(Training     is null && S_MedalsTraining)
         )
             break;
 
@@ -65,29 +68,51 @@ void DrawOverUI() {
 
         const string pageName = Layer.ManialinkPageUtf8.Trim();
 
-        if ((S_MedalsSeasonalCampaign || S_MedalsClubCampaign) && pageName.SubStr(17, 20) == "Page_CampaignDisplay") {  // 30
+        if (true
+            && (S_MedalsSeasonalCampaign || S_MedalsClubCampaign)
+            && Campaign is null
+            && pageName.SubStr(17, 20) == "Page_CampaignDisplay"
+        ) {  // 30
             @Campaign = Layer.LocalPage;
             continue;
         }
 
-        if (S_MedalsTotd && pageName.SubStr(17, 27) == "Page_MonthlyCampaignDisplay") {  // 31
+        if (true
+            && S_MedalsTotd
+            && Totd is null
+            && pageName.SubStr(17, 27) == "Page_MonthlyCampaignDisplay"
+        ) {  // 31
             @Totd = Layer.LocalPage;
             continue;
         }
 
-        if (S_MedalsTraining && pageName.SubStr(17, 20) == "Page_TrainingDisplay") {  // 41
+        if (true
+            && S_MedalsTraining
+            && Training is null
+            && pageName.SubStr(17, 20) == "Page_TrainingDisplay"
+        ) {  // 41
             @Training = Layer.LocalPage;
+            continue;
+        }
+
+        if (true
+            && S_MedalsLiveCampaign
+            && LiveCampaign is null
+            && pageName.SubStr(17, 24) == "Page_RoomCampaignDisplay"
+        ) {  // 42
+            @LiveCampaign = Layer.LocalPage;
             continue;
         }
     }
 
     DrawOverCampaignPage(Campaign);
+    DrawOverLiveCampaignPage(LiveCampaign);
     DrawOverTotdPage(Totd);
     DrawOverTrainingPage(Training);
 }
 
 void DrawCampaign(CGameManialinkFrame@ Maps, const string &in campaignName, bool club = false) {
-    if (Maps is null)
+    if (Maps is null || campaignName.Length == 0)
         return;
 
     uint[] indicesToShow;
@@ -111,7 +136,7 @@ void DrawCampaign(CGameManialinkFrame@ Maps, const string &in campaignName, bool
             continue;
 
         CGameManialinkFrame@ Map = cast<CGameManialinkFrame@>(Maps.Controls[i]);
-        if (Map is null)
+        if (Map is null || !Map.Visible)
             continue;
 
         CGameManialinkFrame@ MedalStack = cast<CGameManialinkFrame@>(Map.GetFirstChild("frame-medalstack"));
@@ -168,6 +193,18 @@ void DrawOverCampaignPage(CGameManialinkPage@ Page) {
     DrawCampaign(cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-maps")), campaignName, club);
 }
 
+void DrawOverLiveCampaignPage(CGameManialinkPage@ Page) {
+    if (Page is null)
+        return;
+
+    string campaignName;
+    CGameManialinkLabel@ CampaignLabel = cast<CGameManialinkLabel@>(Page.GetFirstChild("label-title"));
+    if (CampaignLabel !is null)
+        campaignName = string(CampaignLabel.Value).SubStr(19).Replace("\u0091", " ");
+
+    DrawCampaign(cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-maps")), campaignName, false);
+}
+
 void DrawOverTotdPage(CGameManialinkPage@ Page) {
     if (Page is null)
         return;
@@ -199,17 +236,17 @@ void DrawOverTotdPage(CGameManialinkPage@ Page) {
         if (indexOffset > 6)
             break;
 
-        CGameManialinkFrame@ Map = cast<CGameManialinkFrame@>(Maps.Controls[i]);
-        if (Map is null || !Map.Visible) {
-            indexOffset++;
-            continue;
-        }
-
         if (indicesToShow.Length == 0)
             break;
 
         if (indicesToShow.Find(i - indexOffset) == -1)
             continue;
+
+        CGameManialinkFrame@ Map = cast<CGameManialinkFrame@>(Maps.Controls[i]);
+        if (Map is null || !Map.Visible) {
+            indexOffset++;
+            continue;
+        }
 
         CGameManialinkFrame@ MedalStack = cast<CGameManialinkFrame@>(Map.GetFirstChild("frame-medalstack"));
         if (MedalStack is null || !MedalStack.Visible)
