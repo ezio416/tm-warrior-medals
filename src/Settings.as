@@ -143,7 +143,7 @@ void Settings_MedalsInUI() {
         S_UIMedalsTotd             = UI::Checkbox("Track of the Day",         S_UIMedalsTotd);
         // S_UIMedalsLiveTotd         = UI::Checkbox("Track of the Day (live)",  S_UIMedalsLiveTotd);
         S_UIMedalsClubCampaign     = UI::Checkbox("Club campaign",            S_UIMedalsClubCampaign);
-        HoverTooltipSetting("May be inaccurate if a club campaign shares a name with an official one");
+        HoverTooltipSetting("May be inaccurate as it only checks the name of the campaign");
         S_UIMedalsTraining         = UI::Checkbox("Training",                 S_UIMedalsTraining);
 
         UI::Separator();
