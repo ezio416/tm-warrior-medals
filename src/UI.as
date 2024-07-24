@@ -14,6 +14,7 @@ void DrawOverUI() {
             && !S_MedalsStart
             && !S_MedalsPause
             && !S_MedalsEnd
+            && !S_MedalsBanner
         )
     )
         return;
@@ -44,6 +45,7 @@ void DrawOverUI() {
     }
 
     CTrackManiaNetwork@ Network = cast<CTrackManiaNetwork@>(App.Network);
+    CTrackManiaNetworkServerInfo@ ServerInfo = cast<CTrackManiaNetworkServerInfo@>(Network.ServerInfo);
 
     if (InMap()) {
         if (false
@@ -51,6 +53,8 @@ void DrawOverUI() {
             || !maps.Exists(App.RootMap.EdChallengeId)
         )
             return;
+
+        const bool lookForBanner = ServerInfo.CurGameModeStr.Contains("_Online");
 
         WarriorMedals::Map@ map = cast<WarriorMedals::Map@>(maps[App.RootMap.EdChallengeId]);
         if (false
@@ -61,7 +65,7 @@ void DrawOverUI() {
 
         CGameManiaAppPlayground@ CMAP = Network.ClientManiaAppPlayground;
         if (false
-            ||CMAP is null
+            || CMAP is null
             || CMAP.UILayers.Length < 23
             || CMAP.UI is null
         )
@@ -78,12 +82,14 @@ void DrawOverUI() {
         CGameManialinkPage@ Start;
         CGameManialinkPage@ Pause;
         CGameManialinkPage@ End;
+        CGameManialinkPage@ Record;
 
         for (uint i = 0; i < CMAP.UILayers.Length; i++) {
             if (true
-                && !(Start is null && S_MedalsStart && startSequence)
-                && !(Pause is null && S_MedalsPause && Network.PlaygroundClientScriptAPI.IsInGameMenuDisplayed)
-                && !(End   is null && S_MedalsEnd   && endSequence)
+                && !(Start  is null && S_MedalsStart  && startSequence)
+                && !(Pause  is null && S_MedalsPause  && Network.PlaygroundClientScriptAPI.IsInGameMenuDisplayed)
+                && !(End    is null && S_MedalsEnd    && endSequence)
+                && !(Record is null && S_MedalsBanner && lookForBanner)
             )
                 break;
 
@@ -100,6 +106,18 @@ void DrawOverUI() {
                 continue;
 
             const string pageName = Layer.ManialinkPageUtf8.Trim().SubStr(0, 64);
+
+            if (true
+                && lookForBanner
+                && !startSequence
+                && S_MedalsBanner
+                && Record is null
+                && Layer.Type == CGameUILayer::EUILayerType::Normal
+                && pageName.Contains("_Race_Record")
+            ) {
+                @Record = Layer.LocalPage;
+                continue;
+            }
 
             if (true
                 && startSequence
@@ -134,14 +152,14 @@ void DrawOverUI() {
             }
         }
 
-        DrawOverPlaygroundMenus(Start);
-        DrawOverPlaygroundMenus(Pause, true);
-        DrawOverPlaygroundMenus(End);
+        DrawOverPlaygroundPage(Record, true);
+        DrawOverPlaygroundPage(Start);
+        DrawOverPlaygroundPage(Pause, false, true);
+        DrawOverPlaygroundPage(End);
 
         return;
     }
 
-    CTrackManiaNetworkServerInfo@ ServerInfo = cast<CTrackManiaNetworkServerInfo@>(Network.ServerInfo);
     if (ServerInfo.CurGameModeStr.Length > 0)
         return;
 
@@ -354,7 +372,7 @@ void DrawOverLiveTotdPage(CGameManialinkPage@ Page) {
     UI::Text("medal stack");
 }
 
-void DrawOverPlaygroundMenus(CGameManialinkPage@ Page, bool pause = false) {
+void DrawOverPlaygroundPage(CGameManialinkPage@ Page, bool banner = false, bool pause = false) {
     if (Page is null)
         return;
 
@@ -369,19 +387,25 @@ void DrawOverPlaygroundMenus(CGameManialinkPage@ Page, bool pause = false) {
             return;
     }
 
-    CGameManialinkFrame@ MedalStack = cast<CGameManialinkFrame@>(Page.GetFirstChild("ComponentMedalStack_frame-global"));
-    if (MedalStack is null || !MedalStack.Visible)
+    CGameManialinkControl@ Medal = Page.GetFirstChild(banner ? "quad-medal" : "ComponentMedalStack_frame-global");
+    if (false
+        || Medal is null
+        || !Medal.Visible
+        || (banner && (false
+            || !Medal.Parent.Visible  // not visible in solo
+            || Medal.AbsolutePosition_V3.x < -170.0f  // off screen
+        ))
+    )
         return;
 
-    const float w = Draw::GetWidth();
-    const float h = Draw::GetHeight();
-    const float hUnit = h / 180.0f;
-    const vec2 size = vec2(19.584f) * hUnit;
-    const vec2 offset = vec2(0.0f, -size.y * 0.5f);
-    const vec2 coords = vec2(w * 0.5f, h * 0.5f) + offset
-        + vec2((w / h > 16.0f / 9.0f) ? hUnit : w / 320.0f, -hUnit) * (
-            MedalStack.AbsolutePosition_V3 + vec2(12.16f, 0.0f)
-        );
+    const float w      = Draw::GetWidth();
+    const float h      = Draw::GetHeight();
+    const vec2  center = vec2(w * 0.5f, h * 0.5f);
+    const float hUnit  = h / 180.0f;
+    const vec2  scale  = vec2((w / h > 16.0f / 9.0f) ? hUnit : w / 320.0f, -hUnit);
+    const vec2  size   = vec2(banner ? 21.9f : 19.584f) * hUnit;
+    const vec2  offset = vec2(banner ? -size.x * 0.5f : 0.0f, -size.y * 0.5f);
+    const vec2  coords = center + offset + scale * (Medal.AbsolutePosition_V3 + vec2(banner ? 0.0f : 12.16f, 0.0f));
 
     nvg::BeginPath();
     nvg::FillPaint(nvg::TexturePattern(coords, size, 0.0f, iconUI, 1.0f));

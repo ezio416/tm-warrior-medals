@@ -91,9 +91,10 @@ void Settings_General() {
         OnSettingsChanged();
 }
 
+[Setting hidden] bool S_MedalsBanner           = true;
 [Setting hidden] bool S_MedalsClubCampaign     = false;
 [Setting hidden] bool S_MedalsEnd              = true;
-[Setting hidden] bool S_MedalsInUI             = false;
+[Setting hidden] bool S_MedalsInUI             = true;
 [Setting hidden] bool S_MedalsLiveCampaign     = true;
 [Setting hidden] bool S_MedalsLiveTotd         = false;
 [Setting hidden] bool S_MedalsPause            = true;
@@ -104,7 +105,7 @@ void Settings_General() {
 [SettingsTab name="Medals in UI" icon="ListAlt" order=1]
 void Settings_MedalsInUI() {
     UI::PushFont(fontHeader);
-    UI::Text("Main Toggle");
+    UI::Text("Toggle");
     UI::PopFont();
 
     if (UI::Button("Reset to default##main")) {
@@ -113,13 +114,13 @@ void Settings_MedalsInUI() {
     }
 
     S_MedalsInUI = UI::Checkbox("Show medals in UI", S_MedalsInUI);
-    HoverTooltipSetting("Showing Warrior medal icons in the UI can be laggy, though it is a nice touch to see them more easily in a vanilla-looking way.");
+    HoverTooltipSetting("Showing Warrior medal icons in the UI can be laggy, but it's a nice touch to see them more easily in a vanilla-looking way");
 
     if (S_MedalsInUI) {
         UI::Separator();
 
         UI::PushFont(fontHeader);
-        UI::Text("Menu");
+        UI::Text("Main Menu");
         UI::PopFont();
 
         if (UI::Button("Reset to default##menu")) {
@@ -149,14 +150,19 @@ void Settings_MedalsInUI() {
 
         if (UI::Button("Reset to default##playing")) {
             Meta::Plugin@ plugin = Meta::ExecutingPlugin();
+            plugin.GetSetting("S_MedalsBanner").Reset();
             plugin.GetSetting("S_MedalsStart").Reset();
             plugin.GetSetting("S_MedalsPause").Reset();
             plugin.GetSetting("S_MedalsEnd").Reset();
         }
 
-        S_MedalsStart = UI::Checkbox("Start menu", S_MedalsStart);
-        S_MedalsPause = UI::Checkbox("Pause menu", S_MedalsPause);
-        S_MedalsEnd   = UI::Checkbox("End menu",   S_MedalsEnd);
+        S_MedalsBanner = UI::Checkbox("Record banner", S_MedalsBanner);
+        HoverTooltipSetting("Shows at the top-left in a live match");
+        S_MedalsStart  = UI::Checkbox("Start menu",    S_MedalsStart);
+        HoverTooltipSetting("Only shows in solo");
+        S_MedalsPause  = UI::Checkbox("Pause menu",    S_MedalsPause);
+        S_MedalsEnd    = UI::Checkbox("End menu",      S_MedalsEnd);
+        HoverTooltipSetting("Only shows in solo");
     }
 }
 
