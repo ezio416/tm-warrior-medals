@@ -11,7 +11,9 @@ void DrawOverUI() {
             && !S_MedalsTotd
             && !S_MedalsClubCampaign
             && !S_MedalsTraining
+            && !S_MedalsStart
             && !S_MedalsPause
+            && !S_MedalsEnd
         )
     )
         return;
@@ -22,10 +24,32 @@ void DrawOverUI() {
     if (LoadProgress !is null && LoadProgress.State != NGameLoadProgress::EState::Disabled)
         return;
 
+    CDx11Viewport@ Viewport = cast<CDx11Viewport@>(App.Viewport);
+    if (Viewport is null || Viewport.Overlays.Length == 0)
+        return;
+
+    for (int i = Viewport.Overlays.Length - 1; i >= 0; i--) {
+        CHmsZoneOverlay@ Overlay = Viewport.Overlays[i];
+        if (false
+            || Overlay is null
+            || Overlay.m_CorpusVisibles.Length == 0
+            || Overlay.m_CorpusVisibles[0] is null
+            || Overlay.m_CorpusVisibles[0].Item is null
+            || Overlay.m_CorpusVisibles[0].Item.SceneMobil is null
+        )
+            continue;
+
+        if (Overlay.m_CorpusVisibles[0].Item.SceneMobil.IdName == "FrameConfirmQuit")
+            return;
+    }
+
     CTrackManiaNetwork@ Network = cast<CTrackManiaNetwork@>(App.Network);
 
     if (InMap()) {
-        if (!maps.Exists(App.RootMap.EdChallengeId))
+        if (false
+            || !UI::IsGameUIVisible()
+            || !maps.Exists(App.RootMap.EdChallengeId)
+        )
             return;
 
         WarriorMedals::Map@ map = cast<WarriorMedals::Map@>(maps[App.RootMap.EdChallengeId]);
@@ -36,14 +60,24 @@ void DrawOverUI() {
             return;
 
         CGameManiaAppPlayground@ CMAP = Network.ClientManiaAppPlayground;
-        if (CMAP is null || CMAP.UILayers.Length < 23)
+        if (false
+            ||CMAP is null
+            || CMAP.UILayers.Length < 23
+            || CMAP.UI is null
+        )
             return;
 
+        const bool endRound = CMAP.UI.UISequence == CGamePlaygroundUIConfig::EUISequence::EndRound;
+
+        CGameManialinkPage@ Start;
         CGameManialinkPage@ Pause;
+        CGameManialinkPage@ End;
 
         for (uint i = 0; i < CMAP.UILayers.Length; i++) {
             if (true
+                && !(Start is null && S_MedalsStart && endRound)
                 && !(Pause is null && S_MedalsPause && Network.PlaygroundClientScriptAPI.IsInGameMenuDisplayed)
+                && !(End   is null && S_MedalsEnd   && endRound)
             )
                 break;
 
@@ -51,25 +85,52 @@ void DrawOverUI() {
             if (false
                 || Layer is null
                 || !Layer.IsVisible
-                // || Layer.Type != CGameUILayer::EUILayerType::Normal
+                || (true
+                    && Layer.Type != CGameUILayer::EUILayerType::Normal
+                    && Layer.Type != CGameUILayer::EUILayerType::InGameMenu
+                )
                 || Layer.ManialinkPageUtf8.Length == 0
             )
                 continue;
 
-            const string pageName = Layer.ManialinkPageUtf8.Trim();
+            const string pageName = Layer.ManialinkPageUtf8.Trim().SubStr(0, 64);
+
+            if (true
+                && endRound
+                && S_MedalsStart
+                && Start is null
+                && Layer.Type == CGameUILayer::EUILayerType::Normal
+                && pageName.Contains("_StartRaceMenu")
+            ) {
+                @Start = Layer.LocalPage;
+                continue;
+            }
 
             if (true
                 && S_MedalsPause
                 && Pause is null
                 && Layer.Type == CGameUILayer::EUILayerType::InGameMenu
-                && pageName.SubStr(0, 100).Contains("_PauseMenu")
+                && pageName.Contains("_PauseMenu")
             ) {
                 @Pause = Layer.LocalPage;
                 continue;
             }
+
+            if (true
+                && endRound
+                && S_MedalsEnd
+                && End is null
+                && Layer.Type == CGameUILayer::EUILayerType::Normal
+                && pageName.Contains("_EndRaceMenu")
+            ) {
+                @End = Layer.LocalPage;
+                continue;
+            }
         }
 
-        DrawOverPauseMenu(Pause);
+        DrawOverPlaygroundMenus(Start);
+        DrawOverPlaygroundMenus(Pause, true);
+        DrawOverPlaygroundMenus(End);
 
         return;
     }
@@ -287,12 +348,23 @@ void DrawOverLiveTotdPage(CGameManialinkPage@ Page) {
     UI::Text("medal stack");
 }
 
-void DrawOverPauseMenu(CGameManialinkPage@ Page) {
+void DrawOverPlaygroundMenus(CGameManialinkPage@ Page, bool pause = false) {
     if (Page is null)
         return;
 
+    if (pause) {
+        CTrackMania@ App = cast<CTrackMania@>(GetApp());
+        CTrackManiaNetwork@ Network = cast<CTrackManiaNetwork@>(App.Network);
+        if (!Network.PlaygroundClientScriptAPI.IsInGameMenuDisplayed)
+            return;
+    } else {
+        CGameManialinkFrame@ Global = cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-global"));
+        if (Global is null || !Global.Visible)
+            return;
+    }
+
     CGameManialinkFrame@ MedalStack = cast<CGameManialinkFrame@>(Page.GetFirstChild("ComponentMedalStack_frame-global"));
-    if (MedalStack is null)
+    if (MedalStack is null || !MedalStack.Visible)
         return;
 
     const float w = Draw::GetWidth();

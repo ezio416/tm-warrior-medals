@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2024-07-23
+// m 2024-07-24
 
 [Setting hidden] vec3 S_ColorFall         = vec3(1.0f, 0.5f, 0.0f);
 [Setting hidden] vec3 S_ColorSpring       = vec3(0.3f, 0.9f, 0.3f);
@@ -92,13 +92,15 @@ void Settings_General() {
 }
 
 [Setting hidden] bool S_MedalsClubCampaign     = false;
+[Setting hidden] bool S_MedalsEnd              = true;
 [Setting hidden] bool S_MedalsInUI             = false;
 [Setting hidden] bool S_MedalsLiveCampaign     = true;
 [Setting hidden] bool S_MedalsLiveTotd         = false;
+[Setting hidden] bool S_MedalsPause            = true;
 [Setting hidden] bool S_MedalsSeasonalCampaign = true;
+[Setting hidden] bool S_MedalsStart            = true;
 [Setting hidden] bool S_MedalsTotd             = true;
 [Setting hidden] bool S_MedalsTraining         = true;
-[Setting hidden] bool S_MedalsPause            = true;
 [SettingsTab name="Medals in UI" icon="ListAlt" order=1]
 void Settings_MedalsInUI() {
     UI::PushFont(fontHeader);
@@ -147,10 +149,14 @@ void Settings_MedalsInUI() {
 
         if (UI::Button("Reset to default##playing")) {
             Meta::Plugin@ plugin = Meta::ExecutingPlugin();
-            plugin.GetSetting("").Reset();
+            plugin.GetSetting("S_MedalsStart").Reset();
+            plugin.GetSetting("S_MedalsPause").Reset();
+            plugin.GetSetting("S_MedalsEnd").Reset();
         }
 
+        S_MedalsStart = UI::Checkbox("Start menu", S_MedalsStart);
         S_MedalsPause = UI::Checkbox("Pause menu", S_MedalsPause);
+        S_MedalsEnd   = UI::Checkbox("End menu",   S_MedalsEnd);
     }
 }
 
