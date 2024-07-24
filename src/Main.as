@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2024-07-23
+// m 2024-07-24
 
 Campaign@     activeOtherCampaign;
 Campaign@     activeSeasonalCampaign;
@@ -90,12 +90,12 @@ void RenderMenu() {
 void MainWindow() {
     if (false
         || !S_MainWindow
-        || (S_MainHideWithGame && !UI::IsGameUIVisible())
-        || (S_MainHideWithOP && !UI::IsOverlayShown())
+        || (S_MainWindowHideWithGame && !UI::IsGameUIVisible())
+        || (S_MainWindowHideWithOP && !UI::IsOverlayShown())
     )
         return;
 
-    if (UI::Begin(title, S_MainWindow, S_MainAutoResize ? UI::WindowFlags::AlwaysAutoResize : UI::WindowFlags::None)) {
+    if (UI::Begin(title, S_MainWindow, S_MainWindowAutoResize ? UI::WindowFlags::AlwaysAutoResize : UI::WindowFlags::None)) {
         UI::PushStyleColor(UI::Col::Button,        vec4(colorVec - vec3(0.2f), 1.0f));
         UI::PushStyleColor(UI::Col::ButtonActive,  vec4(colorVec - vec3(0.4f), 1.0f));
         UI::PushStyleColor(UI::Col::ButtonHovered, vec4(colorVec,              1.0f));
@@ -122,8 +122,8 @@ void MainWindow() {
 void MedalWindow() {
     if (false
         || !S_MedalWindow
-        || (S_MedalHideWithGame && !UI::IsGameUIVisible())
-        || (S_MedalHideWithOP && !UI::IsOverlayShown())
+        || (S_MedalWindowHideWithGame && !UI::IsGameUIVisible())
+        || (S_MedalWindowHideWithOP && !UI::IsOverlayShown())
         || !InMap()
     )
         return;
@@ -142,7 +142,7 @@ void MedalWindow() {
 
     if (UI::Begin(title + "-medal", S_MedalWindow, flags)) {
         const uint warrior = map.custom > 0 ? map.custom : map.warrior;
-        const bool delta = S_MedalDelta && map.pb != uint(-1);
+        const bool delta = S_MedalWindowDelta && map.pb != uint(-1);
 
         if (UI::BeginTable("##table-times", delta ? 4 : 3)) {
             UI::TableNextRow();

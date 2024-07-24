@@ -1,18 +1,33 @@
 // c 2024-07-17
 // m 2024-07-24
 
-[Setting hidden] vec3 S_ColorFall         = vec3(1.0f, 0.5f, 0.0f);
-[Setting hidden] vec3 S_ColorSpring       = vec3(0.3f, 0.9f, 0.3f);
-[Setting hidden] vec3 S_ColorSummer       = vec3(1.0f, 0.8f, 0.0f);
-[Setting hidden] vec3 S_ColorWinter       = vec3(0.0f, 0.8f, 1.0f);
-[Setting hidden] bool S_MainAutoResize    = false;
-[Setting hidden] bool S_MainHideWithGame  = true;
-[Setting hidden] bool S_MainHideWithOP    = true;
-[Setting hidden] bool S_MainWindow        = false;
-[Setting hidden] bool S_MedalDelta        = true;
-[Setting hidden] bool S_MedalHideWithGame = true;
-[Setting hidden] bool S_MedalHideWithOP   = false;
-[Setting hidden] bool S_MedalWindow       = true;
+[Setting hidden] vec3 S_ColorFall                = vec3(1.0f, 0.5f, 0.0f);
+[Setting hidden] vec3 S_ColorSpring              = vec3(0.3f, 0.9f, 0.3f);
+[Setting hidden] vec3 S_ColorSummer              = vec3(1.0f, 0.8f, 0.0f);
+[Setting hidden] vec3 S_ColorWinter              = vec3(0.0f, 0.8f, 1.0f);
+
+[Setting hidden] bool S_MainWindow               = false;
+[Setting hidden] bool S_MainWindowAutoResize     = false;
+[Setting hidden] bool S_MainWindowHideWithGame   = true;
+[Setting hidden] bool S_MainWindowHideWithOP     = true;
+
+[Setting hidden] bool S_MedalWindow              = true;
+[Setting hidden] bool S_MedalWindowDelta         = true;
+[Setting hidden] bool S_MedalWindowHideWithGame  = true;
+[Setting hidden] bool S_MedalWindowHideWithOP    = false;
+
+[Setting hidden] bool S_UIMedals                 = true;
+[Setting hidden] bool S_UIMedalBanner            = true;
+[Setting hidden] bool S_UIMedalEnd               = true;
+[Setting hidden] bool S_UIMedalPause             = true;
+[Setting hidden] bool S_UIMedalsClubCampaign     = false;
+[Setting hidden] bool S_UIMedalsLiveCampaign     = true;
+[Setting hidden] bool S_UIMedalsLiveTotd         = false;
+[Setting hidden] bool S_UIMedalsSeasonalCampaign = true;
+[Setting hidden] bool S_UIMedalStart             = true;
+[Setting hidden] bool S_UIMedalsTotd             = true;
+[Setting hidden] bool S_UIMedalsTraining         = true;
+
 [SettingsTab name="General" icon="Cogs"]
 void Settings_General() {
     UI::PushFont(fontHeader);
@@ -22,19 +37,19 @@ void Settings_General() {
     if (UI::Button("Reset to default##main")) {
         Meta::Plugin@ plugin = Meta::ExecutingPlugin();
         plugin.GetSetting("S_MainWindow").Reset();
-        plugin.GetSetting("S_MainHideWithGame").Reset();
-        plugin.GetSetting("S_MainHideWithOP").Reset();
-        plugin.GetSetting("S_MainAutoResize").Reset();
+        plugin.GetSetting("S_MainWindowHideWithGame").Reset();
+        plugin.GetSetting("S_MainWindowHideWithOP").Reset();
+        plugin.GetSetting("S_MainWindowAutoResize").Reset();
     }
 
     S_MainWindow = UI::Checkbox("Show main window", S_MainWindow);
     if (S_MainWindow) {
         UI::NewLine(); UI::SameLine();
-        S_MainHideWithGame = UI::Checkbox("Show/hide with game UI##main",       S_MainHideWithGame);
+        S_MainWindowHideWithGame = UI::Checkbox("Show/hide with game UI##main",       S_MainWindowHideWithGame);
         UI::NewLine(); UI::SameLine();
-        S_MainHideWithOP   = UI::Checkbox("Show/hide with Openplanet UI##main", S_MainHideWithOP);
+        S_MainWindowHideWithOP   = UI::Checkbox("Show/hide with Openplanet UI##main", S_MainWindowHideWithOP);
         UI::NewLine(); UI::SameLine();
-        S_MainAutoResize   = UI::Checkbox("Auto-resize",                        S_MainAutoResize);
+        S_MainWindowAutoResize   = UI::Checkbox("Auto-resize",                        S_MainWindowAutoResize);
     }
 
     UI::Separator();
@@ -46,19 +61,19 @@ void Settings_General() {
     if (UI::Button("Reset to default##medal")) {
         Meta::Plugin@ plugin = Meta::ExecutingPlugin();
         plugin.GetSetting("S_MedalWindow").Reset();
-        plugin.GetSetting("S_MedalHideWithGame").Reset();
-        plugin.GetSetting("S_MedalHideWithOP").Reset();
-        plugin.GetSetting("S_MedalDelta").Reset();
+        plugin.GetSetting("S_MedalWindowHideWithGame").Reset();
+        plugin.GetSetting("S_MedalWindowHideWithOP").Reset();
+        plugin.GetSetting("S_MedalWindowDelta").Reset();
     }
 
     S_MedalWindow = UI::Checkbox("Show medal window when playing", S_MedalWindow);
     if (S_MedalWindow) {
         UI::NewLine(); UI::SameLine();
-        S_MedalHideWithGame = UI::Checkbox("Show/hide with game UI##medal",       S_MedalHideWithGame);
+        S_MedalWindowHideWithGame = UI::Checkbox("Show/hide with game UI##medal",       S_MedalWindowHideWithGame);
         UI::NewLine(); UI::SameLine();
-        S_MedalHideWithOP   = UI::Checkbox("Show/hide with Openplanet UI##medal", S_MedalHideWithOP);
+        S_MedalWindowHideWithOP   = UI::Checkbox("Show/hide with Openplanet UI##medal", S_MedalWindowHideWithOP);
         UI::NewLine(); UI::SameLine();
-        S_MedalDelta        = UI::Checkbox("Show PB delta",                       S_MedalDelta);
+        S_MedalWindowDelta        = UI::Checkbox("Show PB delta",                       S_MedalWindowDelta);
     }
 
     UI::Separator();
@@ -91,18 +106,7 @@ void Settings_General() {
         OnSettingsChanged();
 }
 
-[Setting hidden] bool S_MedalsBanner           = true;
-[Setting hidden] bool S_MedalsClubCampaign     = false;
-[Setting hidden] bool S_MedalsEnd              = true;
-[Setting hidden] bool S_MedalsInUI             = true;
-[Setting hidden] bool S_MedalsLiveCampaign     = true;
-[Setting hidden] bool S_MedalsLiveTotd         = false;
-[Setting hidden] bool S_MedalsPause            = true;
-[Setting hidden] bool S_MedalsSeasonalCampaign = true;
-[Setting hidden] bool S_MedalsStart            = true;
-[Setting hidden] bool S_MedalsTotd             = true;
-[Setting hidden] bool S_MedalsTraining         = true;
-[SettingsTab name="Medals in UI" icon="ListAlt" order=1]
+[SettingsTab name="UI Medals" icon="ListAlt" order=1]
 void Settings_MedalsInUI() {
     UI::PushFont(fontHeader);
     UI::Text("Toggle");
@@ -110,13 +114,13 @@ void Settings_MedalsInUI() {
 
     if (UI::Button("Reset to default##main")) {
         Meta::Plugin@ plugin = Meta::ExecutingPlugin();
-        plugin.GetSetting("S_MedalsInUI").Reset();
+        plugin.GetSetting("S_UIMedals").Reset();
     }
 
-    S_MedalsInUI = UI::Checkbox("Show medals in UI", S_MedalsInUI);
+    S_UIMedals = UI::Checkbox("Show medals in UI", S_UIMedals);
     HoverTooltipSetting("Showing Warrior medal icons in the UI can be laggy, but it's a nice touch to see them more easily in a vanilla-looking way");
 
-    if (S_MedalsInUI) {
+    if (S_UIMedals) {
         UI::Separator();
 
         UI::PushFont(fontHeader);
@@ -125,22 +129,22 @@ void Settings_MedalsInUI() {
 
         if (UI::Button("Reset to default##menu")) {
             Meta::Plugin@ plugin = Meta::ExecutingPlugin();
-            plugin.GetSetting("S_MedalsSeasonalCampaign").Reset();
-            plugin.GetSetting("S_MedalsLiveCampaign").Reset();
-            plugin.GetSetting("S_MedalsClubCampaign").Reset();
-            plugin.GetSetting("S_MedalsTotd").Reset();
-            // plugin.GetSetting("S_MedalsLiveTotd").Reset();
-            plugin.GetSetting("S_MedalsTraining").Reset();
+            plugin.GetSetting("S_UIMedalsSeasonalCampaign").Reset();
+            plugin.GetSetting("S_UIMedalsLiveCampaign").Reset();
+            plugin.GetSetting("S_UIMedalsClubCampaign").Reset();
+            plugin.GetSetting("S_UIMedalsTotd").Reset();
+            // plugin.GetSetting("S_UIMedalsLiveTotd").Reset();
+            plugin.GetSetting("S_UIMedalsTraining").Reset();
         }
 
-        S_MedalsSeasonalCampaign = UI::Checkbox("Seasonal campaign",        S_MedalsSeasonalCampaign);
-        S_MedalsLiveCampaign     = UI::Checkbox("Seasonal campaign (live)", S_MedalsLiveCampaign);
+        S_UIMedalsSeasonalCampaign = UI::Checkbox("Seasonal campaign",        S_UIMedalsSeasonalCampaign);
+        S_UIMedalsLiveCampaign     = UI::Checkbox("Seasonal campaign (live)", S_UIMedalsLiveCampaign);
         HoverTooltipSetting("In the arcade");
-        S_MedalsTotd             = UI::Checkbox("Track of the Day",         S_MedalsTotd);
-        // S_MedalsLiveTotd         = UI::Checkbox("Track of the Day (live)",  S_MedalsLiveTotd);
-        S_MedalsClubCampaign     = UI::Checkbox("Club campaign",            S_MedalsClubCampaign);
+        S_UIMedalsTotd             = UI::Checkbox("Track of the Day",         S_UIMedalsTotd);
+        // S_UIMedalsLiveTotd         = UI::Checkbox("Track of the Day (live)",  S_UIMedalsLiveTotd);
+        S_UIMedalsClubCampaign     = UI::Checkbox("Club campaign",            S_UIMedalsClubCampaign);
         HoverTooltipSetting("May be inaccurate if a club campaign shares a name with an official one");
-        S_MedalsTraining         = UI::Checkbox("Training",                 S_MedalsTraining);
+        S_UIMedalsTraining         = UI::Checkbox("Training",                 S_UIMedalsTraining);
 
         UI::Separator();
 
@@ -150,18 +154,18 @@ void Settings_MedalsInUI() {
 
         if (UI::Button("Reset to default##playing")) {
             Meta::Plugin@ plugin = Meta::ExecutingPlugin();
-            plugin.GetSetting("S_MedalsBanner").Reset();
-            plugin.GetSetting("S_MedalsStart").Reset();
-            plugin.GetSetting("S_MedalsPause").Reset();
-            plugin.GetSetting("S_MedalsEnd").Reset();
+            plugin.GetSetting("S_UIMedalBanner").Reset();
+            plugin.GetSetting("S_UIMedalStart").Reset();
+            plugin.GetSetting("S_UIMedalPause").Reset();
+            plugin.GetSetting("S_UIMedalEnd").Reset();
         }
 
-        S_MedalsBanner = UI::Checkbox("Record banner", S_MedalsBanner);
+        S_UIMedalBanner = UI::Checkbox("Record banner", S_UIMedalBanner);
         HoverTooltipSetting("Shows at the top-left in a live match");
-        S_MedalsStart  = UI::Checkbox("Start menu",    S_MedalsStart);
+        S_UIMedalStart  = UI::Checkbox("Start menu",    S_UIMedalStart);
         HoverTooltipSetting("Only shows in solo");
-        S_MedalsPause  = UI::Checkbox("Pause menu",    S_MedalsPause);
-        S_MedalsEnd    = UI::Checkbox("End menu",      S_MedalsEnd);
+        S_UIMedalPause  = UI::Checkbox("Pause menu",    S_UIMedalPause);
+        S_UIMedalEnd    = UI::Checkbox("End menu",      S_UIMedalEnd);
         HoverTooltipSetting("Only shows in solo");
     }
 }

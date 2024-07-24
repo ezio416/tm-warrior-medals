@@ -3,18 +3,18 @@
 
 void DrawOverUI() {
     if (false
-        || !S_MedalsInUI
+        || !S_UIMedals
         || iconUI is null
         || (true
-            && !S_MedalsSeasonalCampaign
-            && !S_MedalsLiveCampaign
-            && !S_MedalsTotd
-            && !S_MedalsClubCampaign
-            && !S_MedalsTraining
-            && !S_MedalsStart
-            && !S_MedalsPause
-            && !S_MedalsEnd
-            && !S_MedalsBanner
+            && !S_UIMedalsSeasonalCampaign
+            && !S_UIMedalsLiveCampaign
+            && !S_UIMedalsTotd
+            && !S_UIMedalsClubCampaign
+            && !S_UIMedalsTraining
+            && !S_UIMedalStart
+            && !S_UIMedalPause
+            && !S_UIMedalEnd
+            && !S_UIMedalBanner
         )
     )
         return;
@@ -86,10 +86,10 @@ void DrawOverUI() {
 
         for (uint i = 0; i < CMAP.UILayers.Length; i++) {
             if (true
-                && !(Start  is null && S_MedalsStart  && startSequence)
-                && !(Pause  is null && S_MedalsPause  && Network.PlaygroundClientScriptAPI.IsInGameMenuDisplayed)
-                && !(End    is null && S_MedalsEnd    && endSequence)
-                && !(Record is null && S_MedalsBanner && lookForBanner)
+                && !(Record is null && S_UIMedalBanner && lookForBanner)
+                && !(Start  is null && S_UIMedalStart  && startSequence)
+                && !(Pause  is null && S_UIMedalPause  && Network.PlaygroundClientScriptAPI.IsInGameMenuDisplayed)
+                && !(End    is null && S_UIMedalEnd    && endSequence)
             )
                 break;
 
@@ -110,7 +110,7 @@ void DrawOverUI() {
             if (true
                 && lookForBanner
                 && !startSequence
-                && S_MedalsBanner
+                && S_UIMedalBanner
                 && Record is null
                 && Layer.Type == CGameUILayer::EUILayerType::Normal
                 && pageName.Contains("_Race_Record")
@@ -121,7 +121,7 @@ void DrawOverUI() {
 
             if (true
                 && startSequence
-                && S_MedalsStart
+                && S_UIMedalStart
                 && Start is null
                 && Layer.Type == CGameUILayer::EUILayerType::Normal
                 && pageName.Contains("_StartRaceMenu")
@@ -131,7 +131,7 @@ void DrawOverUI() {
             }
 
             if (true
-                && S_MedalsPause
+                && S_UIMedalPause
                 && Pause is null
                 && Layer.Type == CGameUILayer::EUILayerType::InGameMenu
                 && pageName.Contains("_PauseMenu")
@@ -142,7 +142,7 @@ void DrawOverUI() {
 
             if (true
                 && endSequence
-                && S_MedalsEnd
+                && S_UIMedalEnd
                 && End is null
                 && Layer.Type == CGameUILayer::EUILayerType::Normal
                 && pageName.Contains("_EndRaceMenu")
@@ -179,11 +179,11 @@ void DrawOverUI() {
 
     for (uint i = 0; i < Title.UILayers.Length; i++) {
         if (true
-            && !(Campaign     is null && (S_MedalsSeasonalCampaign || S_MedalsClubCampaign))
-            && !(LiveCampaign is null && S_MedalsLiveCampaign)
-            // && !(LiveTotd     is null && S_MedalsLiveTotd)
-            && !(Totd         is null && S_MedalsTotd)
-            && !(Training     is null && S_MedalsTraining)
+            && !(Campaign     is null && (S_UIMedalsSeasonalCampaign || S_UIMedalsClubCampaign))
+            && !(LiveCampaign is null && S_UIMedalsLiveCampaign)
+            && !(Totd         is null && S_UIMedalsTotd)
+            // && !(LiveTotd     is null && S_UIMedalsLiveTotd)
+            && !(Training     is null && S_UIMedalsTraining)
         )
             break;
 
@@ -199,7 +199,7 @@ void DrawOverUI() {
         const string pageName = Layer.ManialinkPageUtf8.Trim();
 
         // if (true
-        //     && S_MedalsLiveTotd
+        //     && S_UIMedalsLiveTotd
         //     && LiveTotd is null
         //     && pageName.SubStr(17, 23) == "Page_TOTDChannelDisplay"
         // ) {  // 27
@@ -208,7 +208,7 @@ void DrawOverUI() {
         // }
 
         if (true
-            && (S_MedalsSeasonalCampaign || S_MedalsClubCampaign)
+            && (S_UIMedalsSeasonalCampaign || S_UIMedalsClubCampaign)
             && Campaign is null
             && pageName.SubStr(17, 20) == "Page_CampaignDisplay"
         ) {  // 30
@@ -217,7 +217,7 @@ void DrawOverUI() {
         }
 
         if (true
-            && S_MedalsTotd
+            && S_UIMedalsTotd
             && Totd is null
             && pageName.SubStr(17, 27) == "Page_MonthlyCampaignDisplay"
         ) {  // 31
@@ -226,7 +226,7 @@ void DrawOverUI() {
         }
 
         if (true
-            && S_MedalsTraining
+            && S_UIMedalsTraining
             && Training is null
             && pageName.SubStr(17, 20) == "Page_TrainingDisplay"
         ) {  // 41
@@ -235,7 +235,7 @@ void DrawOverUI() {
         }
 
         if (true
-            && S_MedalsLiveCampaign
+            && S_UIMedalsLiveCampaign
             && LiveCampaign is null
             && pageName.SubStr(17, 24) == "Page_RoomCampaignDisplay"
         ) {  // 42
@@ -322,10 +322,10 @@ void DrawOverCampaignPage(CGameManialinkPage@ Page) {
     const bool club = clubName.Length > 0;
 
     if (club) {
-        if (!S_MedalsClubCampaign)
+        if (!S_UIMedalsClubCampaign)
             return;
     } else {
-        if (!S_MedalsSeasonalCampaign)
+        if (!S_UIMedalsSeasonalCampaign)
             return;
         campaignName = campaignName.SubStr(19).Replace("\u0091", " ");
     }
