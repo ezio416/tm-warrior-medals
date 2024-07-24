@@ -67,7 +67,13 @@ void DrawOverUI() {
         )
             return;
 
-        const bool endRound = CMAP.UI.UISequence == CGamePlaygroundUIConfig::EUISequence::EndRound;
+        const bool endSequence = CMAP.UI.UISequence == CGamePlaygroundUIConfig::EUISequence::EndRound;
+
+        const bool startSequence = false
+            || CMAP.UI.UISequence == CGamePlaygroundUIConfig::EUISequence::Intro
+            || CMAP.UI.UISequence == CGamePlaygroundUIConfig::EUISequence::RollingBackgroundIntro
+            || endSequence
+        ;
 
         CGameManialinkPage@ Start;
         CGameManialinkPage@ Pause;
@@ -75,9 +81,9 @@ void DrawOverUI() {
 
         for (uint i = 0; i < CMAP.UILayers.Length; i++) {
             if (true
-                && !(Start is null && S_MedalsStart && endRound)
+                && !(Start is null && S_MedalsStart && startSequence)
                 && !(Pause is null && S_MedalsPause && Network.PlaygroundClientScriptAPI.IsInGameMenuDisplayed)
-                && !(End   is null && S_MedalsEnd   && endRound)
+                && !(End   is null && S_MedalsEnd   && endSequence)
             )
                 break;
 
@@ -96,7 +102,7 @@ void DrawOverUI() {
             const string pageName = Layer.ManialinkPageUtf8.Trim().SubStr(0, 64);
 
             if (true
-                && endRound
+                && startSequence
                 && S_MedalsStart
                 && Start is null
                 && Layer.Type == CGameUILayer::EUILayerType::Normal
@@ -117,7 +123,7 @@ void DrawOverUI() {
             }
 
             if (true
-                && endRound
+                && endSequence
                 && S_MedalsEnd
                 && End is null
                 && Layer.Type == CGameUILayer::EUILayerType::Normal
