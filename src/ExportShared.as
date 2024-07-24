@@ -92,6 +92,10 @@ namespace WarriorMedals {
         string get_downloadUrl() { return _downloadUrl; }
         private void set_downloadUrl(const string &in d) { _downloadUrl = d; }
 
+        bool get_hasWarrior() {
+            return pb != uint(-1) && pb <= (custom > 0 ? custom : warrior);
+        }
+
         // private uint8 _index = uint8(-1);
         // uint8 get_index() { return _index; }
         // private void set_index(uint8 i) { _index = i; }

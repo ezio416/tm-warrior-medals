@@ -98,6 +98,7 @@ void Settings_General() {
 [Setting hidden] bool S_MedalsSeasonalCampaign = true;
 [Setting hidden] bool S_MedalsTotd             = true;
 [Setting hidden] bool S_MedalsTraining         = true;
+[Setting hidden] bool S_MedalsPause            = true;
 [SettingsTab name="Medals in UI" icon="ListAlt" order=1]
 void Settings_MedalsInUI() {
     UI::PushFont(fontHeader);
@@ -138,18 +139,18 @@ void Settings_MedalsInUI() {
         HoverTooltipSetting("May be inaccurate if a club campaign shares a name with an official one");
         S_MedalsTraining         = UI::Checkbox("Training",                 S_MedalsTraining);
 
-        // UI::Separator();
+        UI::Separator();
 
-        // UI::PushFont(headerFont);
-        // UI::Text("In-Game");
-        // UI::PopFont();
+        UI::PushFont(fontHeader);
+        UI::Text("Playing");
+        UI::PopFont();
 
-        // if (UI::Button("Reset to default##ingame")) {
-        //     Meta::Plugin@ plugin = Meta::ExecutingPlugin();
-        //     plugin.GetSetting("").Reset();
-        // }
+        if (UI::Button("Reset to default##playing")) {
+            Meta::Plugin@ plugin = Meta::ExecutingPlugin();
+            plugin.GetSetting("").Reset();
+        }
 
-        // ;
+        S_MedalsPause = UI::Checkbox("Pause menu", S_MedalsPause);
     }
 }
 
