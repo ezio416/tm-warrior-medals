@@ -186,7 +186,7 @@ void Tab_Seasonal() {
                 }
 
                 if (UI::Button(campaign.name.SubStr(0, campaign.name.Length - 5) + "##" + campaign.name, vec2(scale * 100.0f, scale * 25.0f))) {
-                    @activeSeasonalCampaign = campaign;
+                    @activeSeasonalCampaign = @campaign;
                     selected = true;
                 }
 
@@ -197,7 +197,7 @@ void Tab_Seasonal() {
             UI::EndTabItem();
         }
 
-        if (!Tab_SingleCampaign(activeSeasonalCampaign, selected))
+        if (!Tab_SingleCampaign(@activeSeasonalCampaign, selected))
             @activeSeasonalCampaign = null;
 
     UI::EndTabBar();
