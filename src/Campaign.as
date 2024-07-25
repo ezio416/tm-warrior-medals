@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2024-07-23
+// m 2024-07-25
 
 class Campaign {
     uint                        colorIndex = uint(-1);
@@ -17,11 +17,10 @@ class Campaign {
 
         for (uint i = 0; i < mapsArr.Length; i++) {
             WarriorMedals::Map@ map = mapsArr[i];
-            if (map is null || map.pb == 0)
+            if (map is null || !map.hasWarrior)
                 continue;
 
-            if (map.pb < (map.custom > 0 ? map.custom : map.warrior))
-                _count++;
+            _count++;
         }
 
         return _count;
@@ -162,4 +161,6 @@ void SortCampaigns() {
         campaignsArr.Sort(function(a, b) { return a.index > b.index; });
 
     trace("sorting campaigns and maps done after " + (Time::Now - start) + "ms");
+
+    SetTotals();
 }

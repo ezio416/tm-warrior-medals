@@ -1,5 +1,5 @@
 // c 2024-07-24
-// m 2024-07-24
+// m 2024-07-25
 
 void MainWindow() {
     if (false
@@ -13,21 +13,42 @@ void MainWindow() {
         UI::PushStyleColor(UI::Col::Button,        vec4(colorVec - vec3(0.2f), 1.0f));
         UI::PushStyleColor(UI::Col::ButtonActive,  vec4(colorVec - vec3(0.4f), 1.0f));
         UI::PushStyleColor(UI::Col::ButtonHovered, vec4(colorVec,              1.0f));
-        UI::BeginDisabled(getting);
-        if (UI::Button(Icons::Refresh + " Refresh" + (getting  ? "ing..." : ""))) {
-            trace("refreshing...");
-            startnew(GetAllMapInfosAsync);
+
+        if (UI::BeginTable("##table-main-header", 2, UI::TableFlags::SizingStretchProp)) {
+            UI::TableSetupColumn("refresh", UI::TableColumnFlags::WidthStretch);
+            UI::TableSetupColumn("total",   UI::TableColumnFlags::WidthFixed);
+
+            UI::TableNextRow();
+
+            UI::TableNextColumn();
+            UI::PushFont(fontHeader);
+            UI::Image(icon32, vec2(scale * 32.0f));
+            UI::SameLine();
+            UI::AlignTextToFramePadding();
+            UI::Text(tostring(totalHave) + " / " + total);
+            UI::PopFont();
+
+            UI::TableNextColumn();
+            UI::BeginDisabled(getting);
+            if (UI::Button(Icons::Refresh + " Refresh" + (getting  ? "ing..." : ""))) {
+                trace("refreshing...");
+                startnew(GetAllMapInfosAsync);
+            }
+            UI::EndDisabled();
+
+            UI::EndTable();
         }
-        UI::EndDisabled();
 
         UI::PushStyleColor(UI::Col::Tab,        vec4(colorVec - vec3(0.4f),  1.0f));
         UI::PushStyleColor(UI::Col::TabActive,  vec4(colorVec - vec3(0.15f), 1.0f));
         UI::PushStyleColor(UI::Col::TabHovered, vec4(colorVec - vec3(0.15f), 1.0f));
+
         UI::BeginTabBar("##tab-bar");
             Tab_Seasonal();
             Tab_Totd();
             Tab_Other();
         UI::EndTabBar();
+
         UI::PopStyleColor(6);
     }
     UI::End();
