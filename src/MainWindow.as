@@ -135,7 +135,7 @@ void Tab_Other() {
                     UI::SameLine();
 
                 if (UI::Button(campaign.name, vec2(scale * 120.0f, scale * 25.0f))) {
-                    @activeOtherCampaign = campaign;
+                    @activeOtherCampaign = @campaign;
                     selected = true;
                 }
             }
@@ -145,7 +145,7 @@ void Tab_Other() {
             UI::EndTabItem();
         }
 
-        if (!Tab_SingleCampaign(activeOtherCampaign, selected))
+        if (!Tab_SingleCampaign(@activeOtherCampaign, selected))
             @activeOtherCampaign = null;
 
     UI::EndTabBar();
@@ -237,7 +237,7 @@ void Tab_Totd() {
                 }
 
                 if (UI::Button(campaign.name.SubStr(0, campaign.name.Length - 5) + "##" + campaign.name, vec2(scale * 100.0f, scale * 25.0f))) {
-                    @activeTotdMonth = campaign;
+                    @activeTotdMonth = @campaign;
                     selected = true;
                 }
 
@@ -251,7 +251,7 @@ void Tab_Totd() {
             UI::EndTabItem();
         }
 
-        if (!Tab_SingleCampaign(activeTotdMonth, selected))
+        if (!Tab_SingleCampaign(@activeTotdMonth, selected))
             @activeTotdMonth = null;
 
     UI::EndTabBar();
