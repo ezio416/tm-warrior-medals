@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2024-07-24
+// m 2024-07-25
 
 void DrawOverUI() {
     if (false
@@ -54,8 +54,6 @@ void DrawOverUI() {
         )
             return;
 
-        const bool lookForBanner = ServerInfo.CurGameModeStr.Contains("_Online");
-
         WarriorMedals::Map@ map = cast<WarriorMedals::Map@>(maps[App.RootMap.EdChallengeId]);
         if (false
             || map is null
@@ -78,6 +76,8 @@ void DrawOverUI() {
             || CMAP.UI.UISequence == CGamePlaygroundUIConfig::EUISequence::RollingBackgroundIntro
             || endSequence
         ;
+
+        const bool lookForBanner = ServerInfo.CurGameModeStr.Contains("_Online");
 
         CGameManialinkPage@ Start;
         CGameManialinkPage@ Pause;
