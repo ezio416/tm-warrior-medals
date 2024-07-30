@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2024-07-25
+// m 2024-07-30
 
 class Campaign {
     uint                        colorIndex = uint(-1);
@@ -161,6 +161,10 @@ void SortCampaigns() {
         campaignsArr.Sort(function(a, b) { return a.index > b.index; });
 
     trace("sorting campaigns and maps done after " + (Time::Now - start) + "ms");
+
+    @activeOtherCampaign    = null;
+    @activeSeasonalCampaign = null;
+    @activeTotdMonth        = null;
 
     SetTotals();
 }
