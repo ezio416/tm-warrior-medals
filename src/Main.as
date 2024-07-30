@@ -1,20 +1,44 @@
 // c 2024-07-17
-// m 2024-07-21
+// m 2024-07-30
 
-const string colorStr    = "\\$3CF";
-const vec3   colorVec    = vec3(0.2f, 0.8f, 1.0f);
-UI::Texture@ icon32;
-UI::Texture@ icon512;
-dictionary@  maps        = dictionary();
-uint         pb          = uint(-1);
-const float  scale       = UI::GetScale();
-const string title       = colorStr + Icons::Circle + "\\$G Warrior Medals";
-const string windowTitle = title + "###window-main-" + Meta::ExecutingPlugin().ID;
+Campaign@     activeOtherCampaign;
+Campaign@     activeSeasonalCampaign;
+Campaign@     activeTotdMonth;
+Json::Value@  campaignIndices;
+dictionary@   campaigns         = dictionary();
+Campaign@[]   campaignsArr;
+const string  colorStr          = "\\$3CF";
+const vec3    colorVec          = vec3(0.2f, 0.8f, 1.0f);
+UI::Font@     fontHeader;
+UI::Font@     fontSubHeader;
+bool          hasPlayPermission = false;
+nvg::Texture@ iconUI;
+UI::Texture@  icon32;
+UI::Texture@  icon512;
+bool          loading           = false;
+dictionary@   maps              = dictionary();
+const float   scale             = UI::GetScale();
+vec3[]        seasonColors;
+bool          settingTotals     = false;
+const string  title             = colorStr + Icons::Circle + "\\$G Warrior Medals";
+uint          total             = 0;
+uint          totalHave         = 0;
 
 void Main() {
+    OnSettingsChanged();
     startnew(GetAllMapInfosAsync);
-
     WarriorMedals::GetIcon32();
+    hasPlayPermission = Permissions::PlayLocalMap();
+
+    yield();
+
+    IO::FileSource file("assets/warrior_512.png");
+    @iconUI = nvg::LoadTexture(file.Read(file.Size()));
+
+    yield();
+
+    @fontSubHeader = UI::LoadFont("DroidSans.ttf", 20);
+    @fontHeader    = UI::LoadFont("DroidSans.ttf", 26);
 
     startnew(PBLoop);
 
@@ -35,64 +59,77 @@ void Main() {
     }
 }
 
+void OnSettingsChanged() {
+    seasonColors = {
+        S_ColorWinter,
+        S_ColorSpring,
+        S_ColorSummer,
+        S_ColorFall
+    };
+}
+
 void Render() {
-    if (false
-        || !S_Window
-        || (S_HideWithGame && !UI::IsGameUIVisible())
-        || (S_HideWithOP && !UI::IsOverlayShown())
-        || icon32 is null
-        || !InMap()
-    )
+    if (icon32 is null)
         return;
 
-    CTrackMania@ App = cast<CTrackMania@>(GetApp());
-    const string uid = App.RootMap.EdChallengeId;
-    if (!maps.Exists(uid))
-        return;
+    MainWindow();
+    MedalWindow();
+}
 
-    WarriorMedals::Map@ map = cast<WarriorMedals::Map@>(maps[uid]);
-    if (map is null)
-        return;
-
-    int flags = UI::WindowFlags::AlwaysAutoResize | UI::WindowFlags::NoTitleBar;
-    if (!UI::IsOverlayShown())
-        flags |= UI::WindowFlags::NoMove;
-
-    if (UI::Begin(windowTitle, S_Window, flags)) {
-        const uint warrior = map.custom > 0 ? map.custom : map.warrior;
-        const bool delta = S_Delta && pb != uint(-1);
-
-        if (UI::BeginTable("##table-times", delta ? 4 : 3)) {
-            UI::TableNextRow();
-
-            UI::TableNextColumn();
-            UI::Image(icon32, vec2(scale * 16.0f));
-
-            UI::TableNextColumn();
-            UI::Text("Warrior");
-
-            UI::TableNextColumn();
-            UI::Text(Time::Format(warrior));
-
-            if (delta) {
-                UI::TableNextColumn();
-                UI::Text((pb <= warrior ? "\\$77F\u2212" : "\\$F77+") + Time::Format(uint(Math::Abs(pb - warrior))));
-            }
-
-            UI::EndTable();
-        }
-    }
-    UI::End();
+void RenderEarly() {
+    DrawOverUI();
 }
 
 void RenderMenu() {
-    if (UI::MenuItem(title, "", S_Window))
-        S_Window = !S_Window;
+    if (UI::BeginMenu(title)) {
+        if (UI::MenuItem(colorStr + Icons::WindowMaximize + "\\$G Main window", "", S_MainWindow))
+            S_MainWindow = !S_MainWindow;
+
+        if (UI::MenuItem(colorStr + Icons::Circle + "\\$G Medal window", "", S_MedalWindow))
+            S_MedalWindow = !S_MedalWindow;
+
+        UI::EndMenu();
+    }
 }
 
 void PBLoop() {
     while (true) {
         sleep(500);
-        pb = GetPB();
+
+        CTrackMania@ App = cast<CTrackMania@>(GetApp());
+        if (App.RootMap is null || !maps.Exists(App.RootMap.EdChallengeId))
+            continue;
+
+        WarriorMedals::Map@ map = cast<WarriorMedals::Map@>(maps[App.RootMap.EdChallengeId]);
+        if (map !is null) {
+            const uint prevPb = map.pb;
+
+            map.GetPBAsync();
+
+            if (prevPb != map.pb)
+                SetTotals();
+        }
     }
+}
+
+void SetTotals() {
+    if (settingTotals)
+        return;
+
+    settingTotals = true;
+
+    const uint64 start = Time::Now;
+    trace("setting totals");
+
+    total = maps.GetKeys().Length;
+    totalHave = 0;
+
+    for (uint i = 0; i < campaignsArr.Length; i++) {
+        Campaign@ campaign = campaignsArr[i];
+        if (campaign !is null)
+            totalHave += campaign.count;
+    }
+
+    trace("setting totals done after " + (Time::Now - start) + "ms");
+    settingTotals = false;
 }
