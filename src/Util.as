@@ -1,5 +1,5 @@
 // c 2024-07-18
-// m 2024-07-23
+// m 2024-07-30
 
 void GetAllPBsAsync() {
     const string[]@ uids = maps.GetKeys();
@@ -47,7 +47,7 @@ bool InMap() {
 }
 
 void PlayMapAsync(ref@ m) {
-    if (!Permissions::PlayLocalMap()) {
+    if (!hasPlayPermission) {
         warn("user doesn't have permission to play local maps");
         return;
     }

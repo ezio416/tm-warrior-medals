@@ -1,32 +1,34 @@
 // c 2024-07-17
-// m 2024-07-25
+// m 2024-07-30
 
 Campaign@     activeOtherCampaign;
 Campaign@     activeSeasonalCampaign;
 Campaign@     activeTotdMonth;
 Json::Value@  campaignIndices;
-dictionary@   campaigns     = dictionary();
+dictionary@   campaigns         = dictionary();
 Campaign@[]   campaignsArr;
-const string  colorStr      = "\\$3CF";
-const vec3    colorVec      = vec3(0.2f, 0.8f, 1.0f);
+const string  colorStr          = "\\$3CF";
+const vec3    colorVec          = vec3(0.2f, 0.8f, 1.0f);
 UI::Font@     fontHeader;
 UI::Font@     fontSubHeader;
+bool          hasPlayPermission = false;
 nvg::Texture@ iconUI;
 UI::Texture@  icon32;
 UI::Texture@  icon512;
-bool          loading       = false;
-dictionary@   maps          = dictionary();
-const float   scale         = UI::GetScale();
+bool          loading           = false;
+dictionary@   maps              = dictionary();
+const float   scale             = UI::GetScale();
 vec3[]        seasonColors;
-bool          settingTotals = false;
-const string  title         = colorStr + Icons::Circle + "\\$G Warrior Medals";
-uint          total         = 0;
-uint          totalHave     = 0;
+bool          settingTotals     = false;
+const string  title             = colorStr + Icons::Circle + "\\$G Warrior Medals";
+uint          total             = 0;
+uint          totalHave         = 0;
 
 void Main() {
     OnSettingsChanged();
     startnew(GetAllMapInfosAsync);
     WarriorMedals::GetIcon32();
+    hasPlayPermission = Permissions::PlayLocalMap();
 
     yield();
 

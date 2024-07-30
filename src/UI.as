@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2024-07-25
+// m 2024-07-30
 
 void DrawOverUI() {
     if (false
@@ -11,10 +11,10 @@ void DrawOverUI() {
             && !S_UIMedalsTotd
             && !S_UIMedalsClubCampaign
             && !S_UIMedalsTraining
+            && !S_UIMedalBanner
             && !S_UIMedalStart
             && !S_UIMedalPause
             && !S_UIMedalEnd
-            && !S_UIMedalBanner
         )
     )
         return;
@@ -202,7 +202,7 @@ void DrawOverUI() {
         //     && S_UIMedalsLiveTotd
         //     && LiveTotd is null
             // && pageName.StartsWith("Page_TOTDChannelDisplay")
-        // ) {  // 27
+        // ) {
         //     @LiveTotd = Layer.LocalPage;
         //     continue;
         // }
@@ -211,7 +211,7 @@ void DrawOverUI() {
             && (S_UIMedalsSeasonalCampaign || S_UIMedalsClubCampaign)
             && Campaign is null
             && pageName.StartsWith("Page_CampaignDisplay")
-        ) {  // 30
+        ) {
             @Campaign = Layer.LocalPage;
             continue;
         }
@@ -220,7 +220,7 @@ void DrawOverUI() {
             && S_UIMedalsTotd
             && Totd is null
             && pageName.StartsWith("Page_MonthlyCampaignDisplay")
-        ) {  // 31
+        ) {
             @Totd = Layer.LocalPage;
             continue;
         }
@@ -229,7 +229,7 @@ void DrawOverUI() {
             && S_UIMedalsTraining
             && Training is null
             && pageName.StartsWith("Page_TrainingDisplay")
-        ) {  // 41
+        ) {
             @Training = Layer.LocalPage;
             continue;
         }
@@ -238,7 +238,7 @@ void DrawOverUI() {
             && S_UIMedalsLiveCampaign
             && LiveCampaign is null
             && pageName.StartsWith("Page_RoomCampaignDisplay")
-        ) {  // 42
+        ) {
             @LiveCampaign = Layer.LocalPage;
             continue;
         }
@@ -283,19 +283,15 @@ void DrawCampaign(CGameManialinkFrame@ Maps, const string &in campaignName, bool
         if (MedalStack is null || !MedalStack.Visible)
             continue;
 
-        const float w = Draw::GetWidth();
-        const float h = Draw::GetHeight();
-        const float unit = (w / h < 16.0f / 9.0f) ? w / 320.0f : h / 180.0f;
-        const vec2 offset = vec2(-99.8f, 1.05f) + (club ? vec2(0.4f, 2.51f) : vec2());
-        const vec2 rowOffset = vec2(-2.02f, -11.5f);
-        const vec2 columnOffset = vec2(36.0f, 0.0f);
-        const vec2 coords = vec2(w * 0.5f, h * 0.5f)
-            + vec2(unit, -unit) * (
-                offset
-                + ((i % 5) * rowOffset)
-                + ((i / 5) * columnOffset)
-            )
-        ;
+        const float w         = Draw::GetWidth();
+        const float h         = Draw::GetHeight();
+        const vec2  center    = vec2(w * 0.5f, h * 0.5f);
+        const float unit      = (w / h < 16.0f / 9.0f) ? w / 320.0f : h / 180.0f;
+        const vec2  scale     = vec2(unit, -unit);
+        const vec2  offset    = vec2(-99.8f, 1.05f) + (club ? vec2(0.4f, 2.51f) : vec2());
+        const vec2  rowOffset = vec2(-2.02f, -11.5f) * (i % 5);
+        const vec2  colOffset = vec2(36.0f, 0.0f) * (i / 5);
+        const vec2  coords    = center + scale * (offset + rowOffset + colOffset);
 
         nvg::BeginPath();
         nvg::FillPaint(nvg::TexturePattern(coords, vec2(unit * 9.6f), 0.0f, iconUI, 1.0f));

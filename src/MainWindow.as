@@ -1,5 +1,5 @@
 // c 2024-07-24
-// m 2024-07-25
+// m 2024-07-30
 
 void MainWindow() {
     if (false
@@ -82,7 +82,7 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
         UI::EndTable();
     }
 
-    if (UI::BeginTable("##table-campaign-maps", 5, UI::TableFlags::RowBg | UI::TableFlags::ScrollY | UI::TableFlags::SizingStretchProp)) {
+    if (UI::BeginTable("##table-campaign-maps", hasPlayPermission ? 5 : 4, UI::TableFlags::RowBg | UI::TableFlags::ScrollY | UI::TableFlags::SizingStretchProp)) {
         UI::PushStyleColor(UI::Col::TableRowBgAlt, vec4(vec3(0.0f), 0.5f));
 
         UI::TableSetupScrollFreeze(0, 1);
@@ -90,7 +90,8 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
         UI::TableSetupColumn("Warrior", UI::TableColumnFlags::WidthFixed, scale * 75.0f);
         UI::TableSetupColumn("PB",      UI::TableColumnFlags::WidthFixed, scale * 75.0f);
         UI::TableSetupColumn("Delta",   UI::TableColumnFlags::WidthFixed, scale * 75.0f);
-        UI::TableSetupColumn("Play",    UI::TableColumnFlags::WidthFixed, scale * 30.0f);
+        if (hasPlayPermission)
+            UI::TableSetupColumn("Play", UI::TableColumnFlags::WidthFixed, scale * 30.0f);
         UI::TableHeadersRow();
 
         for (uint i = 0; i < campaign.mapsArr.Length; i++) {
@@ -115,12 +116,14 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
             UI::TableNextColumn();
             UI::Text(map.pb != uint(-1) ? (map.pb <= warrior ? "\\$77F\u2212" : "\\$F77+") + Time::Format(uint(Math::Abs(map.pb - warrior))) : "");
 
-            UI::TableNextColumn();
-            UI::BeginDisabled(map.loading || loading);
-            if (UI::Button(Icons::Play + "##" + map.name))
-                startnew(PlayMapAsync, @map);
-            UI::EndDisabled();
-            HoverTooltip("Play " + map.name);
+            if (hasPlayPermission) {
+                UI::TableNextColumn();
+                UI::BeginDisabled(map.loading || loading);
+                if (UI::Button(Icons::Play + "##" + map.name))
+                    startnew(PlayMapAsync, @map);
+                UI::EndDisabled();
+                HoverTooltip("Play " + map.name);
+            }
         }
 
         UI::TableNextRow();
