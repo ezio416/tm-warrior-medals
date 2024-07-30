@@ -455,19 +455,15 @@ void DrawOverTotdPage(CGameManialinkPage@ Page) {
         if (MedalStack is null || !MedalStack.Visible)
             continue;
 
-        const float w = Draw::GetWidth();
-        const float h = Draw::GetHeight();
-        const float unit = (w / h < 16.0f / 9.0f) ? w / 320.0f : h / 180.0f;
-        const vec2 offset = vec2(-118.2f, 1.2f);
-        const vec2 columnOffset = vec2(29.1f, 0.0f);
-        const vec2 rowOffset = vec2(-2.02f, -11.5f);
-        const vec2 coords = vec2(w * 0.5f, h * 0.5f)
-            + vec2(unit, -unit) * (
-                offset
-                + ((i % 7) * columnOffset)
-                + ((i / 7) * rowOffset)
-            )
-        ;
+        const float w         = Draw::GetWidth();
+        const float h         = Draw::GetHeight();
+        const vec2  center    = vec2(w * 0.5f, h * 0.5f);
+        const float unit      = (w / h < 16.0f / 9.0f) ? w / 320.0f : h / 180.0f;
+        const vec2  scale     = vec2(unit, -unit);
+        const vec2  offset    = vec2(-118.2f, 1.2f);
+        const vec2  colOffset = vec2(29.1f, 0.0f) * (i % 7);
+        const vec2  rowOffset = vec2(-2.02f, -11.5f) * (i / 7);
+        const vec2  coords    = center + scale * (offset + colOffset + rowOffset);
 
         nvg::BeginPath();
         nvg::FillPaint(nvg::TexturePattern(coords, vec2(unit * 9.15f), 0.0f, iconUI, 1.0f));
