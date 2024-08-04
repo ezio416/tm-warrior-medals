@@ -1,4 +1,4 @@
-![Signed](https://img.shields.io/badge/Signed-No-FF3333)
+![Signed](https://img.shields.io/badge/Signed-Yes-00AA00)
 ![Number of downloads](https://img.shields.io/badge/dynamic/json?query=downloads&url=https%3A%2F%2Fopenplanet.dev%2Fapi%2Fplugin%2F590&label=Downloads&color=purple)
 ![Version](https://img.shields.io/badge/dynamic/json?query=version&url=https%3A%2F%2Fopenplanet.dev%2Fapi%2Fplugin%2F590&label=Version&color=red)
 ![Game Trackmania](https://img.shields.io/badge/Game-Trackmania-blue)
@@ -84,7 +84,6 @@ If there is an error or the map does not have a Warrior medal, returns 0.
 Queries the API for a medal time if the plugin does not have it cached.
 Use this instead of the synchronous version if possible.
 
-<!-- ![Signed](https://img.shields.io/badge/Signed-Yes-00AA00) -->
 <!-- ![Signed](https://img.shields.io/badge/Signed-School_Mode-CC1199) -->
 <!-- ![Game Maniaplanet](https://img.shields.io/badge/Game-Maniaplanet_4-blue) -->
 <!-- ![Game Turbo](https://img.shields.io/badge/Game-Turbo-blue) -->
