@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2024-07-30
+// m 2024-08-25
 
 void DrawOverUI() {
     if (false
@@ -263,7 +263,7 @@ void DrawCampaign(CGameManialinkFrame@ Maps, const string &in campaignName, bool
             if (map is null)
                 continue;
 
-            if (map.pb < (map.custom > 0 ? map.custom : map.warrior))
+            if (map.hasWarrior)
                 indicesToShow.InsertLast(map.index);
         }
     }
@@ -429,7 +429,7 @@ void DrawOverTotdPage(CGameManialinkPage@ Page) {
             if (map is null)
                 continue;
 
-            if (map.pb < (map.custom > 0 ? map.custom : map.warrior))
+            if (map.hasWarrior)
                 indicesToShow.InsertLast(map.index);
         }
     }
