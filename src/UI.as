@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2024-08-31
+// m 2024-09-01
 
 void DrawOverUI() {
     if (false
@@ -406,6 +406,20 @@ void DrawOverPlaygroundPage(CGameManialinkPage@ Page, bool banner = false, bool 
     nvg::BeginPath();
     nvg::FillPaint(nvg::TexturePattern(coords, size, 0.0f, iconUI, 1.0f));
     nvg::Fill();
+
+    CGameManialinkFrame@ NewMedal = cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-new-medal"));
+    if (NewMedal !is null) {
+        CGameManialinkQuad@ QuadMedal = cast<CGameManialinkQuad@>(NewMedal.GetFirstChild("quad-medal"));
+        if (QuadMedal !is null) {
+            const vec2 newOffset = vec2(-size.x, -size.y) * 1.15f;
+            const vec2 newCoords = center + newOffset + scale * QuadMedal.AbsolutePosition_V3;
+            const vec2 newSize   = vec2(45.0f * hUnit);
+
+            nvg::BeginPath();
+            nvg::FillPaint(nvg::TexturePattern(newCoords, newSize, 0.0f, iconUI, 1.0f));
+            nvg::Fill();
+        }
+    }
 }
 
 void DrawOverTotdPage(CGameManialinkPage@ Page) {
