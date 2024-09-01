@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2024-08-25
+// m 2024-08-31
 
 void DrawOverUI() {
     if (false
@@ -77,7 +77,7 @@ void DrawOverUI() {
             || endSequence
         ;
 
-        const bool lookForBanner = ServerInfo.CurGameModeStr.Contains("_Online");
+        const bool lookForBanner = ServerInfo.CurGameModeStr.Contains("_Online") || ServerInfo.CurGameModeStr.Contains("PlayMap");
 
         CGameManialinkPage@ Start;
         CGameManialinkPage@ Pause;
