@@ -1,6 +1,8 @@
 // c 2024-07-22
 // m 2024-09-19
 
+uint FrameConfirmQuit = 0;
+
 void DrawOverUI() {
     if (false
         || !S_UIMedals
@@ -40,8 +42,14 @@ void DrawOverUI() {
         )
             continue;
 
-        if (Overlay.m_CorpusVisibles[0].Item.SceneMobil.IdName == "FrameConfirmQuit")
+        if (FrameConfirmQuit > 0 && FrameConfirmQuit == Overlay.m_CorpusVisibles[0].Item.SceneMobil.Id.Value)
             return;
+
+        if (Overlay.m_CorpusVisibles[0].Item.SceneMobil.IdName == "FrameConfirmQuit") {
+            print("check FrameConfirmQuit string");
+            FrameConfirmQuit = Overlay.m_CorpusVisibles[0].Item.SceneMobil.Id.Value;
+            return;
+        }
     }
 
     CTrackManiaNetwork@ Network = cast<CTrackManiaNetwork@>(App.Network);
