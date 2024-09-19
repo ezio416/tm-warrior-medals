@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2024-09-01
+// m 2024-09-19
 
 void DrawOverUI() {
     if (false
@@ -375,7 +375,11 @@ void DrawOverPlaygroundPage(CGameManialinkPage@ Page, bool banner = false, bool 
     if (pause) {
         CTrackMania@ App = cast<CTrackMania@>(GetApp());
         CTrackManiaNetwork@ Network = cast<CTrackManiaNetwork@>(App.Network);
-        if (!Network.PlaygroundClientScriptAPI.IsInGameMenuDisplayed)
+        if (!Network.PlaygroundClientScriptAPI.IsInGameMenuDisplayed)  // check if pause menu displayed
+            return;
+
+        CGameManialinkFrame@ Settings = cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-settings"));
+        if (Settings !is null && Settings.Visible)
             return;
     } else {
         CGameManialinkFrame@ Global = cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-global"));
