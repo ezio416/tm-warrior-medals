@@ -1,5 +1,5 @@
 // c 2024-07-18
-// m 2024-07-23
+// m 2024-09-19
 
 const string e416devApiUrl  = "https://e416.dev/api";
 bool         getting        = false;
@@ -78,7 +78,7 @@ bool GetCampaignIndicesAsync() {
 void GetMapInfoAsync() {
     CTrackMania@ App = cast<CTrackMania@>(GetApp());
 
-    if (App.RootMap is null)
+    if (App.RootMap is null || !App.RootMap.MapType.Contains("TM_Race"))
         return;
 
     GetMapInfoAsync(App.RootMap.EdChallengeId);
