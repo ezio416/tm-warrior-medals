@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2024-07-24
+// m 2024-09-20
 
 [Setting hidden] vec3 S_ColorFall                = vec3(1.0f, 0.5f, 0.0f);
 [Setting hidden] vec3 S_ColorSpring              = vec3(0.3f, 0.9f, 0.3f);
@@ -222,7 +222,7 @@ void Settings_Debug() {
                 UI::Text(map.date);
 
                 UI::TableNextColumn();
-                UI::Text(map.campaign);
+                UI::Text(map.campaignName);
 
                 UI::TableNextColumn();
                 UI::Text(tostring(map.index));

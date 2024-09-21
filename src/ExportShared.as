@@ -1,5 +1,5 @@
 // c 2024-07-21
-// m 2024-07-23
+// m 2024-09-20
 
 /*
 Exports from the Warrior Medals plugin.
@@ -72,13 +72,25 @@ namespace WarriorMedals {
         uint get_author() { return _author; }
         private void set_author(uint a) { _author = a; }
 
-        private string _campaign;
-        string get_campaign() { return _campaign; }
-        private void set_campaign(const string &in c) { _campaign = c; }
+        private uint _campaignId;
+        uint get_campaignId() { return _campaignId; }
+        private void set_campaignId(uint c) { _campaignId = c; }
+
+        private string _campaignName;
+        string get_campaignName() { return _campaignName; }
+        private void set_campaignName(const string &in c) { _campaignName = c; }
 
         private CampaignType _campaignType;
         CampaignType get_campaignType() { return _campaignType; }
         private void set_campaignType(CampaignType c) { _campaignType = c; }
+
+        private uint _clubId;
+        uint get_clubId() { return _clubId; }
+        private void set_clubId(uint c) { _clubId = c; }
+
+        private string _clubName;
+        string get_clubName() { return _clubName; }
+        private void set_clubName(const string &in c) { _clubName = c; }
 
         private uint _custom = 0;
         uint get_custom() { return _custom; }
@@ -135,16 +147,34 @@ namespace WarriorMedals {
 
             campaignType = CampaignType::Seasonal;
 
-            if (map.HasKey("campaign")) {
+            if (map.HasKey("campaignId")) {
+                Json::Value@ campaignId = map["campaignId"];
+                if (CheckJsonType(campaignId, Json::Type::Number, "campaignId", false))
+                    this.campaignId = uint(campaignId);
+            }
+
+            if (map.HasKey("campaignName")) {
                 campaignType = CampaignType::Other;
 
-                Json::Value@ campaign = map["campaign"];
-                if (CheckJsonType(campaign, Json::Type::String, "campaign", false))
-                    this.campaign = string(campaign);
+                Json::Value@ campaignName = map["campaignName"];
+                if (CheckJsonType(campaignName, Json::Type::String, "campaignName", false))
+                    this.campaignName = string(campaignName);
 
                 Json::Value@ index = map["campaignIndex"];
                 if (CheckJsonType(index, Json::Type::Number, "index", false))
                     this.index = uint8(index);
+            }
+
+            if (map.HasKey("clubId")) {
+                Json::Value@ clubId = map["clubId"];
+                if (CheckJsonType(clubId, Json::Type::Number, "clubId", false))
+                    this.clubId = int(clubId);
+            }
+
+            if (map.HasKey("clubName")) {
+                Json::Value@ clubName = map["club"];
+                if (CheckJsonType(clubName, Json::Type::String, "clubName", false))
+                    this.clubName = string(clubName);
             }
 
             Json::Value@ custom = map["custom"];
@@ -158,7 +188,7 @@ namespace WarriorMedals {
                 if (CheckJsonType(date, Json::Type::String, "date", false)) {
                     this.date = string(date);
 
-                    campaign = MonthName(Text::ParseUInt(this.date.SubStr(5, 2))) + " " + this.date.SubStr(0, 4);
+                    campaignName = MonthName(Text::ParseUInt(this.date.SubStr(5, 2))) + " " + this.date.SubStr(0, 4);
                     index = uint8(Text::ParseUInt(this.date.SubStr(this.date.Length - 2)) - 1);
                 }
             }
@@ -168,7 +198,7 @@ namespace WarriorMedals {
                 this.reason = reason;
 
             if (campaignType == CampaignType::Seasonal) {
-                campaign = name.SubStr(0, name.Length - 5);
+                campaignName = name.SubStr(0, name.Length - 5);
                 index = uint8(Text::ParseUInt(name.SubStr(name.Length - 2)) - 1);
             }
         }

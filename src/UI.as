@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2024-09-19
+// m 2024-09-20
 
 uint FrameConfirmQuit = 0;
 
@@ -46,7 +46,7 @@ void DrawOverUI() {
             return;
 
         if (Overlay.m_CorpusVisibles[0].Item.SceneMobil.IdName == "FrameConfirmQuit") {
-            print("check FrameConfirmQuit string");
+            // trace("check FrameConfirmQuit string");
             FrameConfirmQuit = Overlay.m_CorpusVisibles[0].Item.SceneMobil.Id.Value;
             return;
         }
@@ -259,12 +259,12 @@ void DrawOverUI() {
     DrawOverTrainingPage(Training);
 }
 
-void DrawCampaign(CGameManialinkFrame@ Maps, const string &in campaignName, bool club = false) {
-    if (Maps is null || campaignName.Length == 0)
+void DrawCampaign(CGameManialinkFrame@ Maps, const string &in uid, bool club = false) {
+    if (Maps is null || uid.Length == 0)
         return;
 
     uint[] indicesToShow;
-    Campaign@ campaign = GetCampaign(campaignName.ToLower());
+    Campaign@ campaign = GetCampaign(uid);
     if (campaign !is null) {
         for (uint i = 0; i < campaign.mapsArr.Length; i++) {
             WarriorMedals::Map@ map = campaign.mapsArr[i];
@@ -334,7 +334,7 @@ void DrawOverCampaignPage(CGameManialinkPage@ Page) {
         campaignName = campaignName.SubStr(19).Replace("\u0091", " ");
     }
 
-    DrawCampaign(cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-maps")), campaignName, club);
+    DrawCampaign(cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-maps")), CampaignUid(campaignName, clubName), club);
 }
 
 void DrawOverLiveCampaignPage(CGameManialinkPage@ Page) {
@@ -346,7 +346,7 @@ void DrawOverLiveCampaignPage(CGameManialinkPage@ Page) {
     if (CampaignLabel !is null)
         campaignName = string(CampaignLabel.Value).SubStr(19).Replace("\u0091", " ");
 
-    DrawCampaign(cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-maps")), campaignName, false);
+    DrawCampaign(cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-maps")), CampaignUid(campaignName), false);
 }
 
 // void DrawOverLiveTotdPage(CGameManialinkPage@ Page) {
@@ -448,7 +448,7 @@ void DrawOverTotdPage(CGameManialinkPage@ Page) {
         monthName = string(MonthLabel.Value).SubStr(12).Replace("%1\u0091", "");
 
     uint[] indicesToShow;
-    Campaign@ campaign = GetCampaign(monthName.ToLower());
+    Campaign@ campaign = GetCampaign(CampaignUid(monthName));
     if (campaign !is null) {
         for (uint i = 0; i < campaign.mapsArr.Length; i++) {
             WarriorMedals::Map@ map = campaign.mapsArr[i];
@@ -501,5 +501,5 @@ void DrawOverTrainingPage(CGameManialinkPage@ Page) {
     if (Page is null)
         return;
 
-    DrawCampaign(cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-maps")), "training", true);
+    DrawCampaign(cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-maps")), CampaignUid("training"), true);
 }

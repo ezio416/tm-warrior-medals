@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2024-07-30
+// m 2024-09-20
 
 Campaign@     activeOtherCampaign;
 Campaign@     activeSeasonalCampaign;
@@ -23,6 +23,7 @@ bool          settingTotals     = false;
 const string  title             = colorStr + Icons::Circle + "\\$G Warrior Medals";
 uint          total             = 0;
 uint          totalHave         = 0;
+const string  uidSeparator      = "|warrior-campaign|";
 
 void Main() {
     OnSettingsChanged();

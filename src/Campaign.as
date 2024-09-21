@@ -1,8 +1,11 @@
 // c 2024-07-22
-// m 2024-07-30
+// m 2024-09-20
 
 class Campaign {
+    uint                        clubId     = uint(-1);
+    string                      clubName;
     uint                        colorIndex = uint(-1);
+    uint                        id         = uint(-1);
     uint                        index      = uint(-1);
     dictionary@                 maps       = dictionary();
     WarriorMedals::Map@[]       mapsArr;
@@ -10,6 +13,7 @@ class Campaign {
     string                      name;
     string                      nameLower;
     WarriorMedals::CampaignType type       = WarriorMedals::CampaignType::Unknown;
+    string                      uid;
     uint                        year;
 
     uint get_count() {
@@ -26,9 +30,13 @@ class Campaign {
         return _count;
     }
 
-    Campaign(const string &in name) {
+    Campaign(const string &in name, const string &in club = "") {
         this.name = name;
         nameLower = name.ToLower();
+
+        this.clubName = club;
+
+        this.uid = CampaignUid(name, club);
     }
 
     void AddMap(WarriorMedals::Map@ map) {
@@ -44,16 +52,16 @@ class Campaign {
         if (index != uint(-1))
             return;
 
-        year = Text::ParseUInt(map.campaign.SubStr(map.campaign.Length - 4)) - 2020;
+        year = Text::ParseUInt(map.campaignName.SubStr(map.campaignName.Length - 4)) - 2020;
 
         if (type == WarriorMedals::CampaignType::Seasonal) {
-            if (map.campaign.StartsWith("Summer")) {
+            if (map.campaignName.StartsWith("Summer")) {
                 index = 0 + 4 * year;
                 colorIndex = 2;
-            } else if (map.campaign.StartsWith("Fall")) {
+            } else if (map.campaignName.StartsWith("Fall")) {
                 index = 1 + 4 * year;
                 colorIndex  =3;
-            } else if (map.campaign.StartsWith("Winter")) {
+            } else if (map.campaignName.StartsWith("Winter")) {
                 index = 2 + 4 * (year - 1);
                 colorIndex = 0;
             } else {
@@ -121,13 +129,13 @@ void BuildCampaigns() {
         if (map is null)
             continue;
 
-        Campaign@ campaign = GetCampaign(map.campaign.ToLower());
+        Campaign@ campaign = GetCampaign(CampaignUid(map.campaignName));
         if (campaign !is null) {
             campaign.AddMap(map);
             continue;
         }
 
-        @campaign = Campaign(map.campaign);
+        @campaign = Campaign(map.campaignName);
         campaign.AddMap(map);
         campaigns[campaign.nameLower] = @campaign;
         campaignsArr.InsertLast(@campaign);
@@ -138,11 +146,16 @@ void BuildCampaigns() {
     SortCampaigns();
 }
 
-Campaign@ GetCampaign(const string &in name) {
-    if (!campaigns.Exists(name))
+string CampaignUid(const string &in name, const string &in club = "") {
+    const string ret = club + uidSeparator + name;
+    return ret.ToLower();
+}
+
+Campaign@ GetCampaign(const string &in uid) {
+    if (!campaigns.Exists(uid))
         return null;
 
-    return cast<Campaign@>(campaigns[name]);
+    return cast<Campaign@>(campaigns[uid]);
 }
 
 void SortCampaigns() {
