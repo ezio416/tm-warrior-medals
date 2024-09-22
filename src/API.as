@@ -1,9 +1,8 @@
 // c 2024-07-18
-// m 2024-09-19
+// m 2024-09-22
 
 const string e416devApiUrl  = "https://e416.dev/api";
 bool         getting        = false;
-const string githubUrl      = "https://raw.githubusercontent.com/ezio416/warrior-medal-times/main/warriors.json";
 dictionary@  missing        = dictionary();
 const string opCampIndexUrl = "https://openplanet.dev/plugin/warriormedals/config/campaign-indices";
 
@@ -15,7 +14,7 @@ void GetAllMapInfosAsync() {
     const uint64 start = Time::Now;
     trace("getting all map infos");
 
-    Net::HttpRequest@ req = Net::HttpGet(githubUrl);
+    Net::HttpRequest@ req = Net::HttpGet(e416devApiUrl + "/tm/warrior/all");
     while (!req.Finished())
         yield();
 
