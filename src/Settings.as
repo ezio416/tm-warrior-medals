@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2024-09-21
+// m 2024-09-22
 
 [Setting hidden] vec3 S_ColorFall                = vec3(1.0f, 0.5f, 0.0f);
 [Setting hidden] vec3 S_ColorSpring              = vec3(0.3f, 0.9f, 0.3f);
@@ -10,6 +10,7 @@
 [Setting hidden] bool S_MainWindowAutoResize     = false;
 [Setting hidden] bool S_MainWindowHideWithGame   = true;
 [Setting hidden] bool S_MainWindowHideWithOP     = true;
+[Setting hidden] bool S_MainWindowTmioLinks      = true;
 
 [Setting hidden] bool S_MedalWindow              = true;
 [Setting hidden] bool S_MedalWindowDelta         = true;
@@ -40,6 +41,7 @@ void Settings_General() {
         plugin.GetSetting("S_MainWindowHideWithGame").Reset();
         plugin.GetSetting("S_MainWindowHideWithOP").Reset();
         plugin.GetSetting("S_MainWindowAutoResize").Reset();
+        plugin.GetSetting("S_MainWindowTmioLinks").Reset();
     }
 
     S_MainWindow = UI::Checkbox("Show main window", S_MainWindow);
@@ -50,6 +52,8 @@ void Settings_General() {
         S_MainWindowHideWithOP   = UI::Checkbox("Show/hide with Openplanet UI##main", S_MainWindowHideWithOP);
         UI::NewLine(); UI::SameLine();
         S_MainWindowAutoResize   = UI::Checkbox("Auto-resize",                        S_MainWindowAutoResize);
+        UI::NewLine(); UI::SameLine();
+        S_MainWindowTmioLinks    = UI::Checkbox("Show Trackmania.io buttons",         S_MainWindowTmioLinks);
     }
 
     UI::Separator();

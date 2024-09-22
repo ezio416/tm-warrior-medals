@@ -71,6 +71,11 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
         UI::TableNextColumn();
         UI::AlignTextToFramePadding();
         UI::SeparatorText(campaign.name);
+        if (campaign.clubName.Length > 0) {
+            UI::PopFont();
+            HoverTooltip("from the club \"" + campaign.clubName + "\"");
+            UI::PushFont(fontHeader);
+        }
 
         UI::TableNextColumn();
         UI::Image(icon32, vec2(scale * 32.0f));
@@ -80,6 +85,17 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
         UI::PopFont();
 
         UI::EndTable();
+    }
+
+    if (S_MainWindowTmioLinks) {
+        if (campaign.clubId > 0 && UI::Button(Icons::ExternalLink + " Club"))
+            OpenBrowserURL("https://trackmania.io/#/clubs/" + campaign.clubId);
+
+        if (campaign.clubId > 0 && campaign.id > 0)
+            UI::SameLine();
+
+        if (campaign.id > 0 && UI::Button(Icons::ExternalLink + " Campaign"))
+            OpenBrowserURL("https://trackmania.io/#/campaigns/" + campaign.clubId + "/" + campaign.id);
     }
 
     if (UI::BeginTable("##table-campaign-maps", hasPlayPermission ? 5 : 4, UI::TableFlags::RowBg | UI::TableFlags::ScrollY | UI::TableFlags::SizingStretchProp)) {
