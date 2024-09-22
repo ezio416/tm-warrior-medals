@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2024-09-20
+// m 2024-09-21
 
 uint FrameConfirmQuit = 0;
 
@@ -263,7 +263,7 @@ void DrawCampaign(CGameManialinkFrame@ Maps, const string &in uid, bool club = f
     if (Maps is null || uid.Length == 0)
         return;
 
-    uint[] indicesToShow;
+    int8[] indicesToShow;
     Campaign@ campaign = GetCampaign(uid);
     if (campaign !is null) {
         for (uint i = 0; i < campaign.mapsArr.Length; i++) {
@@ -447,7 +447,7 @@ void DrawOverTotdPage(CGameManialinkPage@ Page) {
     if (MonthLabel !is null)
         monthName = string(MonthLabel.Value).SubStr(12).Replace("%1\u0091", "");
 
-    uint[] indicesToShow;
+    int8[] indicesToShow;
     Campaign@ campaign = GetCampaign(CampaignUid(monthName));
     if (campaign !is null) {
         for (uint i = 0; i < campaign.mapsArr.Length; i++) {
@@ -501,5 +501,5 @@ void DrawOverTrainingPage(CGameManialinkPage@ Page) {
     if (Page is null)
         return;
 
-    DrawCampaign(cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-maps")), CampaignUid("training"), true);
+    DrawCampaign(cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-maps")), CampaignUid("training", "none"), true);  // remove "none" when gh updates
 }
