@@ -1,10 +1,9 @@
 // c 2024-07-18
 // m 2024-09-22
 
-const string e416devApiUrl  = "https://e416.dev/api";
-bool         getting        = false;
-dictionary@  missing        = dictionary();
-const string opCampIndexUrl = "https://openplanet.dev/plugin/warriormedals/config/campaign-indices";
+const string apiUrl  = "https://e416.dev/api";
+bool         getting = false;
+dictionary@  missing = dictionary();
 
 void GetAllMapInfosAsync() {
     startnew(TryGetCampaignIndicesAsync);
@@ -14,7 +13,7 @@ void GetAllMapInfosAsync() {
     const uint64 start = Time::Now;
     trace("getting all map infos");
 
-    Net::HttpRequest@ req = Net::HttpGet(e416devApiUrl + "/tm/warrior/all");
+    Net::HttpRequest@ req = Net::HttpGet(apiUrl + "/tm/warrior/all");
     while (!req.Finished())
         yield();
 
@@ -53,7 +52,7 @@ bool GetCampaignIndicesAsync() {
     const uint64 start = Time::Now;
     trace("getting campaign indices");
 
-    Net::HttpRequest@ req = Net::HttpGet(opCampIndexUrl);
+    Net::HttpRequest@ req = Net::HttpGet(apiUrl + "/tm/warrior/campaign-indices");
     while (!req.Finished())
         yield();
 
@@ -105,7 +104,7 @@ void GetMapInfoAsync(const string &in uid) {
     const uint64 start = Time::Now;
     trace("getting map info for " + uid);
 
-    Net::HttpRequest@ req = Net::HttpGet(e416devApiUrl + "/tm/warrior?uid=" + uid);
+    Net::HttpRequest@ req = Net::HttpGet(apiUrl + "/tm/warrior?uid=" + uid);
     while (!req.Finished())
         yield();
 
