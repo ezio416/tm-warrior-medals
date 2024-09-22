@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2024-09-21
+// m 2024-09-22
 
 uint FrameConfirmQuit = 0;
 
@@ -198,6 +198,7 @@ void DrawOverUI() {
         CGameUILayer@ Layer = Title.UILayers[i];
         if (false
             || Layer is null
+            || Layer.LocalPage is null
             || !Layer.IsVisible
             || Layer.Type != CGameUILayer::EUILayerType::Normal
             || Layer.ManialinkPageUtf8.Length == 0
@@ -205,6 +206,12 @@ void DrawOverUI() {
             continue;
 
         const string pageName = Layer.ManialinkPageUtf8.Trim().SubStr(17, 27);
+
+        if (pageName.StartsWith("Overlay_ReportSystem")) {
+            CGameManialinkFrame@ Frame = cast<CGameManialinkFrame@>(Layer.LocalPage.GetFirstChild("frame-report-system"));
+            if (Frame !is null && Frame.Visible)
+                return;
+        }
 
         // if (true
         //     && S_UIMedalsLiveTotd
