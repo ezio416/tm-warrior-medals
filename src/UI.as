@@ -508,5 +508,5 @@ void DrawOverTrainingPage(CGameManialinkPage@ Page) {
     if (Page is null)
         return;
 
-    DrawCampaign(cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-maps")), CampaignUid("training", "none"), true);  // remove "none" when gh updates
+    DrawCampaign(cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-maps")), CampaignUid("training"), true);
 }
