@@ -73,7 +73,7 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
         UI::SeparatorText(campaign.name);
         if (campaign.clubName.Length > 0) {
             UI::PopFont();
-            HoverTooltip("from the club \"" + campaign.clubName + "\"");
+            HoverTooltip("from the club \"" + Text::OpenplanetFormatCodes(campaign.clubName) + "\"");
             UI::PushFont(fontHeader);
         }
 
@@ -200,7 +200,7 @@ void Tab_Other() {
                 const string clubName = clubs[i];
 
                 UI::PushFont(fontHeader);
-                UI::SeparatorText(clubName);
+                UI::SeparatorText(Text::OpenplanetFormatCodes(clubName));
                 UI::PopFont();
 
                 index = 0;
