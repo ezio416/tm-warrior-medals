@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2024-09-22
+// m 2024-09-23
 
 uint FrameConfirmQuit = 0;
 
@@ -87,16 +87,19 @@ void DrawOverUI() {
 
         const bool lookForBanner = ServerInfo.CurGameModeStr.Contains("_Online") || ServerInfo.CurGameModeStr.Contains("PlayMap");
 
+        CGameManialinkPage@ ScoresTable;
+        CGameManialinkPage@ Record;
         CGameManialinkPage@ Start;
         CGameManialinkPage@ Pause;
         CGameManialinkPage@ End;
-        CGameManialinkPage@ Record;
 
         for (uint i = 0; i < CMAP.UILayers.Length; i++) {
+            const bool pauseDisplayed = S_UIMedalPause && Network.PlaygroundClientScriptAPI.IsInGameMenuDisplayed;
+
             if (true
                 && !(Record is null && S_UIMedalBanner && lookForBanner)
                 && !(Start  is null && S_UIMedalStart  && startSequence)
-                && !(Pause  is null && S_UIMedalPause  && Network.PlaygroundClientScriptAPI.IsInGameMenuDisplayed)
+                && !(Pause  is null && pauseDisplayed)
                 && !(End    is null && S_UIMedalEnd    && endSequence)
             )
                 break;
@@ -114,6 +117,16 @@ void DrawOverUI() {
                 continue;
 
             const string pageName = Layer.ManialinkPageUtf8.Trim().SubStr(0, 64);
+
+            if (true
+                && pauseDisplayed
+                && ScoresTable is null
+                && Layer.Type == CGameUILayer::EUILayerType::Normal
+                && pageName.Contains("_Race_ScoresTable")
+            ) {
+                @ScoresTable = Layer.LocalPage;
+                continue;
+            }
 
             if (true
                 && lookForBanner
@@ -162,7 +175,7 @@ void DrawOverUI() {
 
         DrawOverPlaygroundPage(Record, true);
         DrawOverPlaygroundPage(Start);
-        DrawOverPlaygroundPage(Pause, false, true);
+        DrawOverPlaygroundPage(Pause, false, true, ScoresTable);
         DrawOverPlaygroundPage(End);
 
         return;
@@ -383,19 +396,25 @@ void DrawOverLiveCampaignPage(CGameManialinkPage@ Page) {
 //     UI::Text("medal stack");
 // }
 
-void DrawOverPlaygroundPage(CGameManialinkPage@ Page, bool banner = false, bool pause = false) {
+void DrawOverPlaygroundPage(CGameManialinkPage@ Page, bool banner = false, bool pause = false, CGameManialinkPage@ ScoresTable = null) {
     if (Page is null)
         return;
 
     if (pause) {
         CTrackMania@ App = cast<CTrackMania@>(GetApp());
         CTrackManiaNetwork@ Network = cast<CTrackManiaNetwork@>(App.Network);
-        if (!Network.PlaygroundClientScriptAPI.IsInGameMenuDisplayed)  // check if pause menu displayed
+        if (!Network.PlaygroundClientScriptAPI.IsInGameMenuDisplayed)
             return;
 
         CGameManialinkFrame@ Settings = cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-settings"));
         if (Settings !is null && Settings.Visible)
             return;
+
+        if (ScoresTable !is null) {
+            CGameManialinkFrame@ TableLayer = cast<CGameManialinkFrame@>(ScoresTable.GetFirstChild("frame-scorestable-layer"));
+            if (TableLayer !is null && TableLayer.Visible)
+                return;
+        }
     } else {
         CGameManialinkFrame@ Global = cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-global"));
         if (Global is null || !Global.Visible)
