@@ -1,5 +1,5 @@
 // c 2024-07-24
-// m 2024-09-22
+// m 2024-09-23
 
 void MainWindow() {
     if (false
@@ -122,6 +122,8 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
             UI::TableNextColumn();
             UI::AlignTextToFramePadding();
             UI::Text(map.name);
+            if (map.campaignType == WarriorMedals::CampaignType::TrackOfTheDay)
+                HoverTooltip(map.date);
 
             UI::TableNextColumn();
             UI::Text(Time::Format(warrior));
