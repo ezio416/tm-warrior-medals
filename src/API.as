@@ -1,9 +1,21 @@
 // c 2024-07-18
-// m 2024-09-22
+// m 2024-09-23
 
 const string apiUrl  = "https://e416.dev/api";
 bool         getting = false;
 dictionary@  missing = dictionary();
+
+void CheckVersionAsync() {
+    Net::HttpRequest@ req = Net::HttpGet(apiUrl + "/tm/warrior/plugin-version");
+    while (!req.Finished())
+        yield();
+
+    if (req.ResponseCode() == 426) {
+        const string msg = "Please update through the Plugin Manager at the top. Your plugin version will soon be unsupported!";
+        warn(msg);
+        UI::ShowNotification(title, msg, vec4(colorVec * 0.5f, 1.0f), 10000);
+    }
+}
 
 void GetAllMapInfosAsync() {
     startnew(TryGetCampaignIndicesAsync);

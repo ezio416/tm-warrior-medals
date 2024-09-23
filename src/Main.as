@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2024-09-20
+// m 2024-09-23
 
 Campaign@     activeOtherCampaign;
 Campaign@     activeSeasonalCampaign;
@@ -26,6 +26,8 @@ uint          totalHave         = 0;
 const string  uidSeparator      = "|warrior-campaign|";
 
 void Main() {
+    startnew(CheckVersionAsync);
+
     OnSettingsChanged();
     startnew(GetAllMapInfosAsync);
     WarriorMedals::GetIcon32();
