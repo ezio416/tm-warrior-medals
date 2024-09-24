@@ -406,7 +406,11 @@ void DrawOverPlaygroundPage(CGameManialinkPage@ Page, PlaygroundPageType type = 
     if (Page is null)
         return;
 
-    if (type == PlaygroundPageType::Pause) {
+    if (type == PlaygroundPageType::Start) {
+        CGameManialinkFrame@ OpponentsList = cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-more-opponents-list"));
+        if (OpponentsList !is null && OpponentsList.Visible)
+            return;
+    } else if (type == PlaygroundPageType::Pause) {
         CTrackMania@ App = cast<CTrackMania@>(GetApp());
         CTrackManiaNetwork@ Network = cast<CTrackManiaNetwork@>(App.Network);
         if (!Network.PlaygroundClientScriptAPI.IsInGameMenuDisplayed)
