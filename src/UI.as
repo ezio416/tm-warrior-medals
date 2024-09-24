@@ -3,6 +3,13 @@
 
 uint FrameConfirmQuit = 0;
 
+enum PlaygroundPageType {
+    Record,
+    Start,
+    Pause,
+    End
+}
+
 void DrawOverUI() {
     if (false
         || !S_UIMedals
@@ -46,7 +53,6 @@ void DrawOverUI() {
             return;
 
         if (Overlay.m_CorpusVisibles[0].Item.SceneMobil.IdName == "FrameConfirmQuit") {
-            // trace("check FrameConfirmQuit string");
             FrameConfirmQuit = Overlay.m_CorpusVisibles[0].Item.SceneMobil.Id.Value;
             return;
         }
@@ -173,10 +179,10 @@ void DrawOverUI() {
             }
         }
 
-        DrawOverPlaygroundPage(Record, true);
+        DrawOverPlaygroundPage(Record, PlaygroundPageType::Record);
         DrawOverPlaygroundPage(Start);
-        DrawOverPlaygroundPage(Pause, false, true, ScoresTable);
-        DrawOverPlaygroundPage(End);
+        DrawOverPlaygroundPage(Pause, PlaygroundPageType::Pause, ScoresTable);
+        DrawOverPlaygroundPage(End, PlaygroundPageType::End);
 
         return;
     }
@@ -396,11 +402,11 @@ void DrawOverLiveCampaignPage(CGameManialinkPage@ Page) {
 //     UI::Text("medal stack");
 // }
 
-void DrawOverPlaygroundPage(CGameManialinkPage@ Page, bool banner = false, bool pause = false, CGameManialinkPage@ ScoresTable = null) {
+void DrawOverPlaygroundPage(CGameManialinkPage@ Page, PlaygroundPageType type = PlaygroundPageType::Start, CGameManialinkPage@ ScoresTable = null) {
     if (Page is null)
         return;
 
-    if (pause) {
+    if (type == PlaygroundPageType::Pause) {
         CTrackMania@ App = cast<CTrackMania@>(GetApp());
         CTrackManiaNetwork@ Network = cast<CTrackManiaNetwork@>(App.Network);
         if (!Network.PlaygroundClientScriptAPI.IsInGameMenuDisplayed)
@@ -421,12 +427,14 @@ void DrawOverPlaygroundPage(CGameManialinkPage@ Page, bool banner = false, bool 
             return;
     }
 
+    const bool banner = type == PlaygroundPageType::Record;
+
     CGameManialinkControl@ Medal = Page.GetFirstChild(banner ? "quad-medal" : "ComponentMedalStack_frame-global");
     if (false
         || Medal is null
         || !Medal.Visible
         || (banner && (false
-            || !Medal.Parent.Visible  // not visible in solo
+            || !Medal.Parent.Visible  // not visible in campaign mode, probably others
             || Medal.AbsolutePosition_V3.x < -170.0f  // off screen
         ))
     )
@@ -441,24 +449,39 @@ void DrawOverPlaygroundPage(CGameManialinkPage@ Page, bool banner = false, bool 
     const vec2  offset = vec2(banner ? -size.x * 0.5f : 0.0f, -size.y * 0.5f);
     const vec2  coords = center + offset + scale * (Medal.AbsolutePosition_V3 + vec2(banner ? 0.0f : 12.16f, 0.0f));
 
-    nvg::BeginPath();
-    nvg::FillPaint(nvg::TexturePattern(coords, size, 0.0f, iconUI, 1.0f));
-    nvg::Fill();
+    const bool end = type == PlaygroundPageType::End;
+
+    CGameManialinkFrame@ MenuContent;
+    if (end)
+        @MenuContent = cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-menu-content"));
+
+    if (false
+        || !end
+        || (MenuContent !is null && MenuContent.Visible)
+    ) {
+        nvg::BeginPath();
+        nvg::FillPaint(nvg::TexturePattern(coords, size, 0.0f, iconUI, 1.0f));
+        nvg::Fill();
+    }
 
     CGameManialinkFrame@ NewMedal = cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-new-medal"));
     if (NewMedal is null || !NewMedal.Visible)
         return;
 
     CGameManialinkQuad@ QuadMedal = cast<CGameManialinkQuad@>(NewMedal.GetFirstChild("quad-medal-anim"));
-    if (QuadMedal is null || !QuadMedal.Visible)
+    if (false
+        || QuadMedal is null
+        || !QuadMedal.Visible
+        || QuadMedal.AbsolutePosition_V3.x > -85.0f  // end race menu still hidden
+    )
         return;
 
-    const vec2 newOffset = vec2(-size.x, -size.y) * 1.15f;
-    const vec2 newCoords = center + newOffset + scale * QuadMedal.AbsolutePosition_V3;
-    const vec2 newSize   = vec2(45.0f * hUnit);
+    const vec2 quadMedalOffset = vec2(-size.x, -size.y) * 1.15f;
+    const vec2 quadMedalCoords = center + quadMedalOffset + scale * QuadMedal.AbsolutePosition_V3;
+    const vec2 quadMedalSize   = vec2(45.0f * hUnit);
 
     nvg::BeginPath();
-    nvg::FillPaint(nvg::TexturePattern(newCoords, newSize, 0.0f, iconUI, 1.0f));
+    nvg::FillPaint(nvg::TexturePattern(quadMedalCoords, quadMedalSize, 0.0f, iconUI, 1.0f));
     nvg::Fill();
 }
 
