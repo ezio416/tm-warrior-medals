@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2024-09-23
+// m 2024-09-24
 
 uint FrameConfirmQuit = 0;
 
@@ -449,7 +449,7 @@ void DrawOverPlaygroundPage(CGameManialinkPage@ Page, bool banner = false, bool 
     if (NewMedal is null || !NewMedal.Visible)
         return;
 
-    CGameManialinkQuad@ QuadMedal = cast<CGameManialinkQuad@>(NewMedal.GetFirstChild("quad-medal"));
+    CGameManialinkQuad@ QuadMedal = cast<CGameManialinkQuad@>(NewMedal.GetFirstChild("quad-medal-anim"));
     if (QuadMedal is null || !QuadMedal.Visible)
         return;
 
