@@ -416,18 +416,39 @@ void DrawOverPlaygroundPage(CGameManialinkPage@ Page, PlaygroundPageType type = 
         if (!Network.PlaygroundClientScriptAPI.IsInGameMenuDisplayed)
             return;
 
-        CGameManialinkFrame@ Settings = cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-settings"));
-        if (Settings !is null && Settings.Visible)
-            return;
-
-        CGameManialinkFrame@ ReportSystem = cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-report-system"));
-        if (ReportSystem !is null && ReportSystem.Visible)
-            return;
-
         if (ScoresTable !is null) {
             CGameManialinkFrame@ TableLayer = cast<CGameManialinkFrame@>(ScoresTable.GetFirstChild("frame-scorestable-layer"));
             if (TableLayer !is null && TableLayer.Visible)
                 return;
+        }
+
+        const string[] frames = {
+            "frame-settings",
+            "frame-report-system"
+        };
+
+        for (uint i = 0; i < frames.Length; i++) {
+            CGameManialinkFrame@ Frame = cast<CGameManialinkFrame@>(Page.GetFirstChild(frames[i]));
+            if (Frame !is null && Frame.Visible)
+                return;
+        }
+
+        CTrackManiaNetworkServerInfo@ ServerInfo = cast<CTrackManiaNetworkServerInfo@>(Network.ServerInfo);
+        if (ServerInfo !is null && ServerInfo.CurGameModeStr.Contains("_Online")) {
+            const string[] onlineFrames = {
+                "frame-options",
+                "frame-profile",
+                "frame-server",
+                "frame-map-list",
+                "frame-help",
+                "popupmultichoice-leave-match"
+            };
+
+            for (uint i = 0; i < onlineFrames.Length; i++) {
+                CGameManialinkFrame@ Frame = cast<CGameManialinkFrame@>(Page.GetFirstChild(onlineFrames[i]));
+                if (Frame !is null && Frame.Visible)
+                    return;
+            }
         }
     } else {
         CGameManialinkFrame@ Global = cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-global"));
