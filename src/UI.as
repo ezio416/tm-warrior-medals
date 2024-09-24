@@ -420,6 +420,10 @@ void DrawOverPlaygroundPage(CGameManialinkPage@ Page, PlaygroundPageType type = 
         if (Settings !is null && Settings.Visible)
             return;
 
+        CGameManialinkFrame@ ReportSystem = cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-report-system"));
+        if (ReportSystem !is null && ReportSystem.Visible)
+            return;
+
         if (ScoresTable !is null) {
             CGameManialinkFrame@ TableLayer = cast<CGameManialinkFrame@>(ScoresTable.GetFirstChild("frame-scorestable-layer"));
             if (TableLayer !is null && TableLayer.Visible)
