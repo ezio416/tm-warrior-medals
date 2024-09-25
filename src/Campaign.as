@@ -1,15 +1,18 @@
 // c 2024-07-22
-// m 2024-07-30
+// m 2024-09-22
 
 class Campaign {
-    uint                        colorIndex = uint(-1);
-    uint                        index      = uint(-1);
+    int                         clubId     = -1;
+    string                      clubName;
+    uint8                       colorIndex = uint8(-1);
+    int                         id         = -1;
+    int                         index      = -1;
     dictionary@                 maps       = dictionary();
     WarriorMedals::Map@[]       mapsArr;
     uint                        month;
     string                      name;
-    string                      nameLower;
     WarriorMedals::CampaignType type       = WarriorMedals::CampaignType::Unknown;
+    string                      uid;
     uint                        year;
 
     uint get_count() {
@@ -26,9 +29,16 @@ class Campaign {
         return _count;
     }
 
-    Campaign(const string &in name) {
-        this.name = name;
-        nameLower = name.ToLower();
+    bool get_official() {
+        return clubId == 0 || clubId == 150;  // 0 training/seasonal, 150 ubisoft nadeo
+    }
+
+    Campaign(WarriorMedals::Map@ map) {
+        clubId   = map.clubId;
+        clubName = map.clubName;
+        id       = map.campaignId;
+        name     = map.campaignName;
+        uid      = CampaignUid(name, clubName);
     }
 
     void AddMap(WarriorMedals::Map@ map) {
@@ -41,19 +51,19 @@ class Campaign {
         if (type == WarriorMedals::CampaignType::Unknown)
             type = map.campaignType;
 
-        if (index != uint(-1))
+        if (index != -1)
             return;
 
-        year = Text::ParseUInt(map.campaign.SubStr(map.campaign.Length - 4)) - 2020;
+        year = Text::ParseUInt(map.campaignName.SubStr(map.campaignName.Length - 4)) - 2020;
 
         if (type == WarriorMedals::CampaignType::Seasonal) {
-            if (map.campaign.StartsWith("Summer")) {
+            if (map.campaignName.StartsWith("Summer")) {
                 index = 0 + 4 * year;
                 colorIndex = 2;
-            } else if (map.campaign.StartsWith("Fall")) {
+            } else if (map.campaignName.StartsWith("Fall")) {
                 index = 1 + 4 * year;
-                colorIndex  =3;
-            } else if (map.campaign.StartsWith("Winter")) {
+                colorIndex = 3;
+            } else if (map.campaignName.StartsWith("Winter")) {
                 index = 2 + 4 * (year - 1);
                 colorIndex = 0;
             } else {
@@ -102,8 +112,10 @@ class Campaign {
     }
 
     void SetOtherCampaignIndex() {
-        if (campaignIndices !is null && campaignIndices.HasKey(nameLower))
-            index = uint(campaignIndices[nameLower]);
+        const string indexId = tostring(clubId) + "-" + id;
+
+        if (campaignIndices !is null && campaignIndices.HasKey(indexId))
+            index = int(campaignIndices[indexId]);
     }
 }
 
@@ -121,15 +133,15 @@ void BuildCampaigns() {
         if (map is null)
             continue;
 
-        Campaign@ campaign = GetCampaign(map.campaign.ToLower());
+        Campaign@ campaign = GetCampaign(CampaignUid(map.campaignName, map.clubName));
         if (campaign !is null) {
             campaign.AddMap(map);
             continue;
         }
 
-        @campaign = Campaign(map.campaign);
+        @campaign = Campaign(map);
         campaign.AddMap(map);
-        campaigns[campaign.nameLower] = @campaign;
+        campaigns[campaign.uid] = @campaign;
         campaignsArr.InsertLast(@campaign);
     }
 
@@ -138,11 +150,16 @@ void BuildCampaigns() {
     SortCampaigns();
 }
 
-Campaign@ GetCampaign(const string &in name) {
-    if (!campaigns.Exists(name))
+string CampaignUid(const string &in name, const string &in club = "") {
+    const string ret = club + uidSeparator + name;
+    return ret.ToLower();
+}
+
+Campaign@ GetCampaign(const string &in uid) {
+    if (!campaigns.Exists(uid))
         return null;
 
-    return cast<Campaign@>(campaigns[name]);
+    return cast<Campaign@>(campaigns[uid]);
 }
 
 void SortCampaigns() {

@@ -1,5 +1,5 @@
 // c 2024-07-24
-// m 2024-07-30
+// m 2024-09-23
 
 void MainWindow() {
     if (false
@@ -57,7 +57,7 @@ void MainWindow() {
 bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
     bool open = campaign !is null;
 
-    if (!open || !UI::BeginTabItem(campaign.name, open, selected ? UI::TabItemFlags::SetSelected : UI::TabItemFlags::None))
+    if (!open || !UI::BeginTabItem(campaign.name + "###" + campaign.uid, open, selected ? UI::TabItemFlags::SetSelected : UI::TabItemFlags::None))
         return open;
 
     if (UI::BeginTable("##table-campaign-header", 2, UI::TableFlags::SizingStretchProp)) {
@@ -71,6 +71,11 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
         UI::TableNextColumn();
         UI::AlignTextToFramePadding();
         UI::SeparatorText(campaign.name);
+        if (campaign.clubName.Length > 0) {
+            UI::PopFont();
+            HoverTooltip("from the club \"" + Text::OpenplanetFormatCodes(campaign.clubName) + "\"");
+            UI::PushFont(fontHeader);
+        }
 
         UI::TableNextColumn();
         UI::Image(icon32, vec2(scale * 32.0f));
@@ -80,6 +85,17 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
         UI::PopFont();
 
         UI::EndTable();
+    }
+
+    if (S_MainWindowTmioLinks) {
+        if (campaign.clubId > 0 && UI::Button(Icons::ExternalLink + " Club"))
+            OpenBrowserURL("https://trackmania.io/#/clubs/" + campaign.clubId);
+
+        if (campaign.clubId > 0 && campaign.id > 0)
+            UI::SameLine();
+
+        if (campaign.id > 0 && UI::Button(Icons::ExternalLink + " Campaign"))
+            OpenBrowserURL("https://trackmania.io/#/campaigns/" + campaign.clubId + "/" + campaign.id);
     }
 
     if (UI::BeginTable("##table-campaign-maps", hasPlayPermission ? 5 : 4, UI::TableFlags::RowBg | UI::TableFlags::ScrollY | UI::TableFlags::SizingStretchProp)) {
@@ -106,6 +122,8 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
             UI::TableNextColumn();
             UI::AlignTextToFramePadding();
             UI::Text(map.name);
+            if (map.campaignType == WarriorMedals::CampaignType::TrackOfTheDay)
+                HoverTooltip(map.date);
 
             UI::TableNextColumn();
             UI::Text(Time::Format(warrior));
@@ -150,21 +168,57 @@ void Tab_Other() {
 
             uint index = 0;
 
+            dictionary@ uniqueClubs = dictionary();
+            Campaign@[] unofficialCampaigns;
+
+            float unofficialCampaignMaxLength = 0.0f;
+
             for (uint i = 0; i < campaignsArr.Length; i++) {
+            // for (int i = campaignsArr.Length - 1; i >= 0; i--) {
                 Campaign@ campaign = campaignsArr[i];
                 if (campaign is null || campaign.type != WarriorMedals::CampaignType::Other)
                     continue;
 
+                if (!campaign.official) {
+                    uniqueClubs.Set(campaign.clubName, 0);
+                    unofficialCampaigns.InsertLast(campaign);
+                    unofficialCampaignMaxLength = Math::Max(unofficialCampaignMaxLength, Draw::MeasureString(campaign.name).x);
+                    continue;
+                }
+
                 if (index++ % 3 > 0)
                     UI::SameLine();
 
-                if (UI::Button(campaign.name, vec2(scale * 120.0f, scale * 25.0f))) {
+                if (UI::Button(campaign.name + "##" + campaign.uid, vec2(scale * 120.0f, scale * 25.0f))) {
                     @activeOtherCampaign = @campaign;
                     selected = true;
                 }
             }
 
-            // TODO: non-official campaigns if they are added
+            const string[]@ clubs = uniqueClubs.GetKeys();
+            for (uint i = 0; i < clubs.Length; i++) {
+                const string clubName = clubs[i];
+
+                UI::PushFont(fontHeader);
+                UI::SeparatorText(Text::OpenplanetFormatCodes(clubName));
+                UI::PopFont();
+
+                index = 0;
+
+                for (uint j = 0; j < unofficialCampaigns.Length; j++) {  // inefficient but whatever
+                    Campaign@ campaign = unofficialCampaigns[j];
+                    if (campaign.clubName != clubName)
+                        continue;
+
+                    if (index++ % 3 > 0)
+                        UI::SameLine();
+
+                    if (UI::Button(campaign.name + "##" + campaign.uid, vec2(scale * unofficialCampaignMaxLength * 0.9f, scale * 25.0f))) {
+                        @activeOtherCampaign = @campaign;
+                        selected = true;
+                    }
+                }
+            }
 
             UI::EndTabItem();
         }

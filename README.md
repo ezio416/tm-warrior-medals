@@ -45,13 +45,22 @@ Track of the Day:
 Function used for calculation:
 -
 ```Python
-def get_warrior_time(author_time: int, world_record: int, totd: bool = False) -> int:
-    diff: int = 1
+def get_warrior_time(author_time: int, world_record: int, factor: float | None = 0.25) -> int:
+    '''
+    - `factor` is offset from AT
+        - between `0.0` and `1.0`
+        - examples, given AT is `10.000` and WR is `8.000`:
+            - `0.000` - AT (`10.000`)
+            - `0.125` - 1/8 of the way between AT and WR (`9.750`) (default for TOTDs)
+            - `0.250` - 1/4 of the way between AT and WR (`9.500`) (default, default for campaigns)
+            - `0.750` - 3/4 of the way between AT and WR (`8.500`)
+            - `1.000` - WR (`8.000`)
+    '''
 
-    if (world_record < author_time - (7 if totd else 3)):
-        diff = int((author_time - world_record) / (8 if totd else 4))
-
-    return author_time - diff
+    return author_time - max(
+        int((author_time - world_record) * (factor if factor is not None else 0.25)),
+        1
+    )
 ```
 
 Exports:

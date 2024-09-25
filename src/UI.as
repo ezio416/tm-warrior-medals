@@ -1,5 +1,14 @@
 // c 2024-07-22
-// m 2024-07-30
+// m 2024-09-24
+
+uint FrameConfirmQuit = 0;
+
+enum PlaygroundPageType {
+    Record,
+    Start,
+    Pause,
+    End
+}
 
 void DrawOverUI() {
     if (false
@@ -40,8 +49,13 @@ void DrawOverUI() {
         )
             continue;
 
-        if (Overlay.m_CorpusVisibles[0].Item.SceneMobil.IdName == "FrameConfirmQuit")
+        if (FrameConfirmQuit > 0 && FrameConfirmQuit == Overlay.m_CorpusVisibles[0].Item.SceneMobil.Id.Value)
             return;
+
+        if (Overlay.m_CorpusVisibles[0].Item.SceneMobil.IdName == "FrameConfirmQuit") {
+            FrameConfirmQuit = Overlay.m_CorpusVisibles[0].Item.SceneMobil.Id.Value;
+            return;
+        }
     }
 
     CTrackManiaNetwork@ Network = cast<CTrackManiaNetwork@>(App.Network);
@@ -77,18 +91,21 @@ void DrawOverUI() {
             || endSequence
         ;
 
-        const bool lookForBanner = ServerInfo.CurGameModeStr.Contains("_Online");
+        const bool lookForBanner = ServerInfo.CurGameModeStr.Contains("_Online") || ServerInfo.CurGameModeStr.Contains("PlayMap");
 
+        CGameManialinkPage@ ScoresTable;
+        CGameManialinkPage@ Record;
         CGameManialinkPage@ Start;
         CGameManialinkPage@ Pause;
         CGameManialinkPage@ End;
-        CGameManialinkPage@ Record;
 
         for (uint i = 0; i < CMAP.UILayers.Length; i++) {
+            const bool pauseDisplayed = S_UIMedalPause && Network.PlaygroundClientScriptAPI.IsInGameMenuDisplayed;
+
             if (true
                 && !(Record is null && S_UIMedalBanner && lookForBanner)
                 && !(Start  is null && S_UIMedalStart  && startSequence)
-                && !(Pause  is null && S_UIMedalPause  && Network.PlaygroundClientScriptAPI.IsInGameMenuDisplayed)
+                && !(Pause  is null && pauseDisplayed)
                 && !(End    is null && S_UIMedalEnd    && endSequence)
             )
                 break;
@@ -106,6 +123,16 @@ void DrawOverUI() {
                 continue;
 
             const string pageName = Layer.ManialinkPageUtf8.Trim().SubStr(0, 64);
+
+            if (true
+                && pauseDisplayed
+                && ScoresTable is null
+                && Layer.Type == CGameUILayer::EUILayerType::Normal
+                && pageName.Contains("_Race_ScoresTable")
+            ) {
+                @ScoresTable = Layer.LocalPage;
+                continue;
+            }
 
             if (true
                 && lookForBanner
@@ -152,10 +179,10 @@ void DrawOverUI() {
             }
         }
 
-        DrawOverPlaygroundPage(Record, true);
+        DrawOverPlaygroundPage(Record, PlaygroundPageType::Record);
         DrawOverPlaygroundPage(Start);
-        DrawOverPlaygroundPage(Pause, false, true);
-        DrawOverPlaygroundPage(End);
+        DrawOverPlaygroundPage(Pause, PlaygroundPageType::Pause, ScoresTable);
+        DrawOverPlaygroundPage(End, PlaygroundPageType::End);
 
         return;
     }
@@ -190,6 +217,7 @@ void DrawOverUI() {
         CGameUILayer@ Layer = Title.UILayers[i];
         if (false
             || Layer is null
+            || Layer.LocalPage is null
             || !Layer.IsVisible
             || Layer.Type != CGameUILayer::EUILayerType::Normal
             || Layer.ManialinkPageUtf8.Length == 0
@@ -197,6 +225,12 @@ void DrawOverUI() {
             continue;
 
         const string pageName = Layer.ManialinkPageUtf8.Trim().SubStr(17, 27);
+
+        if (pageName.StartsWith("Overlay_ReportSystem")) {
+            CGameManialinkFrame@ Frame = cast<CGameManialinkFrame@>(Layer.LocalPage.GetFirstChild("frame-report-system"));
+            if (Frame !is null && Frame.Visible)
+                return;
+        }
 
         // if (true
         //     && S_UIMedalsLiveTotd
@@ -251,19 +285,19 @@ void DrawOverUI() {
     DrawOverTrainingPage(Training);
 }
 
-void DrawCampaign(CGameManialinkFrame@ Maps, const string &in campaignName, bool club = false) {
-    if (Maps is null || campaignName.Length == 0)
+void DrawCampaign(CGameManialinkFrame@ Maps, const string &in uid, bool club = false) {
+    if (Maps is null || uid.Length == 0)
         return;
 
-    uint[] indicesToShow;
-    Campaign@ campaign = GetCampaign(campaignName.ToLower());
+    int8[] indicesToShow;
+    Campaign@ campaign = GetCampaign(uid);
     if (campaign !is null) {
         for (uint i = 0; i < campaign.mapsArr.Length; i++) {
             WarriorMedals::Map@ map = campaign.mapsArr[i];
             if (map is null)
                 continue;
 
-            if (map.pb < (map.custom > 0 ? map.custom : map.warrior))
+            if (map.hasWarrior)
                 indicesToShow.InsertLast(map.index);
         }
     }
@@ -326,7 +360,7 @@ void DrawOverCampaignPage(CGameManialinkPage@ Page) {
         campaignName = campaignName.SubStr(19).Replace("\u0091", " ");
     }
 
-    DrawCampaign(cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-maps")), campaignName, club);
+    DrawCampaign(cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-maps")), CampaignUid(campaignName, clubName), club);
 }
 
 void DrawOverLiveCampaignPage(CGameManialinkPage@ Page) {
@@ -338,7 +372,7 @@ void DrawOverLiveCampaignPage(CGameManialinkPage@ Page) {
     if (CampaignLabel !is null)
         campaignName = string(CampaignLabel.Value).SubStr(19).Replace("\u0091", " ");
 
-    DrawCampaign(cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-maps")), campaignName, false);
+    DrawCampaign(cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-maps")), CampaignUid(campaignName), false);
 }
 
 // void DrawOverLiveTotdPage(CGameManialinkPage@ Page) {
@@ -368,27 +402,70 @@ void DrawOverLiveCampaignPage(CGameManialinkPage@ Page) {
 //     UI::Text("medal stack");
 // }
 
-void DrawOverPlaygroundPage(CGameManialinkPage@ Page, bool banner = false, bool pause = false) {
+void DrawOverPlaygroundPage(CGameManialinkPage@ Page, PlaygroundPageType type = PlaygroundPageType::Start, CGameManialinkPage@ ScoresTable = null) {
     if (Page is null)
         return;
 
-    if (pause) {
+    if (type == PlaygroundPageType::Pause) {
         CTrackMania@ App = cast<CTrackMania@>(GetApp());
         CTrackManiaNetwork@ Network = cast<CTrackManiaNetwork@>(App.Network);
         if (!Network.PlaygroundClientScriptAPI.IsInGameMenuDisplayed)
             return;
+
+        if (ScoresTable !is null) {
+            CGameManialinkFrame@ TableLayer = cast<CGameManialinkFrame@>(ScoresTable.GetFirstChild("frame-scorestable-layer"));
+            if (TableLayer !is null && TableLayer.Visible)
+                return;
+        }
+
+        const string[] frames = {
+            "frame-settings",
+            "frame-report-system"
+        };
+
+        for (uint i = 0; i < frames.Length; i++) {
+            CGameManialinkFrame@ Frame = cast<CGameManialinkFrame@>(Page.GetFirstChild(frames[i]));
+            if (Frame !is null && Frame.Visible)
+                return;
+        }
+
+        CTrackManiaNetworkServerInfo@ ServerInfo = cast<CTrackManiaNetworkServerInfo@>(Network.ServerInfo);
+        if (ServerInfo !is null && ServerInfo.CurGameModeStr.Contains("_Online")) {
+            const string[] onlineFrames = {
+                "frame-options",
+                "frame-profile",
+                "frame-server",
+                "frame-map-list",
+                "frame-help",
+                "popupmultichoice-leave-match"
+            };
+
+            for (uint i = 0; i < onlineFrames.Length; i++) {
+                CGameManialinkFrame@ Frame = cast<CGameManialinkFrame@>(Page.GetFirstChild(onlineFrames[i]));
+                if (Frame !is null && Frame.Visible)
+                    return;
+            }
+        }
     } else {
+        if (type == PlaygroundPageType::Start) {
+            CGameManialinkFrame@ OpponentsList = cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-more-opponents-list"));
+            if (OpponentsList !is null && OpponentsList.Visible)
+                return;
+        }
+
         CGameManialinkFrame@ Global = cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-global"));
         if (Global is null || !Global.Visible)
             return;
     }
+
+    const bool banner = type == PlaygroundPageType::Record;
 
     CGameManialinkControl@ Medal = Page.GetFirstChild(banner ? "quad-medal" : "ComponentMedalStack_frame-global");
     if (false
         || Medal is null
         || !Medal.Visible
         || (banner && (false
-            || !Medal.Parent.Visible  // not visible in solo
+            || !Medal.Parent.Visible  // not visible in campaign mode, probably others
             || Medal.AbsolutePosition_V3.x < -170.0f  // off screen
         ))
     )
@@ -403,8 +480,39 @@ void DrawOverPlaygroundPage(CGameManialinkPage@ Page, bool banner = false, bool 
     const vec2  offset = vec2(banner ? -size.x * 0.5f : 0.0f, -size.y * 0.5f);
     const vec2  coords = center + offset + scale * (Medal.AbsolutePosition_V3 + vec2(banner ? 0.0f : 12.16f, 0.0f));
 
+    const bool end = type == PlaygroundPageType::End;
+
+    CGameManialinkFrame@ MenuContent;
+    if (end)
+        @MenuContent = cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-menu-content"));
+
+    if (false
+        || !end
+        || (MenuContent !is null && MenuContent.Visible)
+    ) {
+        nvg::BeginPath();
+        nvg::FillPaint(nvg::TexturePattern(coords, size, 0.0f, iconUI, 1.0f));
+        nvg::Fill();
+    }
+
+    CGameManialinkFrame@ NewMedal = cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-new-medal"));
+    if (NewMedal is null || !NewMedal.Visible)
+        return;
+
+    CGameManialinkQuad@ QuadMedal = cast<CGameManialinkQuad@>(NewMedal.GetFirstChild("quad-medal-anim"));
+    if (false
+        || QuadMedal is null
+        || !QuadMedal.Visible
+        || QuadMedal.AbsolutePosition_V3.x > -85.0f  // end race menu still hidden
+    )
+        return;
+
+    const vec2 quadMedalOffset = vec2(-size.x, -size.y) * 1.15f;
+    const vec2 quadMedalCoords = center + quadMedalOffset + scale * QuadMedal.AbsolutePosition_V3;
+    const vec2 quadMedalSize   = vec2(45.0f * hUnit);
+
     nvg::BeginPath();
-    nvg::FillPaint(nvg::TexturePattern(coords, size, 0.0f, iconUI, 1.0f));
+    nvg::FillPaint(nvg::TexturePattern(quadMedalCoords, quadMedalSize, 0.0f, iconUI, 1.0f));
     nvg::Fill();
 }
 
@@ -421,15 +529,15 @@ void DrawOverTotdPage(CGameManialinkPage@ Page) {
     if (MonthLabel !is null)
         monthName = string(MonthLabel.Value).SubStr(12).Replace("%1\u0091", "");
 
-    uint[] indicesToShow;
-    Campaign@ campaign = GetCampaign(monthName.ToLower());
+    int8[] indicesToShow;
+    Campaign@ campaign = GetCampaign(CampaignUid(monthName));
     if (campaign !is null) {
         for (uint i = 0; i < campaign.mapsArr.Length; i++) {
             WarriorMedals::Map@ map = campaign.mapsArr[i];
             if (map is null)
                 continue;
 
-            if (map.pb < (map.custom > 0 ? map.custom : map.warrior))
+            if (map.hasWarrior)
                 indicesToShow.InsertLast(map.index);
         }
     }
@@ -475,5 +583,5 @@ void DrawOverTrainingPage(CGameManialinkPage@ Page) {
     if (Page is null)
         return;
 
-    DrawCampaign(cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-maps")), "training", true);
+    DrawCampaign(cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-maps")), CampaignUid("training"), true);
 }
