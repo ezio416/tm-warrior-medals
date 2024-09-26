@@ -1,9 +1,11 @@
 // c 2024-07-22
-// m 2024-09-22
+// m 2024-09-26
 
 class Campaign {
     int                         clubId     = -1;
     string                      clubName;
+    string                      clubNameFormatted;
+    string                      clubNameStripped;
     uint8                       colorIndex = uint8(-1);
     int                         id         = -1;
     int                         index      = -1;
@@ -11,6 +13,8 @@ class Campaign {
     WarriorMedals::Map@[]       mapsArr;
     uint                        month;
     string                      name;
+    string                      nameFormatted;
+    string                      nameStripped;
     WarriorMedals::CampaignType type       = WarriorMedals::CampaignType::Unknown;
     string                      uid;
     uint                        year;
@@ -34,11 +38,15 @@ class Campaign {
     }
 
     Campaign(WarriorMedals::Map@ map) {
-        clubId   = map.clubId;
-        clubName = map.clubName;
-        id       = map.campaignId;
-        name     = map.campaignName;
-        uid      = CampaignUid(name, clubName);
+        clubId            = map.clubId;
+        clubName          = map.clubName;
+        clubNameFormatted = WarriorMedals::OpenplanetFormatCodes(clubName);
+        clubNameStripped  = WarriorMedals::StripFormatCodes(clubName);
+        id                = map.campaignId;
+        name              = map.campaignName;
+        nameFormatted     = WarriorMedals::OpenplanetFormatCodes(name);
+        nameStripped      = WarriorMedals::StripFormatCodes(name);
+        uid               = CampaignUid(name, clubName);
     }
 
     void AddMap(WarriorMedals::Map@ map) {

@@ -1,5 +1,5 @@
 // c 2024-07-21
-// m 2024-09-21
+// m 2024-09-26
 
 /*
 Exports from the Warrior Medals plugin.
@@ -55,6 +55,22 @@ namespace WarriorMedals {
             case 11: return "November";
             default: return "December";
         }
+    }
+
+    /*
+    Simple function to format a string for Openplanet's format codes and trim the string.
+    Only shared to make the compiler happy.
+    */
+    shared string OpenplanetFormatCodes(const string &in s) {
+        return Text::OpenplanetFormatCodes(s).Trim();
+    }
+
+    /*
+    Simple function to strip a string of format codes and trim the string.
+    Only shared to make the compiler happy.
+    */
+    shared string StripFormatCodes(const string &in s) {
+        return Text::StripFormatCodes(s).Trim();
     }
 
     /*
@@ -121,6 +137,14 @@ namespace WarriorMedals {
         string get_name() { return _name; }
         private void set_name(const string &in n) { _name = n; }
 
+        private string _nameFormatted;
+        string get_nameFormatted() { return _nameFormatted; }
+        private void set_nameFormatted(const string &in n) { _nameFormatted = n; }
+
+        private string _nameStripped;
+        string get_nameStripped() { return _nameStripped; }
+        private void set_nameStripped(const string &in n) { _nameStripped = n; }
+
         private string _reason;
         string get_reason() { return _reason; }
         private void set_reason(const string &in r) { _reason = r; }
@@ -139,11 +163,13 @@ namespace WarriorMedals {
 
         Map() { }
         Map(Json::Value@ map) {
-            author      = uint(  map["authorTime"]);
-            name        = string(map["name"]).Trim();
-            uid         = string(map["uid"]);
-            warrior     = uint(  map["warriorTime"]);
-            worldRecord = uint(  map["worldRecord"]);
+            author        = uint(  map["authorTime"]);
+            name          = string(map["name"]).Trim();
+            nameFormatted = OpenplanetFormatCodes(name);
+            nameStripped  = StripFormatCodes(name);
+            uid           = string(map["uid"]);
+            warrior       = uint(  map["warriorTime"]);
+            worldRecord   = uint(  map["worldRecord"]);
 
             campaignType = CampaignType::Seasonal;
 
