@@ -1,5 +1,5 @@
 // c 2024-07-24
-// m 2024-09-23
+// m 2024-09-26
 
 void MainWindow() {
     if (false
@@ -57,7 +57,7 @@ void MainWindow() {
 bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
     bool open = campaign !is null;
 
-    if (!open || !UI::BeginTabItem(campaign.name + "###" + campaign.uid, open, selected ? UI::TabItemFlags::SetSelected : UI::TabItemFlags::None))
+    if (!open || !UI::BeginTabItem(campaign.nameStripped + "###tab-" + campaign.uid, open, selected ? UI::TabItemFlags::SetSelected : UI::TabItemFlags::None))
         return open;
 
     if (UI::BeginTable("##table-campaign-header", 2, UI::TableFlags::SizingStretchProp)) {
@@ -70,10 +70,10 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
 
         UI::TableNextColumn();
         UI::AlignTextToFramePadding();
-        UI::SeparatorText(campaign.name);
+        UI::SeparatorText(campaign.nameStripped);
         if (campaign.clubName.Length > 0) {
             UI::PopFont();
-            HoverTooltip("from the club \"" + Text::OpenplanetFormatCodes(campaign.clubName) + "\"");
+            HoverTooltip("from the club \"" + WarriorMedals::OpenplanetFormatCodes(campaign.clubName) + "\\$Z\"");
             UI::PushFont(fontHeader);
         }
 
@@ -121,7 +121,7 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
 
             UI::TableNextColumn();
             UI::AlignTextToFramePadding();
-            UI::Text(map.name);
+            UI::Text(map.nameStripped);
             if (map.campaignType == WarriorMedals::CampaignType::TrackOfTheDay)
                 HoverTooltip(map.date);
 
@@ -137,10 +137,10 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
             if (hasPlayPermission) {
                 UI::TableNextColumn();
                 UI::BeginDisabled(map.loading || loading);
-                if (UI::Button(Icons::Play + "##" + map.name))
+                if (UI::Button(Icons::Play + "##" + map.uid))
                     startnew(PlayMapAsync, @map);
                 UI::EndDisabled();
-                HoverTooltip("Play " + map.name);
+                HoverTooltip("Play " + map.nameStripped);
             }
         }
 
@@ -182,14 +182,14 @@ void Tab_Other() {
                 if (!campaign.official) {
                     uniqueClubs.Set(campaign.clubName, 0);
                     unofficialCampaigns.InsertLast(campaign);
-                    unofficialCampaignMaxLength = Math::Max(unofficialCampaignMaxLength, Draw::MeasureString(campaign.name).x);
+                    unofficialCampaignMaxLength = Math::Max(unofficialCampaignMaxLength, Draw::MeasureString(campaign.nameStripped).x);
                     continue;
                 }
 
                 if (index++ % 3 > 0)
                     UI::SameLine();
 
-                if (UI::Button(campaign.name + "##" + campaign.uid, vec2(scale * 120.0f, scale * 25.0f))) {
+                if (UI::Button(campaign.nameStripped + "###button-" + campaign.uid, vec2(scale * 120.0f, scale * 25.0f))) {
                     @activeOtherCampaign = @campaign;
                     selected = true;
                 }
@@ -200,7 +200,7 @@ void Tab_Other() {
                 const string clubName = clubs[i];
 
                 UI::PushFont(fontHeader);
-                UI::SeparatorText(Text::OpenplanetFormatCodes(clubName));
+                UI::SeparatorText(WarriorMedals::StripFormatCodes(clubName));
                 UI::PopFont();
 
                 index = 0;
@@ -213,7 +213,7 @@ void Tab_Other() {
                     if (index++ % 3 > 0)
                         UI::SameLine();
 
-                    if (UI::Button(campaign.name + "##" + campaign.uid, vec2(scale * unofficialCampaignMaxLength * 0.9f, scale * 25.0f))) {
+                    if (UI::Button(campaign.nameStripped + "###button-" + campaign.uid, vec2(scale * unofficialCampaignMaxLength * 0.9f, scale * 25.0f))) {
                         @activeOtherCampaign = @campaign;
                         selected = true;
                     }
