@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2024-09-26
+// m 2024-10-02
 
 class Campaign {
     int                         clubId     = -1;
@@ -119,6 +119,56 @@ class Campaign {
         }
     }
 
+    void GetPBsApiAsync() {
+        const string audience = "NadeoLiveServices";
+        NadeoServices::AddAudience(audience);
+        while (!NadeoServices::IsAuthenticated(audience))
+            yield();
+
+        Json::Value@ body = Json::Object();
+        body["maps"] = Json::Array();
+
+        for (uint i = 0; i < mapsArr.Length; i++) {
+            WarriorMedals::Map@ map = mapsArr[i];
+            Json::Value@ reqMap = Json::Object();
+            reqMap["groupUid"] = "Personal_Best";
+            reqMap["mapUid"] = map.uid;
+            body["maps"].Add(reqMap);
+        }
+
+        sleep(1000);
+        Net::HttpRequest@ req = NadeoServices::Post(
+            audience,
+            "https://live-services.trackmania.nadeo.live/api/token/leaderboard/group/map",
+            Json::Write(body)
+        );
+        req.Start();
+        while (!req.Finished())
+            yield();
+
+        const int respCode = req.ResponseCode();
+        if (respCode != 200) {
+            warn("req failed: code: " + respCode + " | body: " + req.Body);
+            return;
+        }
+
+        Json::Value@ result = req.Json();
+        if (result is null || result.GetType() != Json::Type::Array) {
+            warn("response is bad");
+            return;
+        }
+
+        try {
+            for (uint i = 0; i < result.Length; i++) {
+                const string uid = string(result[i]["mapUid"]);
+                WarriorMedals::Map@ map = cast<WarriorMedals::Map@>(maps[uid]);
+                map.pb = uint(result[i]["score"]);
+            }
+        } catch {
+            warn("error parsing result: " + getExceptionInfo());
+        }
+    }
+
     void SetOtherCampaignIndex() {
         const string indexId = tostring(clubId) + "-" + id;
 
@@ -190,6 +240,4 @@ void SortCampaigns() {
     @activeOtherCampaign    = null;
     @activeSeasonalCampaign = null;
     @activeTotdMonth        = null;
-
-    SetTotals();
 }

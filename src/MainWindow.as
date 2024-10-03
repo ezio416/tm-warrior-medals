@@ -1,6 +1,8 @@
 // c 2024-07-24
 // m 2024-09-26
 
+string loadingPbText;
+
 void MainWindow() {
     if (false
         || !S_MainWindow
@@ -25,11 +27,11 @@ void MainWindow() {
             UI::Image(icon32, vec2(scale * 32.0f));
             UI::SameLine();
             UI::AlignTextToFramePadding();
-            UI::Text(tostring(totalHave) + " / " + total);
+            UI::Text(tostring(totalHave) + " / " + total + loadingPbText);
             UI::PopFont();
 
             UI::TableNextColumn();
-            UI::BeginDisabled(getting);
+            UI::BeginDisabled(getting || ActiveScoreMgrTasks() > 0);
             if (UI::Button(Icons::Refresh + " Refresh" + (getting  ? "ing..." : ""))) {
                 trace("refreshing...");
                 startnew(GetAllMapInfosAsync);
@@ -97,6 +99,9 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
         if (campaign.id > 0 && UI::Button(Icons::ExternalLink + " Campaign"))
             OpenBrowserURL("https://trackmania.io/#/campaigns/" + campaign.clubId + "/" + campaign.id);
     }
+
+    if (UI::Button("get PBs from API"))
+        startnew(CoroutineFunc(campaign.GetPBsApiAsync));
 
     if (UI::BeginTable("##table-campaign-maps", hasPlayPermission ? 5 : 4, UI::TableFlags::RowBg | UI::TableFlags::ScrollY | UI::TableFlags::SizingStretchProp)) {
         UI::PushStyleColor(UI::Col::TableRowBgAlt, vec4(vec3(0.0f), 0.5f));

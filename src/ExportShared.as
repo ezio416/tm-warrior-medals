@@ -1,5 +1,5 @@
 // c 2024-07-21
-// m 2024-09-26
+// m 2024-10-02
 
 /*
 Exports from the Warrior Medals plugin.
@@ -82,7 +82,7 @@ namespace WarriorMedals {
 
         private uint _pb = uint(-1);
         uint get_pb() { return _pb; }
-        private void set_pb(uint p) { _pb = p; }
+        void set_pb(uint p) { _pb = p; }
 
         private uint _author;
         uint get_author() { return _author; }

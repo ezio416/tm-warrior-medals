@@ -1,5 +1,5 @@
 // c 2024-07-18
-// m 2024-09-23
+// m 2024-10-02
 
 const string apiUrl  = "https://e416.dev/api";
 bool         getting = false;
@@ -56,8 +56,9 @@ void GetAllMapInfosAsync() {
     trace("getting all map infos done after " + (Time::Now - start) + "ms");
     getting = false;
 
-    GetAllPBsAsync();
     BuildCampaigns();
+    GetAllPBsAsync();
+    SetTotals();
 }
 
 bool GetCampaignIndicesAsync() {
