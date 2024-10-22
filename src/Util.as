@@ -1,5 +1,5 @@
 // c 2024-07-18
-// m 2024-07-30
+// m 2024-10-22
 
 void GetAllPBsAsync() {
     const string[]@ uids = maps.GetKeys();
@@ -22,7 +22,10 @@ void GetAllPBsAsync() {
             continue;
 
         map.GetPB();
+        Files::AddPB(map);
     }
+
+    Files::SavePBs();
 
     trace("getting all PBs done after " + (Time::Now - start) + "ms");
 }

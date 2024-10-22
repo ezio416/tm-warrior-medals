@@ -1,5 +1,5 @@
 // c 2024-07-18
-// m 2024-10-21
+// m 2024-10-22
 
 namespace API {
     const string baseUrl = "https://e416.dev/api";
@@ -7,12 +7,15 @@ namespace API {
     dictionary@  missing = dictionary();
 
     Net::HttpRequest@ GetAsync(const string &in url, bool start = true) {
+        getting = true;
+
         if (start) {
             Net::HttpRequest@ req = Net::HttpGet(url);
 
             while (!req.Finished())
                 yield();
 
+            getting = false;
             return req;
         }
 
@@ -20,6 +23,7 @@ namespace API {
         req.Method = Net::HttpMethod::Get;
         req.Url = url;
 
+        getting = false;
         return req;
     }
 
@@ -27,13 +31,7 @@ namespace API {
         while (getting)
             yield();
 
-        getting = true;
-
-        Net::HttpRequest@ req = GetAsync(baseUrl + endpoint, start);
-
-        getting = false;
-
-        return req;
+        return GetAsync(baseUrl + endpoint, start);
     }
 
     void CheckVersionAsync() {

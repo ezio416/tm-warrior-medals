@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2024-10-21
+// m 2024-10-22
 
 Campaign@     activeOtherCampaign;
 Campaign@     activeSeasonalCampaign;
@@ -42,6 +42,8 @@ void Main() {
 
     @fontSubHeader = UI::LoadFont("DroidSans.ttf", 20);
     @fontHeader    = UI::LoadFont("DroidSans.ttf", 26);
+
+    Files::LoadPBs();
 
     startnew(PBLoop);
 
@@ -108,9 +110,12 @@ void PBLoop() {
             const uint prevPb = map.pb;
 
             map.GetPBAsync();
+            Files::AddPB(map);
 
-            if (prevPb != map.pb)
+            if (prevPb != map.pb) {
                 SetTotals();
+                Files::SavePB(map);
+            }
         }
     }
 }
