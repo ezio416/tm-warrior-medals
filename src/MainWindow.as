@@ -1,5 +1,5 @@
 // c 2024-07-24
-// m 2024-09-26
+// m 2024-10-21
 
 void MainWindow() {
     if (false
@@ -29,10 +29,10 @@ void MainWindow() {
             UI::PopFont();
 
             UI::TableNextColumn();
-            UI::BeginDisabled(getting);
-            if (UI::Button(Icons::Refresh + " Refresh" + (getting  ? "ing..." : ""))) {
+            UI::BeginDisabled(API::getting);
+            if (UI::Button(Icons::Refresh + " Refresh" + (API::getting  ? "ing..." : ""))) {
                 trace("refreshing...");
-                startnew(GetAllMapInfosAsync);
+                startnew(API::GetAllMapInfosAsync);
             }
             UI::EndDisabled();
 

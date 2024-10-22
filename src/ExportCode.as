@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2024-07-21
+// m 2024-10-21
 
 /*
 Exports from the Warrior Medals plugin.
@@ -126,7 +126,7 @@ namespace WarriorMedals {
         }
 
         if (!maps.Exists(uid))
-            GetMapInfoAsync(uid);
+            API::GetMapInfoAsync(uid);
 
         if (!maps.Exists(uid))
             return 0;

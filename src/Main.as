@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2024-09-23
+// m 2024-10-21
 
 Campaign@     activeOtherCampaign;
 Campaign@     activeSeasonalCampaign;
@@ -26,10 +26,10 @@ uint          totalHave         = 0;
 const string  uidSeparator      = "|warrior-campaign|";
 
 void Main() {
-    startnew(CheckVersionAsync);
+    startnew(API::CheckVersionAsync);
 
     OnSettingsChanged();
-    startnew(GetAllMapInfosAsync);
+    startnew(API::GetAllMapInfosAsync);
     WarriorMedals::GetIcon32();
     hasPlayPermission = Permissions::PlayLocalMap();
 
@@ -57,7 +57,7 @@ void Main() {
             wasInMap = inMap;
 
             if (inMap)
-                GetMapInfoAsync();
+                API::GetMapInfoAsync();
         }
     }
 }

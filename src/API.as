@@ -1,169 +1,179 @@
 // c 2024-07-18
-// m 2024-09-23
+// m 2024-10-21
 
-const string apiUrl  = "https://e416.dev/api";
-bool         getting = false;
-dictionary@  missing = dictionary();
+namespace API {
+    const string baseUrl = "https://e416.dev/api";
+    bool         getting = false;
+    dictionary@  missing = dictionary();
 
-void CheckVersionAsync() {
-    Net::HttpRequest@ req = Net::HttpGet(apiUrl + "/tm/warrior/plugin-version");
-    while (!req.Finished())
-        yield();
+    Net::HttpRequest@ GetAsync(const string &in url, bool start = true) {
+        if (start) {
+            Net::HttpRequest@ req = Net::HttpGet(url);
 
-    if (req.ResponseCode() == 426) {
-        const string msg = "Please update through the Plugin Manager at the top. Your plugin version will soon be unsupported!";
-        warn(msg);
-        UI::ShowNotification(title, msg, vec4(colorVec * 0.5f, 1.0f), 10000);
+            while (!req.Finished())
+                yield();
+
+            return req;
+        }
+
+        Net::HttpRequest@ req = Net::HttpRequest();
+        req.Method = Net::HttpMethod::Get;
+        req.Url = url;
+
+        return req;
     }
-}
 
-void GetAllMapInfosAsync() {
-    startnew(TryGetCampaignIndicesAsync);
+    Net::HttpRequest@ GetEdevAsync(const string &in endpoint, bool start = true) {
+        while (getting)
+            yield();
 
-    getting = true;
+        getting = true;
 
-    const uint64 start = Time::Now;
-    trace("getting all map infos");
+        Net::HttpRequest@ req = GetAsync(baseUrl + endpoint, start);
 
-    Net::HttpRequest@ req = Net::HttpGet(apiUrl + "/tm/warrior/all");
-    while (!req.Finished())
-        yield();
-
-    const int respCode = req.ResponseCode();
-    if (respCode != 200) {
-        error("getting all map infos failed after " + (Time::Now - start) + "ms: code: " + respCode + " | msg: " + req.String().Replace("\n", " "));
         getting = false;
-        return;
+
+        return req;
     }
 
-    Json::Value@ data = req.Json();
-    if (!WarriorMedals::CheckJsonType(data, Json::Type::Object, "data")) {
-        error("getting all map infos failed after " + (Time::Now - start) + "ms");
-        getting = false;
-        return;
+    void CheckVersionAsync() {
+        Net::HttpRequest@ req = GetEdevAsync("/tm/warrior/plugin-version");
+
+        if (req.ResponseCode() == 426) {
+            const string msg = "Please update through the Plugin Manager at the top. Your plugin version will soon be unsupported!";
+            warn(msg);
+            UI::ShowNotification(title, msg, vec4(colorVec * 0.5f, 1.0f), 10000);
+        }
     }
 
-    yield();
+    void GetAllMapInfosAsync() {
+        startnew(TryGetCampaignIndicesAsync);
 
-    string[]@ uids = data.GetKeys();
-    for (uint i = 0; i < uids.Length; i++) {
-        const string uid = uids[i];
+        const uint64 start = Time::Now;
+        trace("getting all map infos");
 
-        WarriorMedals::Map@ map = WarriorMedals::Map(data[uid]);
-        maps[uid] = @map;
-    }
+        Net::HttpRequest@ req = GetEdevAsync("/tm/warrior/all");
 
-    trace("getting all map infos done after " + (Time::Now - start) + "ms");
-    getting = false;
+        const int respCode = req.ResponseCode();
+        if (respCode != 200) {
+            error("getting all map infos failed after " + (Time::Now - start) + "ms: code: " + respCode + " | msg: " + req.String().Replace("\n", " "));
+            return;
+        }
 
-    GetAllPBsAsync();
-    BuildCampaigns();
-}
+        Json::Value@ data = req.Json();
+        if (!WarriorMedals::CheckJsonType(data, Json::Type::Object, "data")) {
+            error("getting all map infos failed after " + (Time::Now - start) + "ms");
+            return;
+        }
 
-bool GetCampaignIndicesAsync() {
-    const uint64 start = Time::Now;
-    trace("getting campaign indices");
-
-    Net::HttpRequest@ req = Net::HttpGet(apiUrl + "/tm/warrior/campaign-indices");
-    while (!req.Finished())
         yield();
 
-    const int respCode = req.ResponseCode();
-    if (respCode != 200) {
-        error("getting campaign indices failed after " + (Time::Now - start) + "ms: code: " + respCode + " | msg: " + req.String().Replace("\n", " "));
-        return false;
+        string[]@ uids = data.GetKeys();
+        for (uint i = 0; i < uids.Length; i++) {
+            const string uid = uids[i];
+
+            WarriorMedals::Map@ map = WarriorMedals::Map(data[uid]);
+            maps[uid] = @map;
+        }
+
+        trace("getting all map infos done after " + (Time::Now - start) + "ms");
+
+        GetAllPBsAsync();
+        BuildCampaigns();
     }
 
-    @campaignIndices = req.Json();
+    bool GetCampaignIndicesAsync() {
+        const uint64 start = Time::Now;
+        trace("getting campaign indices");
 
-    if (!WarriorMedals::CheckJsonType(campaignIndices, Json::Type::Object, "campaignIndices", false)) {
-        error("getting campaign indices failed after " + (Time::Now - start) + "ms");
-        return false;
+        Net::HttpRequest@ req = GetEdevAsync("/tm/warrior/campaign-indices");
+
+        const int respCode = req.ResponseCode();
+        if (respCode != 200) {
+            error("getting campaign indices failed after " + (Time::Now - start) + "ms: code: " + respCode + " | msg: " + req.String().Replace("\n", " "));
+            return false;
+        }
+
+        @campaignIndices = req.Json();
+
+        if (!WarriorMedals::CheckJsonType(campaignIndices, Json::Type::Object, "campaignIndices", false)) {
+            error("getting campaign indices failed after " + (Time::Now - start) + "ms");
+            return false;
+        }
+
+        trace("getting campaign indices done after " + (Time::Now - start) + "ms");
+        return true;
     }
 
-    trace("getting campaign indices done after " + (Time::Now - start) + "ms");
-    return true;
-}
+    void GetMapInfoAsync() {
+        CTrackMania@ App = cast<CTrackMania@>(GetApp());
 
-void GetMapInfoAsync() {
-    CTrackMania@ App = cast<CTrackMania@>(GetApp());
-
-    if (App.RootMap is null || !App.RootMap.MapType.Contains("TM_Race"))
-        return;
-
-    GetMapInfoAsync(App.RootMap.EdChallengeId);
-}
-
-void GetMapInfoAsync(const string &in uid) {
-    if (maps.Exists(uid))
-        return;
-
-    while (getting)
-        yield();
-
-    if (missing.Exists(uid)) {
-        if (Time::Stamp < int64(missing[uid]))
+        if (App.RootMap is null || !App.RootMap.MapType.Contains("TM_Race"))
             return;
 
-        missing.Delete(uid);
+        GetMapInfoAsync(App.RootMap.EdChallengeId);
     }
 
-    if (maps.Exists(uid))
-        return;
-
-    getting = true;
-
-    const uint64 start = Time::Now;
-    trace("getting map info for " + uid);
-
-    Net::HttpRequest@ req = Net::HttpGet(apiUrl + "/tm/warrior?uid=" + uid);
-    while (!req.Finished())
-        yield();
-
-    const int respCode = req.ResponseCode();
-    switch (respCode) {
-        case 200:
-            break;
-        case 429:
-            error("getting map info for " + uid + " failed after " + (Time::Now - start) + "ms: too many requests");
-            getting = false;
+    void GetMapInfoAsync(const string &in uid) {
+        if (maps.Exists(uid))
             return;
-        default:
-            error("getting map info for " + uid + " failed after " + (Time::Now - start) + "ms: code: " + respCode + " | msg: " + req.String().Replace("\n", " "));
-            getting = false;
+
+        if (missing.Exists(uid)) {
+            if (Time::Stamp < int64(missing[uid]))
+                return;
+
+            missing.Delete(uid);
+        }
+
+        if (maps.Exists(uid))
             return;
+
+        const uint64 start = Time::Now;
+        trace("getting map info for " + uid);
+
+        Net::HttpRequest@ req = GetEdevAsync("/tm/warrior?uid=" + uid);
+
+        const int respCode = req.ResponseCode();
+        switch (respCode) {
+            case 200:
+                break;
+            case 429:
+                error("getting map info for " + uid + " failed after " + (Time::Now - start) + "ms: too many requests");
+                return;
+            default:
+                error("getting map info for " + uid + " failed after " + (Time::Now - start) + "ms: code: " + respCode + " | msg: " + req.String().Replace("\n", " "));
+                return;
+        }
+
+        Json::Value@ mapInfo = req.Json();
+        if (WarriorMedals::CheckJsonType(mapInfo, Json::Type::Object, "mapInfo") && mapInfo.GetKeys().Length > 0) {
+            WarriorMedals::Map@ map = WarriorMedals::Map(mapInfo);
+            map.GetPB();
+            maps[uid] = @map;
+
+            trace("getting map info for " + uid + " done after " + (Time::Now - start) + "ms");
+        } else {
+            warn("map info not found for " + uid + " after " + (Time::Now - start) + "ms");
+            missing[uid] = Time::Stamp + 600;  // wait 10 minutes to check map again
+        }
     }
 
-    Json::Value@ mapInfo = req.Json();
-    if (WarriorMedals::CheckJsonType(mapInfo, Json::Type::Object, "mapInfo") && mapInfo.GetKeys().Length > 0) {
-        WarriorMedals::Map@ map = WarriorMedals::Map(mapInfo);
-        map.GetPB();
-        maps[uid] = @map;
+    void TryGetCampaignIndicesAsync() {
+        while (true) {
+            if (GetCampaignIndicesAsync())
+                break;
 
-        trace("getting map info for " + uid + " done after " + (Time::Now - start) + "ms");
-    } else {
-        warn("map info not found for " + uid + " after " + (Time::Now - start) + "ms");
-        missing[uid] = Time::Stamp + 600;  // wait 10 minutes to check map again
+            sleep(5000);
+        }
+
+        for (uint i = 0; i < campaignsArr.Length; i++) {
+            Campaign@ campaign = campaignsArr[i];
+            if (campaign is null || campaign.type != WarriorMedals::CampaignType::Other)
+                continue;
+
+            campaign.SetOtherCampaignIndex();
+        }
+
+        SortCampaigns();
     }
-
-    getting = false;
-}
-
-void TryGetCampaignIndicesAsync() {
-    while (true) {
-        if (GetCampaignIndicesAsync())
-            break;
-
-        sleep(5000);
-    }
-
-    for (uint i = 0; i < campaignsArr.Length; i++) {
-        Campaign@ campaign = campaignsArr[i];
-        if (campaign is null || campaign.type != WarriorMedals::CampaignType::Other)
-            continue;
-
-        campaign.SetOtherCampaignIndex();
-    }
-
-    SortCampaigns();
 }
