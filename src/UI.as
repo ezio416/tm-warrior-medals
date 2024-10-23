@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2024-09-24
+// m 2024-10-23
 
 uint FrameConfirmQuit = 0;
 
@@ -317,8 +317,8 @@ void DrawCampaign(CGameManialinkFrame@ Maps, const string &in uid, bool club = f
         if (MedalStack is null || !MedalStack.Visible)
             continue;
 
-        const float w         = Draw::GetWidth();
-        const float h         = Draw::GetHeight();
+        const float w         = Math::Max(1, Draw::GetWidth());
+        const float h         = Math::Max(1, Draw::GetHeight());
         const vec2  center    = vec2(w * 0.5f, h * 0.5f);
         const float unit      = (w / h < 16.0f / 9.0f) ? w / 320.0f : h / 180.0f;
         const vec2  scale     = vec2(unit, -unit);
@@ -471,8 +471,8 @@ void DrawOverPlaygroundPage(CGameManialinkPage@ Page, PlaygroundPageType type = 
     )
         return;
 
-    const float w      = Draw::GetWidth();
-    const float h      = Draw::GetHeight();
+    const float w      = Math::Max(1, Draw::GetWidth());
+    const float h      = Math::Max(1, Draw::GetHeight());
     const vec2  center = vec2(w * 0.5f, h * 0.5f);
     const float hUnit  = h / 180.0f;
     const vec2  scale  = vec2((w / h > 16.0f / 9.0f) ? hUnit : w / 320.0f, -hUnit);
@@ -563,8 +563,8 @@ void DrawOverTotdPage(CGameManialinkPage@ Page) {
         if (MedalStack is null || !MedalStack.Visible)
             continue;
 
-        const float w         = Draw::GetWidth();
-        const float h         = Draw::GetHeight();
+        const float w         = Math::Max(1, Draw::GetWidth());
+        const float h         = Math::Max(1, Draw::GetHeight());
         const vec2  center    = vec2(w * 0.5f, h * 0.5f);
         const float unit      = (w / h < 16.0f / 9.0f) ? w / 320.0f : h / 180.0f;
         const vec2  scale     = vec2(unit, -unit);
