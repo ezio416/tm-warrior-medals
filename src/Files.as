@@ -28,6 +28,7 @@ namespace Files {
     }
 
     void LoadPBs() {
+        const uint64 start = Time::Now;
         trace("loading pbs.json");
 
         if (!IO::FileExists(pbsPath)) {
@@ -38,7 +39,6 @@ namespace Files {
 
         try {
             @pbs = Json::FromFile(pbsPath);
-            trace("loaded");
         } catch {
             warn("pbs.json failed to load: " + getExceptionInfo());
             @pbs = Json::Object();
@@ -48,6 +48,31 @@ namespace Files {
             warn("pbs.json wrong type");
             @pbs = Json::Object();
         }
+
+        uint missing = 0;
+        string[]@ uids = pbs.GetKeys();
+        string uid;
+
+        for (uint i = 0; i < uids.Length; i++) {
+            uid = uids[i];
+
+            if (maps.Exists(uid)) {
+                WarriorMedals::Map@ map = cast<WarriorMedals::Map@>(maps[uid]);
+
+                if (map !is null) {
+                    const uint score = uint(pbs[uid]);
+
+                    if (score != uint(-1) && score > 0)
+                        map.pb = score;
+                } else
+                    warn("map is null: " + uid);
+            } else {
+                warn("missing key in maps: " + uid);
+                missing++;
+            }
+        }
+
+        trace("loaded " + pbs.Length + " PBs" + (missing > 0 ? " (" + missing + " missing)" : "") + " after " + (Time::Now - start) + "ms");
     }
 
     void SavePB(const string &in uid, uint pb) {
@@ -63,14 +88,14 @@ namespace Files {
     }
 
     void SavePBs() {
-        trace("saving pbs.json");
+        const uint64 start = Time::Now;
+        trace("saving pbs.json with " + pbs.Length + " elements");
 
         try {
             Json::ToFile(pbsPath, pbs);
+            trace("saved after " + (Time::Now - start) + "ms");
         } catch {
-            warn("pbs.json failed to save: " + getExceptionInfo());
+            warn("pbs.json failed to save after " + (Time::Now - start) + "ms: " + getExceptionInfo());
         }
-
-        trace("saved");
     }
 }

@@ -43,8 +43,6 @@ void Main() {
     @fontSubHeader = UI::LoadFont("DroidSans.ttf", 20);
     @fontHeader    = UI::LoadFont("DroidSans.ttf", 26);
 
-    Files::LoadPBs();
-
     startnew(PBLoop);
 
     bool inMap = InMap();
