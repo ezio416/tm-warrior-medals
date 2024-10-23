@@ -15,40 +15,48 @@ void MainWindow() {
         UI::PushStyleColor(UI::Col::ButtonHovered, vec4(colorVec,        1.0f));
 
         if (UI::BeginTable("##table-main-header", 2, UI::TableFlags::SizingStretchProp)) {
-            UI::TableSetupColumn("refresh", UI::TableColumnFlags::WidthStretch);
-            UI::TableSetupColumn("total",   UI::TableColumnFlags::WidthFixed);
+            UI::TableSetupColumn("total",   UI::TableColumnFlags::WidthStretch);
+            UI::TableSetupColumn("refresh", UI::TableColumnFlags::WidthFixed);
 
             UI::TableNextRow();
 
             UI::TableNextColumn();
+
             UI::Image(icon32, vec2(scale * 32.0f));
+
             UI::SameLine();
             UI::PushFont(fontHeader);
             UI::AlignTextToFramePadding();
             UI::Text(tostring(totalHave) + " / " + total);
+
             if (S_MainWindowPercentages) {
                 UI::SameLine();
                 UI::Text("\\$888" + Text::Format("%.1f", float(totalHave * 100) / Math::Max(1, total)) + "%");
             }
-            UI::PopFont();
 
+            UI::PopFont();
             UI::TableNextColumn();
 
             UI::BeginDisabled(API::getting);
-            if (UI::Button(Icons::Refresh + " Refresh" + (API::getting  ? "ing..." : "")))
+            if (UI::Button(Icons::Refresh))
                 startnew(API::GetAllMapInfosAsync);
-            HoverTooltip("Maps and medals info");
             UI::EndDisabled();
+            HoverTooltip("Get maps and medals info");
 
             UI::SameLine();
             if (API::Nadeo::requesting) {
-                if (UI::ButtonColored(Icons::Times + " Cancel", 0.0f))
+                UI::BeginDisabled(API::Nadeo::cancel);
+                if (UI::ButtonColored(Icons::Times, 0.0f))
                     API::Nadeo::cancel = true;
+                UI::EndDisabled();
+
                 HoverTooltip(API::Nadeo::allCampaignsProgress);
-            } else if (!API::Nadeo::requesting) {
-                if (UI::Button(Icons::CloudDownload + " Get PBs"))
+
+            } else {
+                if (UI::Button(Icons::CloudDownload))
                     startnew(API::Nadeo::GetAllCampaignPBsAsync);
-                HoverTooltip("On all maps (takes about " + Time::Format(campaignsArr.Length * 1100) + ")");
+
+                HoverTooltip("Get PBs on all maps\nThis takes about " + Time::Format(campaignsArr.Length * 1100) + " depending on your connection");
             }
 
             UI::EndTable();
@@ -106,7 +114,10 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
         UI::EndTable();
     }
 
-    if (S_MainWindowTmioLinks || S_MainWindowCampRefresh) {
+    if (false
+        || (S_MainWindowTmioLinks && (campaign.clubId > 0 || campaign.id > 0))
+        || S_MainWindowCampRefresh
+    ) {
         if (UI::BeginTable("#table-campaign-buttons", 2, UI::TableFlags::SizingStretchProp)) {
             UI::TableSetupColumn("tmio", UI::TableColumnFlags::WidthStretch);
             UI::TableSetupColumn("get",  UI::TableColumnFlags::WidthFixed);
@@ -129,9 +140,9 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
             if (S_MainWindowCampRefresh) {
                 UI::BeginDisabled(campaign.requesting);
 
-                if (UI::Button(Icons::Refresh))
+                if (UI::Button(Icons::CloudDownload))
                     startnew(CoroutineFunc(campaign.GetPBsAsync));
-                HoverTooltip("Refresh PBs");
+                HoverTooltip("Get PBs");
 
                 UI::EndDisabled();
             }

@@ -48,20 +48,42 @@ void Settings_General() {
         plugin.GetSetting("S_MainWindowPercentages").Reset();
     }
 
-    S_MainWindow = UI::Checkbox("Show main window", S_MainWindow);
-    if (S_MainWindow) {
+    if ((S_MainWindow = UI::Checkbox("Show main window", S_MainWindow))) {
         UI::NewLine(); UI::SameLine();
-        S_MainWindowHideWithGame = UI::Checkbox("Show/hide with game UI##main",        S_MainWindowHideWithGame);
+        S_MainWindowHideWithGame = UI::Checkbox(
+            "Show/hide with game UI##main",
+            S_MainWindowHideWithGame
+        );
+
         UI::NewLine(); UI::SameLine();
-        S_MainWindowHideWithOP   = UI::Checkbox("Show/hide with Openplanet UI##main",  S_MainWindowHideWithOP);
+        S_MainWindowHideWithOP = UI::Checkbox(
+            "Show/hide with Openplanet UI##main",
+            S_MainWindowHideWithOP
+        );
+
         UI::NewLine(); UI::SameLine();
-        S_MainWindowAutoResize   = UI::Checkbox("Auto-resize",                         S_MainWindowAutoResize);
+        S_MainWindowAutoResize = UI::Checkbox(
+            "Auto-resize",
+            S_MainWindowAutoResize
+        );
+
         UI::NewLine(); UI::SameLine();
-        S_MainWindowTmioLinks    = UI::Checkbox("Show Trackmania.io buttons",          S_MainWindowTmioLinks);
+        S_MainWindowTmioLinks = UI::Checkbox(
+            "Show Trackmania.io buttons on campaigns",
+            S_MainWindowTmioLinks
+        );
+
         UI::NewLine(); UI::SameLine();
-        S_MainWindowCampRefresh  = UI::Checkbox("Show PB refresh button on campaigns", S_MainWindowCampRefresh);
+        S_MainWindowCampRefresh = UI::Checkbox(
+            "Show PB refresh button on campaigns",
+            S_MainWindowCampRefresh
+        );
+
         UI::NewLine(); UI::SameLine();
-        S_MainWindowPercentages  = UI::Checkbox("Show percentages",                    S_MainWindowPercentages);
+        S_MainWindowPercentages = UI::Checkbox(
+            "Show percentages",
+            S_MainWindowPercentages
+        );
     }
 
     UI::Separator();
