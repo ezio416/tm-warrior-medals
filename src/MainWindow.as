@@ -1,5 +1,5 @@
 // c 2024-07-24
-// m 2024-10-22
+// m 2024-10-23
 
 void MainWindow() {
     if (false
@@ -31,17 +31,21 @@ void MainWindow() {
             UI::TableNextColumn();
 
             UI::BeginDisabled(API::getting);
-
-            if (UI::Button(Icons::Refresh + " Refresh" + (API::getting  ? "ing..." : ""))) {
-                trace("refreshing...");
+            if (UI::Button(Icons::Refresh + " Refresh" + (API::getting  ? "ing..." : "")))
                 startnew(API::GetAllMapInfosAsync);
-            }
+            HoverTooltip("Maps and medals info");
+            UI::EndDisabled();
 
             UI::SameLine();
-            if (UI::Button(Icons::CloudDownload))
-                startnew(API::Nadeo::GetAllCampaignPBsAsync);
-
-            UI::EndDisabled();
+            if (API::Nadeo::requesting) {
+                if (UI::ButtonColored(Icons::Times + " Cancel", 0.0f))
+                    API::Nadeo::cancel = true;
+                HoverTooltip(API::Nadeo::allCampaignsProgress);
+            } else if (!API::Nadeo::requesting) {
+                if (UI::Button(Icons::CloudDownload + " Get PBs"))
+                    startnew(API::Nadeo::GetAllCampaignPBsAsync);
+                HoverTooltip("On all maps (takes about " + Time::Format(campaignsArr.Length * 1100) + ")");
+            }
 
             UI::EndTable();
         }

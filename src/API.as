@@ -1,5 +1,5 @@
 // c 2024-07-18
-// m 2024-10-22
+// m 2024-10-23
 
 namespace API {
     const string baseUrl = "https://e416.dev/api";
@@ -178,8 +178,10 @@ namespace API {
     }
 
     namespace Nadeo {
+        string       allCampaignsProgress;
         const string audienceCore = "NadeoServices";
         const string audienceLive = "NadeoLiveServices";
+        bool         cancel       = false;
         uint64       lastRequest  = 0;
         const uint64 minimumWait  = 1000;
         bool         requesting   = false;
@@ -189,13 +191,28 @@ namespace API {
         string get_urlMeet() { return NadeoServices::BaseURLMeet(); }
 
         void GetAllCampaignPBsAsync() {
-            print("GetAllCampaignPBsAsync");
+            const uint64 start = Time::Now;
+            trace("getting PBs on all campaigns...");
+
+            allCampaignsProgress = "0 / " + campaignsArr.Length + "\n0 %";
 
             for (uint i = 0; i < campaignsArr.Length; i++) {
                 Campaign@ campaign = campaignsArr[i];
 
                 campaign.GetPBsAsync();
+
+                allCampaignsProgress = tostring(i + 1) + " / " + campaignsArr.Length
+                    + "\n" + Text::Format("%.1f", float(i + 1) * 100.0f / campaignsArr.Length) + " %"
+                    + "\n" + Time::Format((campaignsArr.Length - (i + 1)) * 1100) + " left";
+
+                if (cancel) {
+                    trace("got some PBs (cancelled) after " + (Time::Now - start) + "ms");
+                    cancel = false;
+                    return;
+                }
             }
+
+            trace("got all PBs after " + (Time::Now - start) + "ms");
         }
 
         Net::HttpRequest@ GetAsync(const string &in audience, const string &in url, bool start = true) {
