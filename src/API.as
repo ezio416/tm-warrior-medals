@@ -202,7 +202,7 @@ namespace API {
                 campaign.GetPBsAsync();
 
                 allCampaignsProgress = tostring(i + 1) + " / " + campaignsArr.Length
-                    + "\n" + Text::Format("%.1f", float(i + 1) * 100.0f / campaignsArr.Length) + " %"
+                    + "\n" + Text::Format("%.1f", float(i + 1) * 100.0f / campaignsArr.Length) + "%"
                     + "\n" + Time::Format((campaignsArr.Length - (i + 1)) * 1100) + " left";
 
                 if (cancel) {

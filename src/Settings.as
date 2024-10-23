@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2024-10-22
+// m 2024-10-23
 
 [Setting hidden] vec3 S_ColorFall                = vec3(1.0f, 0.5f, 0.0f);
 [Setting hidden] vec3 S_ColorSpring              = vec3(0.3f, 0.9f, 0.3f);
@@ -12,6 +12,7 @@
 [Setting hidden] bool S_MainWindowHideWithOP     = true;
 [Setting hidden] bool S_MainWindowTmioLinks      = true;
 [Setting hidden] bool S_MainWindowCampRefresh    = true;
+[Setting hidden] bool S_MainWindowPercentages    = true;
 
 [Setting hidden] bool S_MedalWindow              = true;
 [Setting hidden] bool S_MedalWindowDelta         = true;
@@ -44,20 +45,23 @@ void Settings_General() {
         plugin.GetSetting("S_MainWindowAutoResize").Reset();
         plugin.GetSetting("S_MainWindowTmioLinks").Reset();
         plugin.GetSetting("S_MainWindowCampRefresh").Reset();
+        plugin.GetSetting("S_MainWindowPercentages").Reset();
     }
 
     S_MainWindow = UI::Checkbox("Show main window", S_MainWindow);
     if (S_MainWindow) {
         UI::NewLine(); UI::SameLine();
-        S_MainWindowHideWithGame = UI::Checkbox("Show/hide with game UI##main",       S_MainWindowHideWithGame);
+        S_MainWindowHideWithGame = UI::Checkbox("Show/hide with game UI##main",        S_MainWindowHideWithGame);
         UI::NewLine(); UI::SameLine();
-        S_MainWindowHideWithOP   = UI::Checkbox("Show/hide with Openplanet UI##main", S_MainWindowHideWithOP);
+        S_MainWindowHideWithOP   = UI::Checkbox("Show/hide with Openplanet UI##main",  S_MainWindowHideWithOP);
         UI::NewLine(); UI::SameLine();
-        S_MainWindowAutoResize   = UI::Checkbox("Auto-resize",                        S_MainWindowAutoResize);
+        S_MainWindowAutoResize   = UI::Checkbox("Auto-resize",                         S_MainWindowAutoResize);
         UI::NewLine(); UI::SameLine();
-        S_MainWindowTmioLinks    = UI::Checkbox("Show Trackmania.io buttons",         S_MainWindowTmioLinks);
+        S_MainWindowTmioLinks    = UI::Checkbox("Show Trackmania.io buttons",          S_MainWindowTmioLinks);
         UI::NewLine(); UI::SameLine();
         S_MainWindowCampRefresh  = UI::Checkbox("Show PB refresh button on campaigns", S_MainWindowCampRefresh);
+        UI::NewLine(); UI::SameLine();
+        S_MainWindowPercentages  = UI::Checkbox("Show percentages",                    S_MainWindowPercentages);
     }
 
     UI::Separator();

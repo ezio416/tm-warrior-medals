@@ -10,9 +10,9 @@ void MainWindow() {
         return;
 
     if (UI::Begin(title, S_MainWindow, S_MainWindowAutoResize ? UI::WindowFlags::AlwaysAutoResize : UI::WindowFlags::None)) {
-        UI::PushStyleColor(UI::Col::Button,        vec4(colorVec - vec3(0.2f), 1.0f));
-        UI::PushStyleColor(UI::Col::ButtonActive,  vec4(colorVec - vec3(0.4f), 1.0f));
-        UI::PushStyleColor(UI::Col::ButtonHovered, vec4(colorVec,              1.0f));
+        UI::PushStyleColor(UI::Col::Button,        vec4(colorVec * 0.8f, 1.0f));
+        UI::PushStyleColor(UI::Col::ButtonActive,  vec4(colorVec * 0.6f, 1.0f));
+        UI::PushStyleColor(UI::Col::ButtonHovered, vec4(colorVec,        1.0f));
 
         if (UI::BeginTable("##table-main-header", 2, UI::TableFlags::SizingStretchProp)) {
             UI::TableSetupColumn("refresh", UI::TableColumnFlags::WidthStretch);
@@ -21,11 +21,15 @@ void MainWindow() {
             UI::TableNextRow();
 
             UI::TableNextColumn();
-            UI::PushFont(fontHeader);
             UI::Image(icon32, vec2(scale * 32.0f));
             UI::SameLine();
+            UI::PushFont(fontHeader);
             UI::AlignTextToFramePadding();
             UI::Text(tostring(totalHave) + " / " + total);
+            if (S_MainWindowPercentages) {
+                UI::SameLine();
+                UI::Text("\\$888" + Text::Format("%.1f", float(totalHave * 100) / Math::Max(1, total)) + "%");
+            }
             UI::PopFont();
 
             UI::TableNextColumn();
@@ -50,9 +54,9 @@ void MainWindow() {
             UI::EndTable();
         }
 
-        UI::PushStyleColor(UI::Col::Tab,        vec4(colorVec - vec3(0.4f),  1.0f));
-        UI::PushStyleColor(UI::Col::TabActive,  vec4(colorVec - vec3(0.15f), 1.0f));
-        UI::PushStyleColor(UI::Col::TabHovered, vec4(colorVec - vec3(0.15f), 1.0f));
+        UI::PushStyleColor(UI::Col::Tab,        vec4(colorVec * 0.6f,  1.0f));
+        UI::PushStyleColor(UI::Col::TabActive,  vec4(colorVec * 0.85f, 1.0f));
+        UI::PushStyleColor(UI::Col::TabHovered, vec4(colorVec * 0.85f, 1.0f));
 
         UI::BeginTabBar("##tab-bar");
         Tab_Seasonal();
@@ -91,7 +95,11 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
         UI::TableNextColumn();
         UI::Image(icon32, vec2(scale * 32.0f));
         UI::SameLine();
-        UI::Text(tostring(campaign.count) + " / " + campaign.mapsArr.Length + " ");
+        UI::Text(tostring(campaign.count) + " / " + campaign.mapsArr.Length);
+        if (S_MainWindowPercentages) {
+            UI::SameLine();
+            UI::Text("\\$888" + Text::Format("%.1f", float(campaign.count * 100) / Math::Max(1, campaign.mapsArr.Length)) + "%");
+        }
 
         UI::PopFont();
 
@@ -185,6 +193,7 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
     }
 
     UI::EndTabItem();
+
     return open;
 }
 
@@ -293,9 +302,9 @@ void Tab_Seasonal() {
 
             bool colored = false;
             if (seasonColors.Length == 4 && campaign.colorIndex < 4) {
-                UI::PushStyleColor(UI::Col::Button,        vec4(seasonColors[campaign.colorIndex] - vec3(0.1f), 1.0f));
-                UI::PushStyleColor(UI::Col::ButtonActive,  vec4(seasonColors[campaign.colorIndex] - vec3(0.4f), 1.0f));
-                UI::PushStyleColor(UI::Col::ButtonHovered, vec4(seasonColors[campaign.colorIndex],              1.0f));
+                UI::PushStyleColor(UI::Col::Button,        vec4(seasonColors[campaign.colorIndex] * 0.9f, 1.0f));
+                UI::PushStyleColor(UI::Col::ButtonActive,  vec4(seasonColors[campaign.colorIndex] * 0.6f, 1.0f));
+                UI::PushStyleColor(UI::Col::ButtonHovered, vec4(seasonColors[campaign.colorIndex],        1.0f));
                 colored = true;
             }
 
@@ -344,9 +353,9 @@ void Tab_Totd() {
 
                 bool colored = false;
                 if (seasonColors.Length == 4 && campaign.colorIndex < 4) {
-                    UI::PushStyleColor(UI::Col::Button,        vec4(seasonColors[campaign.colorIndex] - vec3(0.1f), 1.0f));
-                    UI::PushStyleColor(UI::Col::ButtonActive,  vec4(seasonColors[campaign.colorIndex] - vec3(0.4f), 1.0f));
-                    UI::PushStyleColor(UI::Col::ButtonHovered, vec4(seasonColors[campaign.colorIndex],              1.0f));
+                    UI::PushStyleColor(UI::Col::Button,        vec4(seasonColors[campaign.colorIndex] * 0.9f, 1.0f));
+                    UI::PushStyleColor(UI::Col::ButtonActive,  vec4(seasonColors[campaign.colorIndex] * 0.6f, 1.0f));
+                    UI::PushStyleColor(UI::Col::ButtonHovered, vec4(seasonColors[campaign.colorIndex],        1.0f));
                     colored = true;
                 }
 
