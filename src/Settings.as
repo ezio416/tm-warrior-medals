@@ -5,6 +5,7 @@
 [Setting hidden] vec3 S_ColorSpring              = vec3(0.3f, 0.9f, 0.3f);
 [Setting hidden] vec3 S_ColorSummer              = vec3(1.0f, 0.8f, 0.0f);
 [Setting hidden] vec3 S_ColorWinter              = vec3(0.0f, 0.8f, 1.0f);
+[Setting hidden] vec4 S_ColorButtonFont          = vec4(1.0f);
 
 [Setting hidden] bool S_MainWindowAutoResize     = false;
 [Setting hidden] bool S_MainWindowCampRefresh    = true;
@@ -151,12 +152,14 @@ void Settings_General() {
         plugin.GetSetting("S_ColorSpring").Reset();
         plugin.GetSetting("S_ColorSummer").Reset();
         plugin.GetSetting("S_ColorFall").Reset();
+        plugin.GetSetting("S_ColorButtonFont").Reset();
     }
 
-    S_ColorWinter = UI::InputColor3("Winter / Jan-Mar", S_ColorWinter);
-    S_ColorSpring = UI::InputColor3("Spring / Apr-Jun", S_ColorSpring);
-    S_ColorSummer = UI::InputColor3("Summer / Jul-Sep", S_ColorSummer);
-    S_ColorFall   = UI::InputColor3("Fall / Oct-Dec",   S_ColorFall);
+    S_ColorWinter     = UI::InputColor3("Winter / Jan-Mar", S_ColorWinter);
+    S_ColorSpring     = UI::InputColor3("Spring / Apr-Jun", S_ColorSpring);
+    S_ColorSummer     = UI::InputColor3("Summer / Jul-Sep", S_ColorSummer);
+    S_ColorFall       = UI::InputColor3("Fall / Oct-Dec",   S_ColorFall);
+    S_ColorButtonFont = UI::InputColor4("Button Font",      S_ColorButtonFont);
 
     const vec3[] newColors = {
         S_ColorWinter,

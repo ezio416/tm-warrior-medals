@@ -33,8 +33,10 @@ void MainWindow() {
         UI::TableNextColumn();
 
         UI::BeginDisabled(API::getting);
+        UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
         if (UI::Button(Icons::Refresh))
             startnew(API::GetAllMapInfosAsync);
+        UI::PopStyleColor();
         UI::EndDisabled();
         HoverTooltip("Get maps and medals info");
 
@@ -42,15 +44,19 @@ void MainWindow() {
             UI::SameLine();
             if (API::Nadeo::requesting) {
                 UI::BeginDisabled(API::Nadeo::cancel);
+                UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
                 if (UI::ButtonColored(Icons::Times, 0.0f))
                     API::Nadeo::cancel = true;
+                UI::PopStyleColor();
                 UI::EndDisabled();
 
                 HoverTooltip(API::Nadeo::allCampaignsProgress);
 
             } else {
+                UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
                 if (UI::Button(Icons::CloudDownload))
                     startnew(API::Nadeo::GetAllCampaignPBsAsync);
+                UI::PopStyleColor();
 
                 HoverTooltip(
                     "Get PBs from Nadeo on all maps"
@@ -142,6 +148,7 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
             UI::TableNextRow();
 
             UI::TableNextColumn();
+            UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
             if (S_MainWindowTmioLinks) {
                 if (campaign.clubId > 0 && UI::Button(Icons::ExternalLink + " Club"))
                     OpenBrowserURL("https://trackmania.io/#/clubs/" + campaign.clubId);
@@ -152,13 +159,16 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
                 if (campaign.id > 0 && UI::Button(Icons::ExternalLink + " Campaign"))
                     OpenBrowserURL("https://trackmania.io/#/campaigns/" + campaign.clubId + "/" + campaign.id);
             }
+            UI::PopStyleColor();
 
             UI::TableNextColumn();
             if (S_MainWindowCampRefresh) {
                 UI::BeginDisabled(campaign.requesting || API::Nadeo::requesting);
 
+                UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
                 if (UI::Button(Icons::CloudDownload + "##single-camp"))
                     startnew(CoroutineFunc(campaign.GetPBsAsync));
+                UI::PopStyleColor();
                 HoverTooltip("Get PBs");
 
                 UI::EndDisabled();
@@ -207,8 +217,10 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
             if (hasPlayPermission) {
                 UI::TableNextColumn();
                 UI::BeginDisabled(map.loading || loading);
+                UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
                 if (UI::Button(Icons::Play + "##" + map.uid))
                     startnew(PlayMapAsync, @map);
+                UI::PopStyleColor();
                 UI::EndDisabled();
                 HoverTooltip("Play " + map.nameStripped);
             }
@@ -261,10 +273,12 @@ void Tab_Other() {
             if (index++ % 3 > 0)
                 UI::SameLine();
 
+            UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
             if (UI::Button(campaign.nameStripped + "###button-" + campaign.uid, vec2(scale * 120.0f, scale * 25.0f))) {
                 @activeOtherCampaign = @campaign;
                 selected = true;
             }
+            UI::PopStyleColor();
         }
 
         const string[]@ clubs = uniqueClubs.GetKeys();
@@ -285,10 +299,12 @@ void Tab_Other() {
                 if (index++ % 3 > 0)
                     UI::SameLine();
 
+                UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
                 if (UI::Button(campaign.nameStripped + "###button-" + campaign.uid, vec2(scale * unofficialCampaignMaxLength * 0.9f, scale * 25.0f))) {
                     @activeOtherCampaign = @campaign;
                     selected = true;
                 }
+                UI::PopStyleColor();
             }
         }
 
@@ -336,10 +352,12 @@ void Tab_Seasonal() {
                 colored = true;
             }
 
+            UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
             if (UI::Button(campaign.name.SubStr(0, campaign.name.Length - 5) + "##" + campaign.name, vec2(scale * 100.0f, scale * 25.0f))) {
                 @activeSeasonalCampaign = @campaign;
                 selected = true;
             }
+            UI::PopStyleColor();
 
             if (colored)
                 UI::PopStyleColor(3);
@@ -387,10 +405,12 @@ void Tab_Totd() {
                     colored = true;
                 }
 
+                UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
                 if (UI::Button(campaign.name.SubStr(0, campaign.name.Length - 5) + "##" + campaign.name, vec2(scale * 100.0f, scale * 25.0f))) {
                     @activeTotdMonth = @campaign;
                     selected = true;
                 }
+                UI::PopStyleColor();
 
                 if (colored)
                     UI::PopStyleColor(3);
