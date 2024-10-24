@@ -1,5 +1,5 @@
 // c 2024-07-24
-// m 2024-07-24
+// m 2024-10-23
 
 void MedalWindow() {
     if (false
@@ -26,14 +26,25 @@ void MedalWindow() {
         const uint warrior = map.custom > 0 ? map.custom : map.warrior;
         const bool delta = S_MedalWindowDelta && map.pb != uint(-1);
 
-        if (UI::BeginTable("##table-times", delta ? 4 : 3)) {
+        int cols = 2;
+        if (S_MedalWindowName)
+            cols++;
+        if (delta)
+            cols++;
+
+        if (UI::BeginTable("##table-times", cols)) {
             UI::TableNextRow();
 
             UI::TableNextColumn();
-            UI::Image(icon32, vec2(scale * 16.0f));
+            if (S_MedalWindowIcon)
+                UI::Image(icon32, vec2(scale * 16.0f));
+            else
+                UI::Text(colorStr + Icons::Circle);
 
-            UI::TableNextColumn();
-            UI::Text("Warrior");
+            if (S_MedalWindowName) {
+                UI::TableNextColumn();
+                UI::Text("Warrior");
+            }
 
             UI::TableNextColumn();
             UI::Text(Time::Format(warrior));

@@ -1,21 +1,26 @@
 // c 2024-07-17
-// m 2024-09-22
+// m 2024-10-23
 
 [Setting hidden] vec3 S_ColorFall                = vec3(1.0f, 0.5f, 0.0f);
 [Setting hidden] vec3 S_ColorSpring              = vec3(0.3f, 0.9f, 0.3f);
 [Setting hidden] vec3 S_ColorSummer              = vec3(1.0f, 0.8f, 0.0f);
 [Setting hidden] vec3 S_ColorWinter              = vec3(0.0f, 0.8f, 1.0f);
+[Setting hidden] vec4 S_ColorButtonFont          = vec4(1.0f);
 
-[Setting hidden] bool S_MainWindow               = false;
 [Setting hidden] bool S_MainWindowAutoResize     = false;
+[Setting hidden] bool S_MainWindowCampRefresh    = true;
+[Setting hidden] bool S_MainWindowDetached       = false;
 [Setting hidden] bool S_MainWindowHideWithGame   = true;
 [Setting hidden] bool S_MainWindowHideWithOP     = true;
+[Setting hidden] bool S_MainWindowPercentages    = true;
 [Setting hidden] bool S_MainWindowTmioLinks      = true;
 
 [Setting hidden] bool S_MedalWindow              = true;
 [Setting hidden] bool S_MedalWindowDelta         = true;
 [Setting hidden] bool S_MedalWindowHideWithGame  = true;
 [Setting hidden] bool S_MedalWindowHideWithOP    = false;
+[Setting hidden] bool S_MedalWindowIcon          = true;
+[Setting hidden] bool S_MedalWindowName          = true;
 
 [Setting hidden] bool S_UIMedals                 = true;
 [Setting hidden] bool S_UIMedalBanner            = true;
@@ -37,24 +42,54 @@ void Settings_General() {
 
     if (UI::Button("Reset to default##main")) {
         Meta::Plugin@ plugin = Meta::ExecutingPlugin();
-        plugin.GetSetting("S_MainWindow").Reset();
+        plugin.GetSetting("S_MainWindowDetached").Reset();
         plugin.GetSetting("S_MainWindowHideWithGame").Reset();
         plugin.GetSetting("S_MainWindowHideWithOP").Reset();
         plugin.GetSetting("S_MainWindowAutoResize").Reset();
         plugin.GetSetting("S_MainWindowTmioLinks").Reset();
+        plugin.GetSetting("S_MainWindowCampRefresh").Reset();
+        plugin.GetSetting("S_MainWindowPercentages").Reset();
     }
 
-    S_MainWindow = UI::Checkbox("Show main window", S_MainWindow);
-    if (S_MainWindow) {
+    S_MainWindowDetached = UI::Checkbox(
+        "Show a detached main window",
+        S_MainWindowDetached
+    );
+
+    if (S_MainWindowDetached) {
         UI::NewLine(); UI::SameLine();
-        S_MainWindowHideWithGame = UI::Checkbox("Show/hide with game UI##main",       S_MainWindowHideWithGame);
+        S_MainWindowHideWithGame = UI::Checkbox(
+            "Show/hide with game UI##main",
+            S_MainWindowHideWithGame
+        );
+
         UI::NewLine(); UI::SameLine();
-        S_MainWindowHideWithOP   = UI::Checkbox("Show/hide with Openplanet UI##main", S_MainWindowHideWithOP);
+        S_MainWindowHideWithOP = UI::Checkbox(
+            "Show/hide with Openplanet UI##main",
+            S_MainWindowHideWithOP
+        );
+
         UI::NewLine(); UI::SameLine();
-        S_MainWindowAutoResize   = UI::Checkbox("Auto-resize",                        S_MainWindowAutoResize);
-        UI::NewLine(); UI::SameLine();
-        S_MainWindowTmioLinks    = UI::Checkbox("Show Trackmania.io buttons",         S_MainWindowTmioLinks);
+        S_MainWindowAutoResize = UI::Checkbox(
+            "Auto-resize",
+            S_MainWindowAutoResize
+        );
     }
+
+    S_MainWindowTmioLinks = UI::Checkbox(
+        "Show Trackmania.io buttons on campaigns",
+        S_MainWindowTmioLinks
+    );
+
+    S_MainWindowCampRefresh = UI::Checkbox(
+        "Show PB refresh button on campaigns",
+        S_MainWindowCampRefresh
+    );
+
+    S_MainWindowPercentages = UI::Checkbox(
+        "Show percentages",
+        S_MainWindowPercentages
+    );
 
     UI::Separator();
 
@@ -68,16 +103,41 @@ void Settings_General() {
         plugin.GetSetting("S_MedalWindowHideWithGame").Reset();
         plugin.GetSetting("S_MedalWindowHideWithOP").Reset();
         plugin.GetSetting("S_MedalWindowDelta").Reset();
+        plugin.GetSetting("S_MedalWindowIcon").Reset();
+        plugin.GetSetting("S_MedalWindowName").Reset();
+
     }
 
-    S_MedalWindow = UI::Checkbox("Show medal window when playing", S_MedalWindow);
-    if (S_MedalWindow) {
+    if ((S_MedalWindow = UI::Checkbox("Show medal window when playing", S_MedalWindow))) {
         UI::NewLine(); UI::SameLine();
-        S_MedalWindowHideWithGame = UI::Checkbox("Show/hide with game UI##medal",       S_MedalWindowHideWithGame);
+        S_MedalWindowHideWithGame = UI::Checkbox(
+            "Show/hide with game UI##medal",
+            S_MedalWindowHideWithGame
+        );
+
         UI::NewLine(); UI::SameLine();
-        S_MedalWindowHideWithOP   = UI::Checkbox("Show/hide with Openplanet UI##medal", S_MedalWindowHideWithOP);
+        S_MedalWindowHideWithOP = UI::Checkbox(
+            "Show/hide with Openplanet UI##medal",
+            S_MedalWindowHideWithOP
+        );
+
         UI::NewLine(); UI::SameLine();
-        S_MedalWindowDelta        = UI::Checkbox("Show PB delta",                       S_MedalWindowDelta);
+        S_MedalWindowIcon = UI::Checkbox(
+            "Show real medal icon",
+            S_MedalWindowIcon
+        );
+
+        UI::NewLine(); UI::SameLine();
+        S_MedalWindowName = UI::Checkbox(
+            "Show medal name",
+            S_MedalWindowName
+        );
+
+        UI::NewLine(); UI::SameLine();
+        S_MedalWindowDelta = UI::Checkbox(
+            "Show PB delta",
+            S_MedalWindowDelta
+        );
     }
 
     UI::Separator();
@@ -92,12 +152,14 @@ void Settings_General() {
         plugin.GetSetting("S_ColorSpring").Reset();
         plugin.GetSetting("S_ColorSummer").Reset();
         plugin.GetSetting("S_ColorFall").Reset();
+        plugin.GetSetting("S_ColorButtonFont").Reset();
     }
 
-    S_ColorWinter = UI::InputColor3("Winter / Jan-Mar", S_ColorWinter);
-    S_ColorSpring = UI::InputColor3("Spring / Apr-Jun", S_ColorSpring);
-    S_ColorSummer = UI::InputColor3("Summer / Jul-Sep", S_ColorSummer);
-    S_ColorFall   = UI::InputColor3("Fall / Oct-Dec",   S_ColorFall);
+    S_ColorWinter     = UI::InputColor3("Winter / Jan-Mar", S_ColorWinter);
+    S_ColorSpring     = UI::InputColor3("Spring / Apr-Jun", S_ColorSpring);
+    S_ColorSummer     = UI::InputColor3("Summer / Jul-Sep", S_ColorSummer);
+    S_ColorFall       = UI::InputColor3("Fall / Oct-Dec",   S_ColorFall);
+    S_ColorButtonFont = UI::InputColor4("Button Font",      S_ColorButtonFont);
 
     const vec3[] newColors = {
         S_ColorWinter,
@@ -147,7 +209,7 @@ void Settings_MedalsInUI() {
         S_UIMedalsTotd             = UI::Checkbox("Track of the Day",         S_UIMedalsTotd);
         // S_UIMedalsLiveTotd         = UI::Checkbox("Track of the Day (live)",  S_UIMedalsLiveTotd);
         S_UIMedalsClubCampaign     = UI::Checkbox("Club campaign",            S_UIMedalsClubCampaign);
-        HoverTooltipSetting("May be inaccurate as it only checks the name of the campaign");
+        HoverTooltipSetting("May be inaccurate if a club or campaign's name is changed");
         S_UIMedalsTraining         = UI::Checkbox("Training",                 S_UIMedalsTraining);
 
         UI::Separator();
@@ -176,126 +238,151 @@ void Settings_MedalsInUI() {
 
 [SettingsTab name="Debug" icon="Bug" order=2]
 void Settings_Debug() {
+    if (API::Nadeo::requesting) {
+        UI::BeginDisabled(API::Nadeo::cancel);
+        if (UI::ButtonColored(Icons::Times + " Cancel", 0.0f))
+            API::Nadeo::cancel = true;
+        UI::EndDisabled();
+
+        HoverTooltipSetting(API::Nadeo::allCampaignsProgress);
+
+    } else {
+        if (UI::Button(Icons::CloudDownload + " Get All PBs"))
+            startnew(API::Nadeo::GetAllCampaignPBsAsync);
+
+        HoverTooltipSetting(
+            "This requests PBs from Nadeo. Please do not spam this. "
+            + "Unless I've made a mistake, you should only need to click it once ever,"
+            + " in which case it would be hidden from your main window now."
+        );
+    }
+
     UI::BeginTabBar("##tabs-debug");
-        if (UI::BeginTabItem("Campaigns")) {
-            string[]@ uids = campaigns.GetKeys();
 
-            UI::Text("campaigns: " + uids.Length);
+    if (UI::BeginTabItem("Campaigns")) {
+        string[]@ uids = campaigns.GetKeys();
 
-            if (UI::BeginTable("##table-campaigns", 5, UI::TableFlags::RowBg | UI::TableFlags::ScrollY)) {
-                UI::PushStyleColor(UI::Col::TableRowBgAlt, vec4(0.0f, 0.0f, 0.0f, 0.5f));
+        UI::Text("campaigns: " + uids.Length);
 
-                UI::TableSetupScrollFreeze(0, 1);
-                UI::TableSetupColumn("uid",      UI::TableColumnFlags::WidthFixed, scale * 350.0f);
-                UI::TableSetupColumn("clubId",   UI::TableColumnFlags::WidthFixed, scale * 50.0f);
-                UI::TableSetupColumn("clubName", UI::TableColumnFlags::WidthFixed, scale * 230.0f);
-                UI::TableSetupColumn("id",       UI::TableColumnFlags::WidthFixed, scale * 50.0f);
-                UI::TableSetupColumn("name",     UI::TableColumnFlags::WidthFixed, scale * 230.0f);
-                UI::TableHeadersRow();
+        if (UI::BeginTable("##table-campaigns", 5, UI::TableFlags::RowBg | UI::TableFlags::ScrollY)) {
+            UI::PushStyleColor(UI::Col::TableRowBgAlt, vec4(0.0f, 0.0f, 0.0f, 0.5f));
 
-                UI::ListClipper clipper(uids.Length);
-                while (clipper.Step()) {
-                    for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++) {
-                        Campaign@ campaign = cast<Campaign@>(campaigns[uids[i]]);
+            UI::TableSetupScrollFreeze(0, 1);
+            UI::TableSetupColumn("uid",      UI::TableColumnFlags::WidthFixed, scale * 350.0f);
+            UI::TableSetupColumn("clubId",   UI::TableColumnFlags::WidthFixed, scale * 50.0f);
+            UI::TableSetupColumn("clubName", UI::TableColumnFlags::WidthFixed, scale * 230.0f);
+            UI::TableSetupColumn("id",       UI::TableColumnFlags::WidthFixed, scale * 50.0f);
+            UI::TableSetupColumn("name",     UI::TableColumnFlags::WidthFixed, scale * 230.0f);
+            UI::TableHeadersRow();
 
-                        UI::TableNextRow();
+            UI::ListClipper clipper(uids.Length);
+            while (clipper.Step()) {
+                for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++) {
+                    Campaign@ campaign = cast<Campaign@>(campaigns[uids[i]]);
 
-                        UI::TableNextColumn();
-                        UI::Text(campaign.uid);
+                    UI::TableNextRow();
 
-                        UI::TableNextColumn();
-                        UI::Text(tostring(campaign.clubId));
+                    UI::TableNextColumn();
+                    UI::Text(campaign.uid);
 
-                        UI::TableNextColumn();
-                        UI::Text(campaign.clubName);
+                    UI::TableNextColumn();
+                    UI::Text(tostring(campaign.clubId));
 
-                        UI::TableNextColumn();
-                        UI::Text(tostring(campaign.id));
+                    UI::TableNextColumn();
+                    UI::Text(campaign.clubName);
 
-                        UI::TableNextColumn();
-                        UI::Text(campaign.name);
-                    }
+                    UI::TableNextColumn();
+                    UI::Text(tostring(campaign.id));
+
+                    UI::TableNextColumn();
+                    UI::Text(campaign.name);
                 }
-
-                UI::PopStyleColor();
-                UI::EndTable();
             }
 
-            UI::EndTabItem();
+            UI::PopStyleColor();
+            UI::EndTable();
         }
 
-        if (UI::BeginTabItem("Maps")) {
-            string[]@ uids = maps.GetKeys();
+        UI::EndTabItem();
+    }
 
-            UI::Text("maps: " + uids.Length);
+    if (UI::BeginTabItem("Maps")) {
+        string[]@ uids = maps.GetKeys();
 
-            if (UI::BeginTable("##table-maps", 11, UI::TableFlags::RowBg | UI::TableFlags::ScrollY)) {
-                UI::PushStyleColor(UI::Col::TableRowBgAlt, vec4(0.0f, 0.0f, 0.0f, 0.5f));
+        UI::Text("maps: " + uids.Length);
 
-                UI::TableSetupScrollFreeze(0, 1);
-                UI::TableSetupColumn("uid",      UI::TableColumnFlags::WidthFixed, scale * 230.0f);
-                UI::TableSetupColumn("name");
-                UI::TableSetupColumn("wr",       UI::TableColumnFlags::WidthFixed, scale * 60.0f);
-                UI::TableSetupColumn("wm",       UI::TableColumnFlags::WidthFixed, scale * 60.0f);
-                UI::TableSetupColumn("at",       UI::TableColumnFlags::WidthFixed, scale * 60.0f);
-                UI::TableSetupColumn("pb",       UI::TableColumnFlags::WidthFixed, scale * 60.0f);
-                UI::TableSetupColumn("date",     UI::TableColumnFlags::WidthFixed, scale * 70.0f);
-                UI::TableSetupColumn("campaign", UI::TableColumnFlags::WidthFixed, scale * 100.0f);
-                UI::TableSetupColumn("index",    UI::TableColumnFlags::WidthFixed, scale * 40.0f);
-                UI::TableSetupColumn("custom",   UI::TableColumnFlags::WidthFixed, scale * 60.0f);
-                UI::TableSetupColumn("reason");
-                UI::TableHeadersRow();
+        if (UI::BeginTable("##table-maps", 11, UI::TableFlags::RowBg | UI::TableFlags::ScrollY)) {
+            UI::PushStyleColor(UI::Col::TableRowBgAlt, vec4(0.0f, 0.0f, 0.0f, 0.5f));
 
-                UI::ListClipper clipper(uids.Length);
-                while (clipper.Step()) {
-                    for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++) {
-                        WarriorMedals::Map@ map = cast<WarriorMedals::Map@>(maps[uids[i]]);
+            UI::TableSetupScrollFreeze(0, 1);
+            UI::TableSetupColumn("uid",      UI::TableColumnFlags::WidthFixed, scale * 230.0f);
+            UI::TableSetupColumn("name");
+            UI::TableSetupColumn("wr",       UI::TableColumnFlags::WidthFixed, scale * 60.0f);
+            UI::TableSetupColumn("wm",       UI::TableColumnFlags::WidthFixed, scale * 60.0f);
+            UI::TableSetupColumn("at",       UI::TableColumnFlags::WidthFixed, scale * 60.0f);
+            UI::TableSetupColumn("pb",       UI::TableColumnFlags::WidthFixed, scale * 60.0f);
+            UI::TableSetupColumn("date",     UI::TableColumnFlags::WidthFixed, scale * 70.0f);
+            UI::TableSetupColumn("campaign", UI::TableColumnFlags::WidthFixed, scale * 100.0f);
+            UI::TableSetupColumn("index",    UI::TableColumnFlags::WidthFixed, scale * 40.0f);
+            UI::TableSetupColumn("custom",   UI::TableColumnFlags::WidthFixed, scale * 60.0f);
+            UI::TableSetupColumn("reason");
+            UI::TableHeadersRow();
 
-                        UI::TableNextRow();
+            UI::ListClipper clipper(uids.Length);
+            while (clipper.Step()) {
+                for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++) {
+                    WarriorMedals::Map@ map = cast<WarriorMedals::Map@>(maps[uids[i]]);
 
-                        UI::TableNextColumn();
-                        UI::Text(map.uid);
+                    UI::TableNextRow();
 
-                        UI::TableNextColumn();
-                        UI::Text(map.name);
+                    UI::TableNextColumn();
+                    UI::Text(map.uid);
 
-                        UI::TableNextColumn();
-                        UI::Text(Time::Format(map.worldRecord));
+                    UI::TableNextColumn();
+                    UI::Text(map.name);
 
-                        UI::TableNextColumn();
-                        UI::Text(Time::Format(map.warrior));
+                    UI::TableNextColumn();
+                    UI::Text(Time::Format(map.worldRecord));
 
-                        UI::TableNextColumn();
-                        UI::Text(Time::Format(map.author));
+                    UI::TableNextColumn();
+                    UI::Text(Time::Format(map.warrior));
 
-                        UI::TableNextColumn();
-                        UI::Text(map.pb != uint(-1) ? Time::Format(map.pb) : "");
+                    UI::TableNextColumn();
+                    UI::Text(Time::Format(map.author));
 
-                        UI::TableNextColumn();
-                        UI::Text(map.date);
+                    UI::TableNextColumn();
+                    UI::Text(map.pb != uint(-1) ? Time::Format(map.pb) : "");
 
-                        UI::TableNextColumn();
-                        UI::Text(map.campaignName);
+                    UI::TableNextColumn();
+                    UI::Text(map.date);
 
-                        UI::TableNextColumn();
-                        UI::Text(tostring(map.index));
+                    UI::TableNextColumn();
+                    UI::Text(map.campaignName);
 
-                        UI::TableNextColumn();
-                        UI::Text(Time::Format(map.custom));
+                    UI::TableNextColumn();
+                    UI::Text(tostring(map.index));
 
-                        UI::TableNextColumn();
-                        UI::Text(map.reason);
-                    }
+                    UI::TableNextColumn();
+                    UI::Text(Time::Format(map.custom));
+
+                    UI::TableNextColumn();
+                    UI::Text(map.reason);
                 }
-
-                UI::PopStyleColor();
-                UI::EndTable();
             }
 
-            UI::EndTabItem();
+            UI::PopStyleColor();
+            UI::EndTable();
         }
+
+        UI::EndTabItem();
+    }
 
     UI::EndTabBar();
+}
+
+[SettingsTab name="Warrior Medals" icon="Circle" order=3]
+void Settings_MainWindow() {
+    MainWindow();
 }
 
 void HoverTooltipSetting(const string &in msg, const string &in color = "666") {

@@ -1,5 +1,5 @@
 // c 2024-07-18
-// m 2024-07-30
+// m 2024-10-22
 
 void GetAllPBsAsync() {
     const string[]@ uids = maps.GetKeys();
@@ -8,7 +8,7 @@ void GetAllPBsAsync() {
     const uint64 maxFrameTime = 50;
 
     const uint64 start = lastYield;
-    trace("getting all PBs");
+    trace("getting all PBs from game");
 
     for (uint i = 0; i < uids.Length; i++) {
         const uint64 now = Time::Now;
@@ -22,9 +22,10 @@ void GetAllPBsAsync() {
             continue;
 
         map.GetPB();
+        Files::AddPB(map);
     }
 
-    trace("getting all PBs done after " + (Time::Now - start) + "ms");
+    trace("got all PBs from game after " + (Time::Now - start) + "ms");
 }
 
 void HoverTooltip(const string &in msg) {

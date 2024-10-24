@@ -1,5 +1,5 @@
 // c 2024-07-21
-// m 2024-09-26
+// m 2024-10-21
 
 /*
 Exports from the Warrior Medals plugin.
@@ -82,7 +82,7 @@ namespace WarriorMedals {
 
         private uint _pb = uint(-1);
         uint get_pb() { return _pb; }
-        private void set_pb(uint p) { _pb = p; }
+        void set_pb(uint p) { _pb = p; }
 
         private uint _author;
         uint get_author() { return _author; }
@@ -363,6 +363,19 @@ namespace WarriorMedals {
 
             while (!App.ManiaTitleControlScriptAPI.IsReady)
                 yield();
+        }
+
+        void SetPBFromAPI(Json::Value@ json) {
+            if (false
+                || (_pb != uint(-1) && _pb != 0)
+                || !json.HasKey("score")
+                || json["score"].GetType() != Json::Type::Number
+            )
+                return;
+
+            const uint score = uint(json["score"]);
+            if (score != uint(-1) && score != 0 && score < pb)
+                pb = score;
         }
     }
 }

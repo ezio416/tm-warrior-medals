@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2024-09-23
+// m 2024-10-23
 
 Campaign@     activeOtherCampaign;
 Campaign@     activeSeasonalCampaign;
@@ -26,10 +26,10 @@ uint          totalHave         = 0;
 const string  uidSeparator      = "|warrior-campaign|";
 
 void Main() {
-    startnew(CheckVersionAsync);
+    startnew(API::CheckVersionAsync);
 
     OnSettingsChanged();
-    startnew(GetAllMapInfosAsync);
+    startnew(API::GetAllMapInfosAsync);
     WarriorMedals::GetIcon32();
     hasPlayPermission = Permissions::PlayLocalMap();
 
@@ -57,7 +57,7 @@ void Main() {
             wasInMap = inMap;
 
             if (inMap)
-                GetMapInfoAsync();
+                API::GetMapInfoAsync();
         }
     }
 }
@@ -75,7 +75,7 @@ void Render() {
     if (icon32 is null)
         return;
 
-    MainWindow();
+    MainWindowDetached();
     MedalWindow();
 }
 
@@ -85,8 +85,8 @@ void RenderEarly() {
 
 void RenderMenu() {
     if (UI::BeginMenu(title)) {
-        if (UI::MenuItem(colorStr + Icons::WindowMaximize + "\\$G Main window", "", S_MainWindow))
-            S_MainWindow = !S_MainWindow;
+        if (UI::MenuItem(colorStr + Icons::WindowMaximize + "\\$G Detached main window", "", S_MainWindowDetached))
+            S_MainWindowDetached = !S_MainWindowDetached;
 
         if (UI::MenuItem(colorStr + Icons::Circle + "\\$G Medal window", "", S_MedalWindow))
             S_MedalWindow = !S_MedalWindow;
@@ -108,9 +108,12 @@ void PBLoop() {
             const uint prevPb = map.pb;
 
             map.GetPBAsync();
+            Files::AddPB(map);
 
-            if (prevPb != map.pb)
+            if (prevPb != map.pb) {
                 SetTotals();
+                Files::SavePB(map);
+            }
         }
     }
 }

@@ -2,10 +2,11 @@
 name = "Warrior Medals"
 author = "Ezio"
 category = "Race"
-version = "1.3.2"
+version = "1.4.1"
 siteid = 590
 
 [script]
+dependencies = [ "NadeoServices" ]
 module = "WarriorMedals"
 exports = [ "src/Export.as" ]
 shared_exports = [ "src/ExportShared.as" ]

@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2024-09-26
+// m 2024-10-22
 
 class Campaign {
     int                         clubId     = -1;
@@ -15,6 +15,7 @@ class Campaign {
     string                      name;
     string                      nameFormatted;
     string                      nameStripped;
+    bool                        requesting = false;
     WarriorMedals::CampaignType type       = WarriorMedals::CampaignType::Unknown;
     string                      uid;
     uint                        year;
@@ -107,16 +108,78 @@ class Campaign {
         return cast<WarriorMedals::Map@>(maps[uid]);
     }
 
-    void GetPBs() {
-        const string[]@ uids = maps.GetKeys();
+    // void GetPBs() {
+    //     const string[]@ uids = maps.GetKeys();
 
-        for (uint i = 0; i < uids.Length; i++) {
-            WarriorMedals::Map@ map = cast<WarriorMedals::Map@>(maps[uids[i]]);
-            if (map is null)
+    //     for (uint i = 0; i < uids.Length; i++) {
+    //         WarriorMedals::Map@ map = cast<WarriorMedals::Map@>(maps[uids[i]]);
+    //         if (map is null)
+    //             continue;
+
+    //         map.GetPB();
+    //         Files::AddPB(map);
+    //     }
+
+    //     Files::SavePBs();
+    // }
+
+    void GetPBsAsync() {
+        while (requesting)
+            yield();
+
+        requesting = true;
+
+        const uint64 start = Time::Now;
+        trace("getting PBs for " + nameStripped);
+
+        Json::Value@ body = Json::Object();
+        body["maps"] = Json::Array();
+
+        for (uint i = 0; i < mapsArr.Length; ++i) {
+            Json::Value@ map = Json::Object();
+            map["groupUid"] = "Personal_Best";
+            map["mapUid"] = mapsArr[i].uid;
+            body["maps"].Add(map);
+        }
+
+        Net::HttpRequest@ req = API::Nadeo::PostLiveAsync("/api/token/leaderboard/group/map", body);
+        // warn("setting clipboard");
+        // IO::SetClipboard(req.String());
+
+        const int respCode = req.ResponseCode();
+        if (respCode != 200) {
+            error("getting PBs for " + nameStripped + " failed after " + (Time::Now - start) + "ms: code: " + respCode + " | msg: " + req.String().Replace("\n", " "));
+            return;
+        }
+
+        Json::Value@ data = req.Json();
+        if (!WarriorMedals::CheckJsonType(data, Json::Type::Array, "data")) {
+            error("getting PBs for " + nameStripped + " failed after " + (Time::Now - start) + "ms");
+            return;
+        }
+
+        string uid;
+
+        for (uint i = 0; i < data.Length; i++) {
+            Json::Value@ map_api = data[i];
+            if (!WarriorMedals::CheckJsonType(map_api, Json::Type::Object, "map_api"))
                 continue;
 
-            map.GetPB();
+            uid = JsonExt::GetString(map_api, "mapUid");
+
+            WarriorMedals::Map@ map = GetMap(uid);
+            if (map !is null)
+                map.SetPBFromAPI(map_api);
+
+            Files::AddPB(map);
         }
+
+        requesting = false;
+
+        trace("got PBs for " + nameStripped + " after " + (Time::Now - start) + "ms");
+
+        SetTotals();
+        Files::SavePBs();
     }
 
     void SetOtherCampaignIndex() {
