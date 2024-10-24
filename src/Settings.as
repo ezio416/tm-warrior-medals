@@ -42,13 +42,13 @@ void Settings_General() {
 
     if (UI::Button("Reset to default##main")) {
         Meta::Plugin@ plugin = Meta::ExecutingPlugin();
+        plugin.GetSetting("S_MainWindowDetached").Reset();
         plugin.GetSetting("S_MainWindowHideWithGame").Reset();
         plugin.GetSetting("S_MainWindowHideWithOP").Reset();
         plugin.GetSetting("S_MainWindowAutoResize").Reset();
         plugin.GetSetting("S_MainWindowTmioLinks").Reset();
         plugin.GetSetting("S_MainWindowCampRefresh").Reset();
         plugin.GetSetting("S_MainWindowPercentages").Reset();
-        plugin.GetSetting("S_MainWindowDetached").Reset();
     }
 
     S_MainWindowDetached = UI::Checkbox(
