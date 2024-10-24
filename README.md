@@ -42,7 +42,6 @@ Track of the Day:
     |45.678|44.926      |45.584 |
     |40.000|40.069      |39.999 |
 
-
 Club campaign:
 -
 - When I have time after someone requests medals for a campaign
