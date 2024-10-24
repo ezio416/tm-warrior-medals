@@ -4,84 +4,93 @@
 [Setting hidden]
 bool getAllClicked = false;
 
+void MainWindow() {
+    UI::PushStyleColor(UI::Col::Button,        vec4(colorVec * 0.8f, 1.0f));
+    UI::PushStyleColor(UI::Col::ButtonActive,  vec4(colorVec * 0.6f, 1.0f));
+    UI::PushStyleColor(UI::Col::ButtonHovered, vec4(colorVec,        1.0f));
+
+    if (UI::BeginTable("##table-main-header", 2, UI::TableFlags::SizingStretchProp)) {
+        UI::TableSetupColumn("total",   UI::TableColumnFlags::WidthStretch);
+        UI::TableSetupColumn("refresh", UI::TableColumnFlags::WidthFixed);
+
+        UI::TableNextRow();
+
+        UI::TableNextColumn();
+
+        UI::Image(icon32, vec2(scale * 32.0f));
+
+        UI::SameLine();
+        UI::PushFont(fontHeader);
+        UI::AlignTextToFramePadding();
+        UI::Text(tostring(totalHave) + " / " + total);
+
+        if (S_MainWindowPercentages) {
+            UI::SameLine();
+            UI::Text("\\$888" + Text::Format("%.1f", float(totalHave * 100) / Math::Max(1, total)) + "%");
+        }
+
+        UI::PopFont();
+        UI::TableNextColumn();
+
+        UI::BeginDisabled(API::getting);
+        if (UI::Button(Icons::Refresh))
+            startnew(API::GetAllMapInfosAsync);
+        UI::EndDisabled();
+        HoverTooltip("Get maps and medals info");
+
+        if (!getAllClicked) {
+            UI::SameLine();
+            if (API::Nadeo::requesting) {
+                UI::BeginDisabled(API::Nadeo::cancel);
+                if (UI::ButtonColored(Icons::Times, 0.0f))
+                    API::Nadeo::cancel = true;
+                UI::EndDisabled();
+
+                HoverTooltip(API::Nadeo::allCampaignsProgress);
+
+            } else {
+                if (UI::Button(Icons::CloudDownload))
+                    startnew(API::Nadeo::GetAllCampaignPBsAsync);
+
+                HoverTooltip(
+                    "Get PBs from Nadeo on all maps"
+                    + "\n  This takes about " + Time::Format(campaignsArr.Length * 1100) + " depending on your connection."
+                    + "\n  You should only need to do this once. This button will be hidden afterwards."
+                );
+            }
+        }
+
+        UI::EndTable();
+    }
+
+    UI::PushStyleColor(UI::Col::Tab,        vec4(colorVec * 0.6f,  1.0f));
+    UI::PushStyleColor(UI::Col::TabActive,  vec4(colorVec * 0.85f, 1.0f));
+    UI::PushStyleColor(UI::Col::TabHovered, vec4(colorVec * 0.85f, 1.0f));
+
+    UI::BeginTabBar("##tab-bar");
+    Tab_Seasonal();
+    Tab_Totd();
+    Tab_Other();
+    UI::EndTabBar();
+
+    UI::PopStyleColor(6);
+}
+
+void MainWindowDetached() {
     if (false
-        || !S_MainWindow
+        || !S_MainWindowDetached
         || (S_MainWindowHideWithGame && !UI::IsGameUIVisible())
         || (S_MainWindowHideWithOP && !UI::IsOverlayShown())
     )
         return;
 
-    if (UI::Begin(title, S_MainWindow, S_MainWindowAutoResize ? UI::WindowFlags::AlwaysAutoResize : UI::WindowFlags::None)) {
-        UI::PushStyleColor(UI::Col::Button,        vec4(colorVec * 0.8f, 1.0f));
-        UI::PushStyleColor(UI::Col::ButtonActive,  vec4(colorVec * 0.6f, 1.0f));
-        UI::PushStyleColor(UI::Col::ButtonHovered, vec4(colorVec,        1.0f));
+    if (UI::Begin(
+        title,
+        S_MainWindowDetached,
+        S_MainWindowAutoResize ? UI::WindowFlags::AlwaysAutoResize : UI::WindowFlags::None
+    ))
+        MainWindow();
 
-        if (UI::BeginTable("##table-main-header", 2, UI::TableFlags::SizingStretchProp)) {
-            UI::TableSetupColumn("total",   UI::TableColumnFlags::WidthStretch);
-            UI::TableSetupColumn("refresh", UI::TableColumnFlags::WidthFixed);
-
-            UI::TableNextRow();
-
-            UI::TableNextColumn();
-
-            UI::Image(icon32, vec2(scale * 32.0f));
-
-            UI::SameLine();
-            UI::PushFont(fontHeader);
-            UI::AlignTextToFramePadding();
-            UI::Text(tostring(totalHave) + " / " + total);
-
-            if (S_MainWindowPercentages) {
-                UI::SameLine();
-                UI::Text("\\$888" + Text::Format("%.1f", float(totalHave * 100) / Math::Max(1, total)) + "%");
-            }
-
-            UI::PopFont();
-            UI::TableNextColumn();
-
-            UI::BeginDisabled(API::getting);
-            if (UI::Button(Icons::Refresh))
-                startnew(API::GetAllMapInfosAsync);
-            UI::EndDisabled();
-            HoverTooltip("Get maps and medals info");
-
-            if (!getAllClicked) {
-                UI::SameLine();
-                if (API::Nadeo::requesting) {
-                    UI::BeginDisabled(API::Nadeo::cancel);
-                    if (UI::ButtonColored(Icons::Times, 0.0f))
-                        API::Nadeo::cancel = true;
-                    UI::EndDisabled();
-
-                    HoverTooltip(API::Nadeo::allCampaignsProgress);
-
-                } else {
-                    if (UI::Button(Icons::CloudDownload))
-                        startnew(API::Nadeo::GetAllCampaignPBsAsync);
-
-                    HoverTooltip(
-                        "Get PBs from Nadeo on all maps"
-                        + "\n  This takes about " + Time::Format(campaignsArr.Length * 1100) + " depending on your connection."
-                        + "\n  You should only need to do this once. This button will be hidden afterwards."
-                    );
-                }
-            }
-
-            UI::EndTable();
-        }
-
-        UI::PushStyleColor(UI::Col::Tab,        vec4(colorVec * 0.6f,  1.0f));
-        UI::PushStyleColor(UI::Col::TabActive,  vec4(colorVec * 0.85f, 1.0f));
-        UI::PushStyleColor(UI::Col::TabHovered, vec4(colorVec * 0.85f, 1.0f));
-
-        UI::BeginTabBar("##tab-bar");
-        Tab_Seasonal();
-        Tab_Totd();
-        Tab_Other();
-        UI::EndTabBar();
-
-        UI::PopStyleColor(6);
-    }
     UI::End();
 }
 

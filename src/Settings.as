@@ -6,9 +6,9 @@
 [Setting hidden] vec3 S_ColorSummer              = vec3(1.0f, 0.8f, 0.0f);
 [Setting hidden] vec3 S_ColorWinter              = vec3(0.0f, 0.8f, 1.0f);
 
-[Setting hidden] bool S_MainWindow               = false;
 [Setting hidden] bool S_MainWindowAutoResize     = false;
 [Setting hidden] bool S_MainWindowCampRefresh    = true;
+[Setting hidden] bool S_MainWindowDetached       = false;
 [Setting hidden] bool S_MainWindowHideWithGame   = true;
 [Setting hidden] bool S_MainWindowHideWithOP     = true;
 [Setting hidden] bool S_MainWindowPercentages    = true;
@@ -41,16 +41,21 @@ void Settings_General() {
 
     if (UI::Button("Reset to default##main")) {
         Meta::Plugin@ plugin = Meta::ExecutingPlugin();
-        plugin.GetSetting("S_MainWindow").Reset();
         plugin.GetSetting("S_MainWindowHideWithGame").Reset();
         plugin.GetSetting("S_MainWindowHideWithOP").Reset();
         plugin.GetSetting("S_MainWindowAutoResize").Reset();
         plugin.GetSetting("S_MainWindowTmioLinks").Reset();
         plugin.GetSetting("S_MainWindowCampRefresh").Reset();
         plugin.GetSetting("S_MainWindowPercentages").Reset();
+        plugin.GetSetting("S_MainWindowDetached").Reset();
     }
 
-    if ((S_MainWindow = UI::Checkbox("Show main window", S_MainWindow))) {
+    S_MainWindowDetached = UI::Checkbox(
+        "Show a detached main window",
+        S_MainWindowDetached
+    );
+
+    if (S_MainWindowDetached) {
         UI::NewLine(); UI::SameLine();
         S_MainWindowHideWithGame = UI::Checkbox(
             "Show/hide with game UI##main",
@@ -68,25 +73,22 @@ void Settings_General() {
             "Auto-resize",
             S_MainWindowAutoResize
         );
-
-        UI::NewLine(); UI::SameLine();
-        S_MainWindowTmioLinks = UI::Checkbox(
-            "Show Trackmania.io buttons on campaigns",
-            S_MainWindowTmioLinks
-        );
-
-        UI::NewLine(); UI::SameLine();
-        S_MainWindowCampRefresh = UI::Checkbox(
-            "Show PB refresh button on campaigns",
-            S_MainWindowCampRefresh
-        );
-
-        UI::NewLine(); UI::SameLine();
-        S_MainWindowPercentages = UI::Checkbox(
-            "Show percentages",
-            S_MainWindowPercentages
-        );
     }
+
+    S_MainWindowTmioLinks = UI::Checkbox(
+        "Show Trackmania.io buttons on campaigns",
+        S_MainWindowTmioLinks
+    );
+
+    S_MainWindowCampRefresh = UI::Checkbox(
+        "Show PB refresh button on campaigns",
+        S_MainWindowCampRefresh
+    );
+
+    S_MainWindowPercentages = UI::Checkbox(
+        "Show percentages",
+        S_MainWindowPercentages
+    );
 
     UI::Separator();
 
@@ -373,6 +375,11 @@ void Settings_Debug() {
     }
 
     UI::EndTabBar();
+}
+
+[SettingsTab name="Warrior Medals" icon="Circle" order=3]
+void Settings_MainWindow() {
+    MainWindow();
 }
 
 void HoverTooltipSetting(const string &in msg, const string &in color = "666") {

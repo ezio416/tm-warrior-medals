@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2024-10-22
+// m 2024-10-23
 
 Campaign@     activeOtherCampaign;
 Campaign@     activeSeasonalCampaign;
@@ -75,7 +75,7 @@ void Render() {
     if (icon32 is null)
         return;
 
-    MainWindow();
+    MainWindowDetached();
     MedalWindow();
 }
 
@@ -85,8 +85,8 @@ void RenderEarly() {
 
 void RenderMenu() {
     if (UI::BeginMenu(title)) {
-        if (UI::MenuItem(colorStr + Icons::WindowMaximize + "\\$G Main window", "", S_MainWindow))
-            S_MainWindow = !S_MainWindow;
+        if (UI::MenuItem(colorStr + Icons::WindowMaximize + "\\$G Detached main window", "", S_MainWindowDetached))
+            S_MainWindowDetached = !S_MainWindowDetached;
 
         if (UI::MenuItem(colorStr + Icons::Circle + "\\$G Medal window", "", S_MedalWindow))
             S_MedalWindow = !S_MedalWindow;
