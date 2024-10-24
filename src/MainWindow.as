@@ -140,7 +140,7 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
             if (S_MainWindowCampRefresh) {
                 UI::BeginDisabled(campaign.requesting);
 
-                if (UI::Button(Icons::CloudDownload))
+                if (UI::Button(Icons::CloudDownload + "##single-camp"))
                     startnew(CoroutineFunc(campaign.GetPBsAsync));
                 HoverTooltip("Get PBs");
 
