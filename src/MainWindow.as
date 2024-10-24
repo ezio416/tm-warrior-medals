@@ -1,7 +1,9 @@
 // c 2024-07-24
 // m 2024-10-23
 
-void MainWindow() {
+[Setting hidden]
+bool getAllClicked = false;
+
     if (false
         || !S_MainWindow
         || (S_MainWindowHideWithGame && !UI::IsGameUIVisible())
@@ -43,20 +45,26 @@ void MainWindow() {
             UI::EndDisabled();
             HoverTooltip("Get maps and medals info");
 
-            UI::SameLine();
-            if (API::Nadeo::requesting) {
-                UI::BeginDisabled(API::Nadeo::cancel);
-                if (UI::ButtonColored(Icons::Times, 0.0f))
-                    API::Nadeo::cancel = true;
-                UI::EndDisabled();
+            if (!getAllClicked) {
+                UI::SameLine();
+                if (API::Nadeo::requesting) {
+                    UI::BeginDisabled(API::Nadeo::cancel);
+                    if (UI::ButtonColored(Icons::Times, 0.0f))
+                        API::Nadeo::cancel = true;
+                    UI::EndDisabled();
 
-                HoverTooltip(API::Nadeo::allCampaignsProgress);
+                    HoverTooltip(API::Nadeo::allCampaignsProgress);
 
-            } else {
-                if (UI::Button(Icons::CloudDownload))
-                    startnew(API::Nadeo::GetAllCampaignPBsAsync);
+                } else {
+                    if (UI::Button(Icons::CloudDownload))
+                        startnew(API::Nadeo::GetAllCampaignPBsAsync);
 
-                HoverTooltip("Get PBs on all maps\nThis takes about " + Time::Format(campaignsArr.Length * 1100) + " depending on your connection");
+                    HoverTooltip(
+                        "Get PBs from Nadeo on all maps"
+                        + "\n  This takes about " + Time::Format(campaignsArr.Length * 1100) + " depending on your connection."
+                        + "\n  You should only need to do this once. This button will be hidden afterwards."
+                    );
+                }
             }
 
             UI::EndTable();
@@ -138,7 +146,7 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
 
             UI::TableNextColumn();
             if (S_MainWindowCampRefresh) {
-                UI::BeginDisabled(campaign.requesting);
+                UI::BeginDisabled(campaign.requesting || API::Nadeo::requesting);
 
                 if (UI::Button(Icons::CloudDownload + "##single-camp"))
                     startnew(CoroutineFunc(campaign.GetPBsAsync));

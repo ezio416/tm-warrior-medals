@@ -213,6 +213,8 @@ namespace API {
             }
 
             trace("got all PBs after " + (Time::Now - start) + "ms");
+
+            getAllClicked = true;
         }
 
         Net::HttpRequest@ GetAsync(const string &in audience, const string &in url, bool start = true) {
