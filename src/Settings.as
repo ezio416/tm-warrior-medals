@@ -8,16 +8,18 @@
 
 [Setting hidden] bool S_MainWindow               = false;
 [Setting hidden] bool S_MainWindowAutoResize     = false;
+[Setting hidden] bool S_MainWindowCampRefresh    = true;
 [Setting hidden] bool S_MainWindowHideWithGame   = true;
 [Setting hidden] bool S_MainWindowHideWithOP     = true;
-[Setting hidden] bool S_MainWindowTmioLinks      = true;
-[Setting hidden] bool S_MainWindowCampRefresh    = true;
 [Setting hidden] bool S_MainWindowPercentages    = true;
+[Setting hidden] bool S_MainWindowTmioLinks      = true;
 
 [Setting hidden] bool S_MedalWindow              = true;
 [Setting hidden] bool S_MedalWindowDelta         = true;
 [Setting hidden] bool S_MedalWindowHideWithGame  = true;
 [Setting hidden] bool S_MedalWindowHideWithOP    = false;
+[Setting hidden] bool S_MedalWindowIcon          = true;
+[Setting hidden] bool S_MedalWindowName          = true;
 
 [Setting hidden] bool S_UIMedals                 = true;
 [Setting hidden] bool S_UIMedalBanner            = true;
@@ -98,16 +100,41 @@ void Settings_General() {
         plugin.GetSetting("S_MedalWindowHideWithGame").Reset();
         plugin.GetSetting("S_MedalWindowHideWithOP").Reset();
         plugin.GetSetting("S_MedalWindowDelta").Reset();
+        plugin.GetSetting("S_MedalWindowIcon").Reset();
+        plugin.GetSetting("S_MedalWindowName").Reset();
+
     }
 
-    S_MedalWindow = UI::Checkbox("Show medal window when playing", S_MedalWindow);
-    if (S_MedalWindow) {
+    if ((S_MedalWindow = UI::Checkbox("Show medal window when playing", S_MedalWindow))) {
         UI::NewLine(); UI::SameLine();
-        S_MedalWindowHideWithGame = UI::Checkbox("Show/hide with game UI##medal",       S_MedalWindowHideWithGame);
+        S_MedalWindowHideWithGame = UI::Checkbox(
+            "Show/hide with game UI##medal",
+            S_MedalWindowHideWithGame
+        );
+
         UI::NewLine(); UI::SameLine();
-        S_MedalWindowHideWithOP   = UI::Checkbox("Show/hide with Openplanet UI##medal", S_MedalWindowHideWithOP);
+        S_MedalWindowHideWithOP = UI::Checkbox(
+            "Show/hide with Openplanet UI##medal",
+            S_MedalWindowHideWithOP
+        );
+
         UI::NewLine(); UI::SameLine();
-        S_MedalWindowDelta        = UI::Checkbox("Show PB delta",                       S_MedalWindowDelta);
+        S_MedalWindowIcon = UI::Checkbox(
+            "Show real medal icon",
+            S_MedalWindowIcon
+        );
+
+        UI::NewLine(); UI::SameLine();
+        S_MedalWindowName = UI::Checkbox(
+            "Show medal name",
+            S_MedalWindowName
+        );
+
+        UI::NewLine(); UI::SameLine();
+        S_MedalWindowDelta = UI::Checkbox(
+            "Show PB delta",
+            S_MedalWindowDelta
+        );
     }
 
     UI::Separator();
@@ -177,7 +204,7 @@ void Settings_MedalsInUI() {
         S_UIMedalsTotd             = UI::Checkbox("Track of the Day",         S_UIMedalsTotd);
         // S_UIMedalsLiveTotd         = UI::Checkbox("Track of the Day (live)",  S_UIMedalsLiveTotd);
         S_UIMedalsClubCampaign     = UI::Checkbox("Club campaign",            S_UIMedalsClubCampaign);
-        HoverTooltipSetting("May be inaccurate as it only checks the name of the campaign");
+        HoverTooltipSetting("May be inaccurate if a club or campaign's name is changed");
         S_UIMedalsTraining         = UI::Checkbox("Training",                 S_UIMedalsTraining);
 
         UI::Separator();

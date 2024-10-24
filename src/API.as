@@ -194,14 +194,14 @@ namespace API {
             const uint64 start = Time::Now;
             trace("getting PBs on all campaigns...");
 
-            allCampaignsProgress = "0 / " + campaignsArr.Length + "\n0 %";
+            allCampaignsProgress = "Getting PBs...\n0 / " + campaignsArr.Length + "\n0 %";
 
             for (uint i = 0; i < campaignsArr.Length; i++) {
                 Campaign@ campaign = campaignsArr[i];
 
                 campaign.GetPBsAsync();
 
-                allCampaignsProgress = tostring(i + 1) + " / " + campaignsArr.Length
+                allCampaignsProgress = "Getting PBs...\n" + (i + 1) + " / " + campaignsArr.Length
                     + "\n" + Text::Format("%.1f", float(i + 1) * 100.0f / campaignsArr.Length) + "%"
                     + "\n" + Time::Format((campaignsArr.Length - (i + 1)) * 1100) + " left";
 
