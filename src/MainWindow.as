@@ -450,6 +450,10 @@ void Tab_Totd() {
     UI::EndTabItem();
 }
 
+vec4 kekwColor  = vec4(1.0f);
+uint kekwCycle  = 5000;
+bool kekwStatic = false;
+
 void Tab_Weekly(bool settings = false) {
     if (false
         || !S_ShowWeeklyPreview
@@ -459,9 +463,29 @@ void Tab_Weekly(bool settings = false) {
     )
         return;
 
+    UI::BeginGroup();
+
     UI::PushFont(fontMonoTiny);
+    UI::PushStyleColor(
+        UI::Col::Text,
+        kekwStatic
+            ? kekwColor
+            : UI::HSV(GayHue(kekwCycle, reverse:true), 1.0f, 1.0f)
+    );
     UI::Text(kekw);
+    UI::PopStyleColor();
     UI::PopFont();
+
+    kekwStatic = UI::Checkbox("static", kekwStatic);
+
+    UI::SameLine();
+    UI::SetNextItemWidth(scale * 312.0f);
+    if (kekwStatic)
+        kekwColor = UI::InputColor4("##input-kekw-color", kekwColor);
+    else
+        kekwCycle = UI::SliderInt("##input-kekw-cycle", kekwCycle, 100, 15000, "%dms");
+
+    UI::EndGroup();
 
     if (settings)
         UI::SameLine();

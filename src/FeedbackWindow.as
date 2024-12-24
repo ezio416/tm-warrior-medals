@@ -15,6 +15,7 @@ void FeedbackWindow() {
     )
         return;
 
+    UI::SetNextWindowSize(300, 250);
     if (UI::Begin(title + " \\$FA3Feedback###warrior-medals-feedback", feedbackShown, UI::WindowFlags::AlwaysAutoResize)) {
         UI::BeginDisabled(API::requesting);
 

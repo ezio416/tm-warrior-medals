@@ -1,6 +1,16 @@
 // c 2024-07-18
 // m 2024-12-24
 
+float GayHue(uint cycleTimeMs = 5000, float offset = 0.0f, bool reverse = false) {
+    const float h = float(Time::Now % cycleTimeMs) / float(cycleTimeMs) + offset;
+    const float normal = h - Math::Floor(h);
+
+    if (reverse)
+        return 1.0f - normal;
+
+    return normal;
+}
+
 void GetAllPBsAsync() {
     const string[]@ uids = maps.GetKeys();
 
