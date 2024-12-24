@@ -1,7 +1,8 @@
 // c 2024-07-22
-// m 2024-10-23
+// m 2024-12-24
 
 uint FrameConfirmQuit = 0;
+const float stdRatio = 16.0f / 9.0f;
 
 enum PlaygroundPageType {
     Record,
@@ -313,14 +314,14 @@ void DrawCampaign(CGameManialinkFrame@ Maps, const string &in uid, bool club = f
         if (Map is null || !Map.Visible)
             continue;
 
-        CGameManialinkFrame@ MedalStack = cast<CGameManialinkFrame@>(Map.GetFirstChild("frame-medalstack"));
+        CGameManialinkFrame@ MedalStack = cast<CGameManialinkFrame@>(Map.GetFirstChild("frame-medal-stack"));
         if (MedalStack is null || !MedalStack.Visible)
             continue;
 
         const float w         = Math::Max(1, Draw::GetWidth());
         const float h         = Math::Max(1, Draw::GetHeight());
         const vec2  center    = vec2(w * 0.5f, h * 0.5f);
-        const float unit      = (w / h < 16.0f / 9.0f) ? w / 320.0f : h / 180.0f;
+        const float unit      = (w / h < stdRatio) ? w / 320.0f : h / 180.0f;
         const vec2  scale     = vec2(unit, -unit);
         const vec2  offset    = vec2(-99.8f, 1.05f) + (club ? vec2(0.4f, 2.51f) : vec2());
         const vec2  rowOffset = vec2(-2.02f, -11.5f) * (i % 5);
@@ -376,30 +377,30 @@ void DrawOverLiveCampaignPage(CGameManialinkPage@ Page) {
 }
 
 // void DrawOverLiveTotdPage(CGameManialinkPage@ Page) {
-//     if (Page is null)
-//         return;
+    // if (Page is null)
+    //     return;
 
-//     CGameManialinkFrame@ PrevDay = cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-previous-day"));
-//     if (PrevDay is null || !PrevDay.Visible)
-//         return;
+    // CGameManialinkFrame@ PrevDay = cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-previous-day"));
+    // if (PrevDay is null || !PrevDay.Visible)
+    //     return;
 
-//     CGameManialinkLabel@ DayLabel = cast<CGameManialinkLabel@>(PrevDay.GetFirstChild("label-day"));
-//     if (DayLabel is null)
-//         return;
+    // CGameManialinkLabel@ DayLabel = cast<CGameManialinkLabel@>(PrevDay.GetFirstChild("label-day"));
+    // if (DayLabel is null)
+    //     return;
 
-//     const string date = string(DayLabel.Value).SubStr(19).Replace("%1\u0091", "");
-//     UI::Text(date);
+    // const string date = string(DayLabel.Value).SubStr(19).Replace("%1\u0091", "");
+    // UI::Text(date);
 
-//     uint month = 0;
+    // uint month = 0;
 
-//     const uint day = Text::ParseUInt(date.SubStr(date.Length - 2));
-//     UI::Text(tostring(day));
+    // const uint day = Text::ParseUInt(date.SubStr(date.Length - 2));
+    // UI::Text(tostring(day));
 
-//     CGameManialinkFrame@ MedalStack = cast<CGameManialinkFrame@>(PrevDay.GetFirstChild("frame-medal-stack"));
-//     if (MedalStack is null || !MedalStack.Visible)
-//         return;
+    // CGameManialinkFrame@ MedalStack = cast<CGameManialinkFrame@>(PrevDay.GetFirstChild("frame-medal-stack"));
+    // if (MedalStack is null || !MedalStack.Visible)
+    //     return;
 
-//     UI::Text("medal stack");
+    // UI::Text("medal stack");
 // }
 
 void DrawOverPlaygroundPage(CGameManialinkPage@ Page, PlaygroundPageType type = PlaygroundPageType::Start, CGameManialinkPage@ ScoresTable = null) {
@@ -475,7 +476,7 @@ void DrawOverPlaygroundPage(CGameManialinkPage@ Page, PlaygroundPageType type = 
     const float h      = Math::Max(1, Draw::GetHeight());
     const vec2  center = vec2(w * 0.5f, h * 0.5f);
     const float hUnit  = h / 180.0f;
-    const vec2  scale  = vec2((w / h > 16.0f / 9.0f) ? hUnit : w / 320.0f, -hUnit);
+    const vec2  scale  = vec2((w / h > stdRatio) ? hUnit : w / 320.0f, -hUnit);
     const vec2  size   = vec2(banner ? 21.9f : 19.584f) * hUnit;
     const vec2  offset = vec2(banner ? -size.x * 0.5f : 0.0f, -size.y * 0.5f);
     const vec2  coords = center + offset + scale * (Medal.AbsolutePosition_V3 + vec2(banner ? 0.0f : 12.16f, 0.0f));
@@ -566,7 +567,7 @@ void DrawOverTotdPage(CGameManialinkPage@ Page) {
         const float w         = Math::Max(1, Draw::GetWidth());
         const float h         = Math::Max(1, Draw::GetHeight());
         const vec2  center    = vec2(w * 0.5f, h * 0.5f);
-        const float unit      = (w / h < 16.0f / 9.0f) ? w / 320.0f : h / 180.0f;
+        const float unit      = (w / h < stdRatio) ? w / 320.0f : h / 180.0f;
         const vec2  scale     = vec2(unit, -unit);
         const vec2  offset    = vec2(-118.2f, 1.2f);
         const vec2  colOffset = vec2(29.1f, 0.0f) * (i % 7);
