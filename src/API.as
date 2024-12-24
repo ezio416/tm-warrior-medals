@@ -209,6 +209,11 @@ namespace API {
     }
 
     bool SendFeedbackAsync(const string &in subject, const string &in message, bool anonymous = false) {
+        if (subject.Length > 1000 || message.Length > 10000) {
+            warn("shorten your subject or message.");
+            return false;
+        }
+
         Json::Value@ body = Json::Object();
         body["subject"] = subject;
         body["message"] = message;
