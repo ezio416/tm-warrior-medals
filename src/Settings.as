@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2024-12-23
+// m 2024-12-24
 
 [Setting hidden] bool S_ShowWeeklyPreview        = true;
 
@@ -28,6 +28,8 @@
 [Setting hidden] bool S_UIMedalBanner            = true;
 [Setting hidden] bool S_UIMedalEnd               = true;
 [Setting hidden] bool S_UIMedalPause             = true;
+[Setting hidden] bool S_UIMedalsAlwaysMenu       = false;
+[Setting hidden] bool S_UIMedalsAlwaysPlayground = false;
 [Setting hidden] bool S_UIMedalsClubCampaign     = true;
 [Setting hidden] bool S_UIMedalsLiveCampaign     = true;
 [Setting hidden] bool S_UIMedalsLiveTotd         = false;
@@ -241,6 +243,21 @@ void Settings_MedalsInUI() {
         S_UIMedalPause  = UI::Checkbox("Pause menu",    S_UIMedalPause);
         S_UIMedalEnd    = UI::Checkbox("End menu",      S_UIMedalEnd);
         HoverTooltipSetting("Only shows in solo");
+
+        UI::Separator();
+
+        UI::PushFont(fontHeader);
+        UI::Text("Debug");
+        UI::PopFont();
+
+        if (UI::Button("Reset to default##ui-debug")) {
+            Meta::Plugin@ plugin = Meta::ExecutingPlugin();
+            plugin.GetSetting("S_UIMedalsAlwaysMenu").Reset();
+            plugin.GetSetting("S_UIMedalsAlwaysPlayground").Reset();
+        }
+
+        S_UIMedalsAlwaysMenu       = UI::Checkbox("Always show in menu",       S_UIMedalsAlwaysMenu);
+        S_UIMedalsAlwaysPlayground = UI::Checkbox("Always show in playground", S_UIMedalsAlwaysPlayground);
     }
 }
 

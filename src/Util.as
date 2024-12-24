@@ -47,13 +47,13 @@ void HoverTooltip(const string &in msg) {
     UI::EndTooltip();
 }
 
-bool InMap() {
+bool InMap(bool allowEditor = false) {
     CTrackMania@ App = cast<CTrackMania@>(GetApp());
 
     return true
         && App.RootMap !is null
         && App.CurrentPlayground !is null
-        && App.Editor is null
+        && (App.Editor is null || allowEditor)
     ;
 }
 

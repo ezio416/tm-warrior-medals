@@ -62,19 +62,21 @@ void DrawOverUI() {
     CTrackManiaNetwork@ Network = cast<CTrackManiaNetwork@>(App.Network);
     CTrackManiaNetworkServerInfo@ ServerInfo = cast<CTrackManiaNetworkServerInfo@>(Network.ServerInfo);
 
-    if (InMap()) {
+    if (InMap(S_UIMedalsAlwaysPlayground)) {
         if (false
             || !UI::IsGameUIVisible()
-            || !maps.Exists(App.RootMap.EdChallengeId)
+            || (!S_UIMedalsAlwaysPlayground && !maps.Exists(App.RootMap.EdChallengeId))
         )
             return;
 
-        WarriorMedals::Map@ map = cast<WarriorMedals::Map@>(maps[App.RootMap.EdChallengeId]);
-        if (false
-            || map is null
-            || !map.hasWarrior
-        )
-            return;
+        if (!S_UIMedalsAlwaysPlayground) {
+            WarriorMedals::Map@ map = cast<WarriorMedals::Map@>(maps[App.RootMap.EdChallengeId]);
+            if (false
+                || map is null
+                || !map.hasWarrior
+            )
+                return;
+        }
 
         CGameManiaAppPlayground@ CMAP = Network.ClientManiaAppPlayground;
         if (false
@@ -298,7 +300,7 @@ void DrawCampaign(CGameManialinkFrame@ Maps, const string &in uid, bool club = f
             if (map is null)
                 continue;
 
-            if (map.hasWarrior)
+            if (map.hasWarrior || S_UIMedalsAlwaysMenu)
                 indicesToShow.InsertLast(map.index);
         }
     }
@@ -420,8 +422,16 @@ void DrawOverPlaygroundPage(CGameManialinkPage@ Page, PlaygroundPageType type = 
         }
 
         const string[] frames = {
+            "frame-help",
+            "frame-map-list",
+            "frame-options",
+            "frame-prestige",
+            "frame-profile",
+            "frame-report-system",
+            "frame-server",
             "frame-settings",
-            "frame-report-system"
+            "frame-teams",
+            "popupmultichoice-leave-match"
         };
 
         for (uint i = 0; i < frames.Length; i++) {
@@ -430,23 +440,6 @@ void DrawOverPlaygroundPage(CGameManialinkPage@ Page, PlaygroundPageType type = 
                 return;
         }
 
-        CTrackManiaNetworkServerInfo@ ServerInfo = cast<CTrackManiaNetworkServerInfo@>(Network.ServerInfo);
-        if (ServerInfo !is null && ServerInfo.CurGameModeStr.Contains("_Online")) {
-            const string[] onlineFrames = {
-                "frame-options",
-                "frame-profile",
-                "frame-server",
-                "frame-map-list",
-                "frame-help",
-                "popupmultichoice-leave-match"
-            };
-
-            for (uint i = 0; i < onlineFrames.Length; i++) {
-                CGameManialinkFrame@ Frame = cast<CGameManialinkFrame@>(Page.GetFirstChild(onlineFrames[i]));
-                if (Frame !is null && Frame.Visible)
-                    return;
-            }
-        }
     } else {
         if (type == PlaygroundPageType::Start) {
             CGameManialinkFrame@ OpponentsList = cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-more-opponents-list"));
@@ -538,7 +531,7 @@ void DrawOverTotdPage(CGameManialinkPage@ Page) {
             if (map is null)
                 continue;
 
-            if (map.hasWarrior)
+            if (map.hasWarrior || S_UIMedalsAlwaysMenu)
                 indicesToShow.InsertLast(map.index);
         }
     }
