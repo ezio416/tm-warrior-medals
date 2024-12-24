@@ -55,13 +55,13 @@ void FeedbackWindow() {
 }
 
 void SendFeedbackAsync() {
-    const bool success = API::SendFeedbackAsync(feedbackSubject, feedbackMessage, feedbackAnon);
-    if (success) {
-        const string msg = "Thanks for the feedback!";
-        print("\\$0F0" + msg);
-        UI::ShowNotification(title, msg);
+    if (!API::SendFeedbackAsync(feedbackSubject, feedbackMessage, feedbackAnon))
+        return;
 
-        feedbackSubject = "";
-        feedbackMessage = "";
-    }
+    const string msg = "Thanks for the feedback!";
+    print("\\$0F0" + msg);
+    UI::ShowNotification(title, msg);
+
+    feedbackSubject = "";
+    feedbackMessage = "";
 }
