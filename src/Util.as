@@ -1,5 +1,5 @@
 // c 2024-07-18
-// m 2024-10-22
+// m 2024-12-24
 
 void GetAllPBsAsync() {
     const string[]@ uids = maps.GetKeys();
@@ -29,11 +29,11 @@ void GetAllPBsAsync() {
 }
 
 void HoverTooltip(const string &in msg) {
-    if (!UI::IsItemHovered())
+    if (!UI::IsItemHovered(UI::HoveredFlags::AllowWhenDisabled))
         return;
 
     UI::BeginTooltip();
-        UI::Text(msg);
+    UI::Text(msg);
     UI::EndTooltip();
 }
 

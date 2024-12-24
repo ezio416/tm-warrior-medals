@@ -1,5 +1,7 @@
 // c 2024-07-17
-// m 2024-10-23
+// m 2024-12-23
+
+[Setting hidden] bool S_ShowWeeklyPreview        = true;
 
 [Setting hidden] vec3 S_ColorFall                = vec3(1.0f, 0.5f, 0.0f);
 [Setting hidden] vec3 S_ColorSpring              = vec3(0.3f, 0.9f, 0.3f);
@@ -49,6 +51,7 @@ void Settings_General() {
         plugin.GetSetting("S_MainWindowTmioLinks").Reset();
         plugin.GetSetting("S_MainWindowCampRefresh").Reset();
         plugin.GetSetting("S_MainWindowPercentages").Reset();
+        plugin.GetSetting("S_ShowWeeklyPreview").Reset();
     }
 
     S_MainWindowDetached = UI::Checkbox(
@@ -89,6 +92,11 @@ void Settings_General() {
     S_MainWindowPercentages = UI::Checkbox(
         "Show percentages",
         S_MainWindowPercentages
+    );
+
+    S_ShowWeeklyPreview = UI::Checkbox(
+        "Show fake Weekly Shorts tab",
+        S_ShowWeeklyPreview
     );
 
     UI::Separator();
@@ -382,7 +390,7 @@ void Settings_Debug() {
 
 [SettingsTab name="Warrior Medals" icon="Circle" order=3]
 void Settings_MainWindow() {
-    MainWindow();
+    MainWindow(true);
 }
 
 void HoverTooltipSetting(const string &in msg, const string &in color = "666") {
