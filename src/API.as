@@ -1,13 +1,14 @@
 // c 2024-07-18
-// m 2024-10-23
+// m 2024-12-24
 
 namespace API {
-    const string baseUrl = "https://e416.dev/api";
-    bool         getting = false;
-    dictionary@  missing = dictionary();
+    const string baseUrl        = "https://e416.dev/api";
+    bool         feedbackShorts = false;
+    dictionary@  missing        = dictionary();
+    bool         requesting     = false;
 
     Net::HttpRequest@ GetAsync(const string &in url, bool start = true) {
-        getting = true;
+        requesting = true;
 
         if (start) {
             Net::HttpRequest@ req = Net::HttpGet(url);
@@ -15,7 +16,7 @@ namespace API {
             while (!req.Finished())
                 yield();
 
-            getting = false;
+            requesting = false;
             return req;
         }
 
@@ -23,12 +24,12 @@ namespace API {
         req.Method = Net::HttpMethod::Get;
         req.Url = url;
 
-        getting = false;
+        requesting = false;
         return req;
     }
 
     Net::HttpRequest@ GetEdevAsync(const string &in endpoint, bool start = true) {
-        while (getting)
+        while (requesting)
             yield();
 
         return GetAsync(baseUrl + endpoint, start);
@@ -37,10 +38,22 @@ namespace API {
     void CheckVersionAsync() {
         Net::HttpRequest@ req = GetEdevAsync("/tm/warrior/plugin-version");
 
-        if (req.ResponseCode() == 426) {
-            const string msg = "Please update through the Plugin Manager at the top. Your plugin version will soon be unsupported!";
-            warn(msg);
-            UI::ShowNotification(title, msg, vec4(colorVec * 0.5f, 1.0f), 10000);
+        const int code = req.ResponseCode();
+        switch (code) {
+            case 200:
+                if (req.String().Contains("feedback-shorts"))
+                    feedbackShorts = true;
+                break;
+
+            case 426: {
+                const string msg = "Please update through the Plugin Manager at the top. Your plugin version will soon be unsupported!";
+                warn(msg);
+                UI::ShowNotification(title, msg, vec4(colorVec * 0.5f, 1.0f), 10000);
+                break;
+            }
+
+            default:
+                warn("something went wrong checking the plugin version: " + code + " " + req.String());
         }
     }
 
@@ -155,6 +168,90 @@ namespace API {
         } else {
             warn("map info not found for " + uid + " after " + (Time::Now - start) + "ms");
             missing[uid] = Time::Stamp + 600;  // wait 10 minutes to check map again
+        }
+    }
+
+    Net::HttpRequest@ PostAsync(const string &in url, const string &in body = "", const string &in contentType = "application/json", bool start = true) {
+        requesting = true;
+
+        if (start) {
+            Net::HttpRequest@ req = Net::HttpPost(url, body, contentType);
+
+            while (!req.Finished())
+                yield();
+
+            requesting = false;
+            return req;
+        }
+
+        Net::HttpRequest@ req = Net::HttpRequest();
+        req.Method = Net::HttpMethod::Post;
+        req.Url = url;
+        req.Body = body;
+
+        requesting = false;
+        return req;
+    }
+
+    Net::HttpRequest@ PostAsync(const string &in url, Json::Value@ body = null, const string &in contentType = "application/json", bool start = true) {
+        return PostAsync(url, Json::Write(body), contentType, start);
+    }
+
+    Net::HttpRequest@ PostEdevAsync(const string &in endpoint, const string &in body = "", bool start = true) {
+        while (requesting)
+            yield();
+
+        return PostAsync(baseUrl + endpoint, body, start:start);
+    }
+
+    Net::HttpRequest@ PostEdevAsync(const string &in endpoint, Json::Value@ body = null, bool start = true) {
+        return PostEdevAsync(endpoint, Json::Write(body), start);
+    }
+
+    bool SendFeedbackAsync(const string &in subject, const string &in message, bool anonymous = false) {
+        if (subject.Length > 1000 || message.Length > 10000) {
+            warn("shorten your subject or message.");
+            return false;
+        }
+
+        Json::Value@ body = Json::Object();
+        body["subject"] = subject;
+        body["message"] = message;
+
+        if (InMap())
+            body["mapUid"] = GetApp().RootMap.EdChallengeId;
+
+        CTrackMania@ App = cast<CTrackMania@>(GetApp());
+
+        if (!anonymous && App.LocalPlayerInfo !is null)
+            body["accountId"] = App.LocalPlayerInfo.WebServicesUserId;
+
+        if (App.SystemPlatform !is null) {
+            body["exeVersion"] = App.SystemPlatform.ExeVersion;
+            body["opVersion"] = App.SystemPlatform.ExtraTool_Info;
+        }
+
+        Net::HttpRequest@ req = PostEdevAsync("/tm/warrior/feedback", body);
+
+        const int code = req.ResponseCode();
+        switch (code) {
+            case 200:
+                print(Icons::InfoCircle + " sent: " + req.Body);
+                return true;
+
+            case 429: {
+                const string msg = "You've sent enough feedback for today.";
+                warn(msg);
+                UI::ShowNotification(title, msg, vec4(1.0f, 0.6f, 0.0f, 0.8f));
+                feedbackLocked = true;
+                return false;
+            }
+
+            default:
+                warn(Icons::ExclamationTriangle + " failed (" + code + "), can't send: " + Json::Write(body));
+                warn(req.String());
+                UI::ShowNotification(title, "Something went wrong, check the log!", vec4(1.0f, 0.3f, 0.0f, 0.8f));
+                return false;
         }
     }
 

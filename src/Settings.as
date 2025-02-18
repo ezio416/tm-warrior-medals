@@ -1,5 +1,7 @@
 // c 2024-07-17
-// m 2024-10-23
+// m 2024-12-24
+
+[Setting hidden] bool S_ShowWeeklyPreview        = true;
 
 [Setting hidden] vec3 S_ColorFall                = vec3(1.0f, 0.5f, 0.0f);
 [Setting hidden] vec3 S_ColorSpring              = vec3(0.3f, 0.9f, 0.3f);
@@ -26,6 +28,8 @@
 [Setting hidden] bool S_UIMedalBanner            = true;
 [Setting hidden] bool S_UIMedalEnd               = true;
 [Setting hidden] bool S_UIMedalPause             = true;
+[Setting hidden] bool S_UIMedalsAlwaysMenu       = false;
+[Setting hidden] bool S_UIMedalsAlwaysPlayground = false;
 [Setting hidden] bool S_UIMedalsClubCampaign     = true;
 [Setting hidden] bool S_UIMedalsLiveCampaign     = true;
 [Setting hidden] bool S_UIMedalsLiveTotd         = false;
@@ -49,6 +53,7 @@ void Settings_General() {
         plugin.GetSetting("S_MainWindowTmioLinks").Reset();
         plugin.GetSetting("S_MainWindowCampRefresh").Reset();
         plugin.GetSetting("S_MainWindowPercentages").Reset();
+        plugin.GetSetting("S_ShowWeeklyPreview").Reset();
     }
 
     S_MainWindowDetached = UI::Checkbox(
@@ -89,6 +94,11 @@ void Settings_General() {
     S_MainWindowPercentages = UI::Checkbox(
         "Show percentages",
         S_MainWindowPercentages
+    );
+
+    S_ShowWeeklyPreview = UI::Checkbox(
+        "Show fake Weekly Shorts tab",
+        S_ShowWeeklyPreview
     );
 
     UI::Separator();
@@ -233,6 +243,21 @@ void Settings_MedalsInUI() {
         S_UIMedalPause  = UI::Checkbox("Pause menu",    S_UIMedalPause);
         S_UIMedalEnd    = UI::Checkbox("End menu",      S_UIMedalEnd);
         HoverTooltipSetting("Only shows in solo");
+
+        UI::Separator();
+
+        UI::PushFont(fontHeader);
+        UI::Text("Debug");
+        UI::PopFont();
+
+        if (UI::Button("Reset to default##ui-debug")) {
+            Meta::Plugin@ plugin = Meta::ExecutingPlugin();
+            plugin.GetSetting("S_UIMedalsAlwaysMenu").Reset();
+            plugin.GetSetting("S_UIMedalsAlwaysPlayground").Reset();
+        }
+
+        S_UIMedalsAlwaysMenu       = UI::Checkbox("Always show in menu",       S_UIMedalsAlwaysMenu);
+        S_UIMedalsAlwaysPlayground = UI::Checkbox("Always show in playground", S_UIMedalsAlwaysPlayground);
     }
 }
 
@@ -382,7 +407,7 @@ void Settings_Debug() {
 
 [SettingsTab name="Warrior Medals" icon="Circle" order=3]
 void Settings_MainWindow() {
-    MainWindow();
+    MainWindow(true);
 }
 
 void HoverTooltipSetting(const string &in msg, const string &in color = "666") {

@@ -1,17 +1,17 @@
 // c 2024-07-24
-// m 2024-10-23
+// m 2024-12-24
 
 [Setting hidden]
 bool getAllClicked = false;
 
-void MainWindow() {
+void MainWindow(bool settings = false) {
     UI::PushStyleColor(UI::Col::Button,        vec4(colorVec * 0.8f, 1.0f));
     UI::PushStyleColor(UI::Col::ButtonActive,  vec4(colorVec * 0.6f, 1.0f));
     UI::PushStyleColor(UI::Col::ButtonHovered, vec4(colorVec,        1.0f));
 
     if (UI::BeginTable("##table-main-header", 2, UI::TableFlags::SizingStretchProp)) {
         UI::TableSetupColumn("total",   UI::TableColumnFlags::WidthStretch);
-        UI::TableSetupColumn("refresh", UI::TableColumnFlags::WidthFixed);
+        UI::TableSetupColumn("buttons", UI::TableColumnFlags::WidthFixed);
 
         UI::TableNextRow();
 
@@ -32,7 +32,16 @@ void MainWindow() {
         UI::PopFont();
         UI::TableNextColumn();
 
-        UI::BeginDisabled(API::getting);
+        UI::BeginDisabled(feedbackShown);
+        UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
+        if (UI::Button(Icons::Envelope))
+            feedbackShown = true;
+        UI::PopStyleColor();
+        UI::EndDisabled();
+        HoverTooltip("Send feedback to the plugin author (Ezio)");
+
+        UI::SameLine();
+        UI::BeginDisabled(API::requesting);
         UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
         if (UI::Button(Icons::Refresh))
             startnew(API::GetAllMapInfosAsync);
@@ -75,6 +84,7 @@ void MainWindow() {
 
     UI::BeginTabBar("##tab-bar");
     Tab_Seasonal();
+    Tab_Weekly(settings);
     Tab_Totd();
     Tab_Other();
     UI::EndTabBar();
@@ -437,5 +447,81 @@ void Tab_Totd() {
 
     UI::EndTabBar();
 
+    UI::EndTabItem();
+}
+
+vec4 kekwColor  = vec4(1.0f);
+uint kekwCycle  = 5000;
+bool kekwStatic = false;
+
+void Tab_Weekly(bool settings = false) {
+    if (false
+        || !S_ShowWeeklyPreview
+        || fontMonoTiny is null
+        || kekw.Length == 0
+        || !UI::BeginTabItem(Icons::ClockO + " Weekly Shorts")
+    )
+        return;
+
+    UI::BeginGroup();
+
+    UI::PushFont(fontMonoTiny);
+    UI::PushStyleColor(
+        UI::Col::Text,
+        kekwStatic
+            ? kekwColor
+            : UI::HSV(GayHue(kekwCycle, reverse:true), 1.0f, 1.0f)
+    );
+    UI::Text(kekw);
+    UI::PopStyleColor();
+    UI::PopFont();
+
+    kekwStatic = UI::Checkbox("static", kekwStatic);
+
+    UI::SameLine();
+    UI::SetNextItemWidth(scale * 312.0f);
+    if (kekwStatic)
+        kekwColor = UI::InputColor4("##input-kekw-color", kekwColor);
+    else
+        kekwCycle = UI::SliderInt("##input-kekw-cycle", kekwCycle, 100, 15000, "%dms");
+
+    UI::EndGroup();
+
+    if (settings)
+        UI::SameLine();
+
+    UI::BeginGroup();
+
+    UI::TextWrapped(
+        "Get pranked, bozo! Support for Weekly Shorts will come in early 2025.\n"
+        + "Medals will be released as soon as possible when leaderboards are\n"
+        + "revealed every Sunday, but some things still need to be decided first."
+    );
+
+    if (API::feedbackShorts) {
+        UI::TextWrapped(
+"""
+For this, I actually want your opinion! Specifically:
+
+    - \$3CFMedal difficulty\$G
+        - 1/8 between AT and WR like TOTDs?
+        - 1/4 like campaigns?
+        - 1/2 just for the lolz?
+
+    - \$FF0Hylis maps\$G
+        - treat these differently from future community-made maps?
+
+You can click the envelope at the top to send me a message :)
+""");
+    } else
+        UI::TextWrapped("I appreciate your patience " + Icons::SmileO);
+
+    UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
+    if (UI::Button("Hide this tab until support is actually here"))
+        S_ShowWeeklyPreview = false;
+    UI::PopStyleColor();
+    HoverTooltip("\\$I\\$888sorry for the prank, I love you " + Icons::Heartbeat);
+
+    UI::EndGroup();
     UI::EndTabItem();
 }

@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2024-10-23
+// m 2024-12-23
 
 Campaign@     activeOtherCampaign;
 Campaign@     activeSeasonalCampaign;
@@ -10,11 +10,13 @@ Campaign@[]   campaignsArr;
 const string  colorStr          = "\\$3CF";
 const vec3    colorVec          = vec3(0.2f, 0.8f, 1.0f);
 UI::Font@     fontHeader;
+UI::Font@     fontMonoTiny;
 UI::Font@     fontSubHeader;
 bool          hasPlayPermission = false;
 nvg::Texture@ iconUI;
 UI::Texture@  icon32;
 UI::Texture@  icon512;
+string        kekw;
 bool          loading           = false;
 dictionary@   maps              = dictionary();
 const float   scale             = UI::GetScale();
@@ -40,8 +42,12 @@ void Main() {
 
     yield();
 
-    @fontSubHeader = UI::LoadFont("DroidSans.ttf", 20);
-    @fontHeader    = UI::LoadFont("DroidSans.ttf", 26);
+    @fontSubHeader = UI::LoadFont("DroidSans.ttf", 20.0f);
+    @fontHeader    = UI::LoadFont("DroidSans.ttf", 26.0f);
+    @fontMonoTiny  = UI::LoadFont("DroidSansMono.ttf", 5.0f);
+
+    IO::FileSource file2("assets/kekw.txt");
+    kekw = file2.ReadToEnd();
 
     startnew(PBLoop);
 
@@ -77,6 +83,7 @@ void Render() {
 
     MainWindowDetached();
     MedalWindow();
+    FeedbackWindow();
 }
 
 void RenderEarly() {
