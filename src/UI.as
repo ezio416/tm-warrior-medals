@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2024-12-24
+// m 2025-02-18
 
 uint FrameConfirmQuit = 0;
 const float stdRatio = 16.0f / 9.0f;
@@ -16,11 +16,13 @@ void DrawOverUI() {
         || !S_UIMedals
         || iconUI is null
         || (true
+            && !S_UIMedalsSoloMenu
             && !S_UIMedalsSeasonalCampaign
             && !S_UIMedalsLiveCampaign
             && !S_UIMedalsTotd
             && !S_UIMedalsClubCampaign
-            && !S_UIMedalsTraining
+            // && !S_UIMedalsTraining
+            && !S_UIMedalsWeekly
             && !S_UIMedalBanner
             && !S_UIMedalStart
             && !S_UIMedalPause
@@ -205,15 +207,19 @@ void DrawOverUI() {
     CGameManialinkPage@ LiveCampaign;
     // CGameManialinkPage@ LiveTotd;
     CGameManialinkPage@ Totd;
-    CGameManialinkPage@ Training;
+    // CGameManialinkPage@ Training;
 
     for (uint i = 0; i < Title.UILayers.Length; i++) {
         if (true
-            && !(Campaign     is null && (S_UIMedalsSeasonalCampaign || S_UIMedalsClubCampaign))
+            && !(Campaign     is null && (false
+                || S_UIMedalsSeasonalCampaign
+                || S_UIMedalsClubCampaign
+                || S_UIMedalsWeekly
+            ))
             && !(LiveCampaign is null && S_UIMedalsLiveCampaign)
             && !(Totd         is null && S_UIMedalsTotd)
             // && !(LiveTotd     is null && S_UIMedalsLiveTotd)
-            && !(Training     is null && S_UIMedalsTraining)
+            // && !(Training     is null && S_UIMedalsTraining)
         )
             break;
 
@@ -245,7 +251,11 @@ void DrawOverUI() {
         // }
 
         if (true
-            && (S_UIMedalsSeasonalCampaign || S_UIMedalsClubCampaign)
+            && (false
+                || S_UIMedalsSeasonalCampaign
+                || S_UIMedalsClubCampaign
+                || S_UIMedalsWeekly
+            )
             && Campaign is null
             && pageName.StartsWith("Page_CampaignDisplay")
         ) {
@@ -262,14 +272,14 @@ void DrawOverUI() {
             continue;
         }
 
-        if (true
-            && S_UIMedalsTraining
-            && Training is null
-            && pageName.StartsWith("Page_TrainingDisplay")
-        ) {
-            @Training = Layer.LocalPage;
-            continue;
-        }
+        // if (true
+        //     && S_UIMedalsTraining
+        //     && Training is null
+        //     && pageName.StartsWith("Page_TrainingDisplay")
+        // ) {
+        //     @Training = Layer.LocalPage;
+        //     continue;
+        // }
 
         if (true
             && S_UIMedalsLiveCampaign
@@ -285,24 +295,25 @@ void DrawOverUI() {
     DrawOverLiveCampaignPage(LiveCampaign);
     // DrawOverLiveTotdPage(LiveTotd);
     DrawOverTotdPage(Totd);
-    DrawOverTrainingPage(Training);
+    // DrawOverTrainingPage(Training);
 }
 
 void DrawCampaign(CGameManialinkFrame@ Maps, const string &in uid, bool club = false) {
     if (Maps is null || uid.Length == 0)
         return;
 
-    int8[] indicesToShow;
     Campaign@ campaign = GetCampaign(uid);
-    if (campaign !is null) {
-        for (uint i = 0; i < campaign.mapsArr.Length; i++) {
-            WarriorMedals::Map@ map = campaign.mapsArr[i];
-            if (map is null)
-                continue;
+    if (campaign is null)
+        return;
 
-            if (map.hasWarrior || S_UIMedalsAlwaysMenu)
-                indicesToShow.InsertLast(map.index);
-        }
+    int8[] indicesToShow;
+    for (uint i = 0; i < campaign.mapsArr.Length; i++) {
+        WarriorMedals::Map@ map = campaign.mapsArr[i];
+        if (map is null)
+            continue;
+
+        if (map.hasWarrior || S_UIMedalsAlwaysMenu)
+            indicesToShow.InsertLast(map.index);
     }
 
     for (uint i = 0; i < Maps.Controls.Length; i++) {
@@ -344,6 +355,63 @@ void DrawOverCampaignPage(CGameManialinkPage@ Page) {
     CGameManialinkLabel@ CampaignLabel = cast<CGameManialinkLabel@>(Page.GetFirstChild("label-title"));
     if (CampaignLabel !is null)
         campaignName = CampaignLabel.Value;
+
+    if (campaignName.StartsWith("\u0091Week %1\u0091")) {
+        if (!S_UIMedalsWeekly)
+            return;
+
+        uint week = 0;
+        if (!Text::TryParseUInt(campaignName.SubStr(11), week))
+            return;
+
+        Campaign@ campaign = GetCampaign(CampaignUid("week " + week));
+        if (campaign is null)
+            return;
+
+        int8[] indicesToShow;
+        for (uint i = 0; i < campaign.mapsArr.Length; i++) {
+            WarriorMedals::Map@ map = campaign.mapsArr[i];
+            if (map is null)
+                continue;
+
+            if (map.hasWarrior || S_UIMedalsAlwaysMenu)
+                indicesToShow.InsertLast(map.index);
+        }
+
+        CGameManialinkFrame@ Maps = cast<CGameManialinkFrame>(Page.GetFirstChild("frame-short-maps"));
+        if (Maps is null)
+            return;
+
+        for (uint i = 0; i < Maps.Controls.Length; i++) {
+            if (indicesToShow.Length == 0)
+                break;
+
+            if (indicesToShow.Find(i) == -1)
+                continue;
+
+            CGameManialinkFrame@ Map = cast<CGameManialinkFrame@>(Maps.Controls[i]);
+            if (Map is null || !Map.Visible)
+                continue;
+
+            CGameManialinkFrame@ MedalStack = cast<CGameManialinkFrame@>(Map.GetFirstChild("frame-medal-stack"));
+            if (MedalStack is null || !MedalStack.Visible)
+                continue;
+
+            const float w      = Math::Max(1, Draw::GetWidth());
+            const float h      = Math::Max(1, Draw::GetHeight());
+            const vec2  center = vec2(w * 0.5f, h * 0.5f);
+            const float unit   = (w / h < stdRatio) ? w / 320.0f : h / 180.0f;
+            const vec2  scale  = vec2(unit, -unit);
+            const vec2  offset = vec2(2.0f, -72.15f);
+            const vec2  coords = center + offset + scale * MedalStack.AbsolutePosition_V3;
+
+            nvg::BeginPath();
+            nvg::FillPaint(nvg::TexturePattern(coords, vec2(unit * 12.05f), 0.0f, iconUI, 1.0f));
+            nvg::Fill();
+        }
+
+        return;
+    }
 
     string clubName;
     CGameManialinkFrame@ ClubLink = cast<CGameManialinkFrame@>(Page.GetFirstChild("button-club"));

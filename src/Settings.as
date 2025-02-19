@@ -32,9 +32,11 @@
 [Setting hidden] bool S_UIMedalsLiveCampaign     = true;
 [Setting hidden] bool S_UIMedalsLiveTotd         = false;
 [Setting hidden] bool S_UIMedalsSeasonalCampaign = true;
+[Setting hidden] bool S_UIMedalsSoloMenu         = true;
 [Setting hidden] bool S_UIMedalStart             = true;
 [Setting hidden] bool S_UIMedalsTotd             = true;
 [Setting hidden] bool S_UIMedalsTraining         = true;
+[Setting hidden] bool S_UIMedalsWeekly           = true;
 
 [SettingsTab name="General" icon="Cogs"]
 void Settings_General() {
@@ -197,14 +199,18 @@ void Settings_MedalsInUI() {
 
         if (UI::Button("Reset to default##menu")) {
             Meta::Plugin@ plugin = Meta::ExecutingPlugin();
+            plugin.GetSetting("S_UIMedalsSoloMenu").Reset();
             plugin.GetSetting("S_UIMedalsSeasonalCampaign").Reset();
             plugin.GetSetting("S_UIMedalsLiveCampaign").Reset();
             plugin.GetSetting("S_UIMedalsClubCampaign").Reset();
             plugin.GetSetting("S_UIMedalsTotd").Reset();
             // plugin.GetSetting("S_UIMedalsLiveTotd").Reset();
-            plugin.GetSetting("S_UIMedalsTraining").Reset();
+            // plugin.GetSetting("S_UIMedalsTraining").Reset();
+            plugin.GetSetting("S_UIMedalsWeekly").Reset();
         }
 
+        S_UIMedalsSoloMenu         = UI::Checkbox("Solo menu",                S_UIMedalsSoloMenu);
+        HoverTooltipSetting("Single medal stack over campaign and TOTD in the main solo menu");
         S_UIMedalsSeasonalCampaign = UI::Checkbox("Seasonal campaign",        S_UIMedalsSeasonalCampaign);
         S_UIMedalsLiveCampaign     = UI::Checkbox("Seasonal campaign (live)", S_UIMedalsLiveCampaign);
         HoverTooltipSetting("In the arcade");
@@ -212,7 +218,8 @@ void Settings_MedalsInUI() {
         // S_UIMedalsLiveTotd         = UI::Checkbox("Track of the Day (live)",  S_UIMedalsLiveTotd);
         S_UIMedalsClubCampaign     = UI::Checkbox("Club campaign",            S_UIMedalsClubCampaign);
         HoverTooltipSetting("May be inaccurate if a club or campaign's name is changed");
-        S_UIMedalsTraining         = UI::Checkbox("Training",                 S_UIMedalsTraining);
+        // S_UIMedalsTraining         = UI::Checkbox("Training",                 S_UIMedalsTraining);
+        S_UIMedalsWeekly           = UI::Checkbox("Weekly Shorts",            S_UIMedalsWeekly);
 
         UI::Separator();
 
