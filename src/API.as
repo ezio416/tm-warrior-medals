@@ -1,8 +1,9 @@
 // c 2024-07-18
-// m 2024-12-24
+// m 2025-02-18
 
 namespace API {
-    const string baseUrl        = "https://e416.dev/api";
+    // const string baseUrl        = "https://e416.dev/api";
+    const string baseUrl        = "http://10.0.0.178:5000/api2";
     bool         feedbackShorts = false;
     dictionary@  missing        = dictionary();
     bool         requesting     = false;
@@ -41,8 +42,6 @@ namespace API {
         const int code = req.ResponseCode();
         switch (code) {
             case 200:
-                if (req.String().Contains("feedback-shorts"))
-                    feedbackShorts = true;
                 break;
 
             case 426: {
@@ -79,12 +78,18 @@ namespace API {
 
         yield();
 
-        string[]@ uids = data.GetKeys();
-        for (uint i = 0; i < uids.Length; i++) {
-            const string uid = uids[i];
+        string[]@ types = data.GetKeys();
+        for (uint i = 0; i < types.Length; i++) {
+            Json::Value@ section = data.Get(types[i]);
+            if (!WarriorMedals::CheckJsonType(section, Json::Type::Array, "section-" + i)) {
+                error("getting all map infos failed after " + (Time::Now - start) + "ms");
+                return;
+            }
 
-            WarriorMedals::Map@ map = WarriorMedals::Map(data[uid]);
-            maps[uid] = @map;
+            for (uint j = 0; j < section.Length; j++) {
+                WarriorMedals::Map@ map = WarriorMedals::Map(section[j], types[i]);
+                maps[map.uid] = @map;
+            }
         }
 
         trace("got all map infos after " + (Time::Now - start) + "ms");

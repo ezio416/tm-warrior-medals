@@ -4,6 +4,7 @@
 Campaign@     activeOtherCampaign;
 Campaign@     activeSeasonalCampaign;
 Campaign@     activeTotdMonth;
+Campaign@     activeWeeklyWeek;
 Json::Value@  campaignIndices;
 dictionary@   campaigns         = dictionary();
 Campaign@[]   campaignsArr;

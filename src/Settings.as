@@ -1,7 +1,5 @@
 // c 2024-07-17
-// m 2024-12-24
-
-[Setting hidden] bool S_ShowWeeklyPreview        = true;
+// m 2025-02-18
 
 [Setting hidden] vec3 S_ColorFall                = vec3(1.0f, 0.5f, 0.0f);
 [Setting hidden] vec3 S_ColorSpring              = vec3(0.3f, 0.9f, 0.3f);
@@ -53,7 +51,6 @@ void Settings_General() {
         plugin.GetSetting("S_MainWindowTmioLinks").Reset();
         plugin.GetSetting("S_MainWindowCampRefresh").Reset();
         plugin.GetSetting("S_MainWindowPercentages").Reset();
-        plugin.GetSetting("S_ShowWeeklyPreview").Reset();
     }
 
     S_MainWindowDetached = UI::Checkbox(
@@ -94,11 +91,6 @@ void Settings_General() {
     S_MainWindowPercentages = UI::Checkbox(
         "Show percentages",
         S_MainWindowPercentages
-    );
-
-    S_ShowWeeklyPreview = UI::Checkbox(
-        "Show fake Weekly Shorts tab",
-        S_ShowWeeklyPreview
     );
 
     UI::Separator();
@@ -289,7 +281,7 @@ void Settings_Debug() {
 
         UI::Text("campaigns: " + uids.Length);
 
-        if (UI::BeginTable("##table-campaigns", 5, UI::TableFlags::RowBg | UI::TableFlags::ScrollY)) {
+        if (UI::BeginTable("##table-campaigns", 8, UI::TableFlags::RowBg | UI::TableFlags::ScrollY)) {
             UI::PushStyleColor(UI::Col::TableRowBgAlt, vec4(0.0f, 0.0f, 0.0f, 0.5f));
 
             UI::TableSetupScrollFreeze(0, 1);
@@ -298,6 +290,9 @@ void Settings_Debug() {
             UI::TableSetupColumn("clubName", UI::TableColumnFlags::WidthFixed, scale * 230.0f);
             UI::TableSetupColumn("id",       UI::TableColumnFlags::WidthFixed, scale * 50.0f);
             UI::TableSetupColumn("name",     UI::TableColumnFlags::WidthFixed, scale * 230.0f);
+            UI::TableSetupColumn("year",     UI::TableColumnFlags::WidthFixed, scale * 80.0f);
+            UI::TableSetupColumn("month",    UI::TableColumnFlags::WidthFixed, scale * 80.0f);
+            UI::TableSetupColumn("week",     UI::TableColumnFlags::WidthFixed, scale * 80.0f);
             UI::TableHeadersRow();
 
             UI::ListClipper clipper(uids.Length);
@@ -321,6 +316,15 @@ void Settings_Debug() {
 
                     UI::TableNextColumn();
                     UI::Text(campaign.name);
+
+                    UI::TableNextColumn();
+                    UI::Text(tostring(campaign.year));
+
+                    UI::TableNextColumn();
+                    UI::Text(tostring(campaign.month));
+
+                    UI::TableNextColumn();
+                    UI::Text(tostring(campaign.week));
                 }
             }
 
@@ -407,7 +411,7 @@ void Settings_Debug() {
 
 [SettingsTab name="Warrior Medals" icon="Circle" order=3]
 void Settings_MainWindow() {
-    MainWindow(true);
+    MainWindow();
 }
 
 void HoverTooltipSetting(const string &in msg, const string &in color = "666") {
