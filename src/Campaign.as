@@ -264,6 +264,18 @@ void SortCampaigns() {
     if (campaignsArr.Length > 1)
         campaignsArr.Sort(function(a, b) { return a.index > b.index; });
 
+    for (uint i = 0; i < campaignsArr.Length; i++) {
+        Campaign@ campaign = campaignsArr[i];
+        if (campaign is null || campaign.type != WarriorMedals::CampaignType::TrackOfTheDay)
+            continue;
+
+        @latestTotd = campaign.mapsArr[campaign.mapsArr.Length - 1];
+        break;
+    }
+
+    if (latestTotd is null)
+        warn("couldn't find a recent TOTD");
+
     trace("sorting campaigns and maps done after " + (Time::Now - start) + "ms");
 
     @activeOtherCampaign    = null;

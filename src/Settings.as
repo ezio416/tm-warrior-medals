@@ -35,7 +35,6 @@
 [Setting hidden] bool S_UIMedalsSoloMenu         = true;
 [Setting hidden] bool S_UIMedalStart             = true;
 [Setting hidden] bool S_UIMedalsTotd             = true;
-[Setting hidden] bool S_UIMedalsTraining         = true;
 [Setting hidden] bool S_UIMedalsWeekly           = true;
 
 [SettingsTab name="General" icon="Cogs"]
@@ -205,12 +204,11 @@ void Settings_MedalsInUI() {
             plugin.GetSetting("S_UIMedalsClubCampaign").Reset();
             plugin.GetSetting("S_UIMedalsTotd").Reset();
             // plugin.GetSetting("S_UIMedalsLiveTotd").Reset();
-            // plugin.GetSetting("S_UIMedalsTraining").Reset();
             plugin.GetSetting("S_UIMedalsWeekly").Reset();
         }
 
         S_UIMedalsSoloMenu         = UI::Checkbox("Solo menu",                S_UIMedalsSoloMenu);
-        HoverTooltipSetting("Single medal stack over campaign and TOTD in the main solo menu");
+        HoverTooltipSetting("Shown on top of the Campaign and Track of the Day tiles");
         S_UIMedalsSeasonalCampaign = UI::Checkbox("Seasonal campaign",        S_UIMedalsSeasonalCampaign);
         S_UIMedalsLiveCampaign     = UI::Checkbox("Seasonal campaign (live)", S_UIMedalsLiveCampaign);
         HoverTooltipSetting("In the arcade");
@@ -218,7 +216,6 @@ void Settings_MedalsInUI() {
         // S_UIMedalsLiveTotd         = UI::Checkbox("Track of the Day (live)",  S_UIMedalsLiveTotd);
         S_UIMedalsClubCampaign     = UI::Checkbox("Club campaign",            S_UIMedalsClubCampaign);
         HoverTooltipSetting("May be inaccurate if a club or campaign's name is changed");
-        // S_UIMedalsTraining         = UI::Checkbox("Training",                 S_UIMedalsTraining);
         S_UIMedalsWeekly           = UI::Checkbox("Weekly Shorts",            S_UIMedalsWeekly);
 
         UI::Separator();
@@ -288,7 +285,7 @@ void Settings_Debug() {
 
         UI::Text("campaigns: " + uids.Length);
 
-        if (UI::BeginTable("##table-campaigns", 8, UI::TableFlags::RowBg | UI::TableFlags::ScrollY)) {
+        if (UI::BeginTable("##table-campaigns", 9, UI::TableFlags::RowBg | UI::TableFlags::ScrollY)) {
             UI::PushStyleColor(UI::Col::TableRowBgAlt, vec4(0.0f, 0.0f, 0.0f, 0.5f));
 
             UI::TableSetupScrollFreeze(0, 1);
@@ -296,6 +293,7 @@ void Settings_Debug() {
             UI::TableSetupColumn("clubId",   UI::TableColumnFlags::WidthFixed, scale * 50.0f);
             UI::TableSetupColumn("clubName", UI::TableColumnFlags::WidthFixed, scale * 230.0f);
             UI::TableSetupColumn("id",       UI::TableColumnFlags::WidthFixed, scale * 50.0f);
+            UI::TableSetupColumn("index",    UI::TableColumnFlags::WidthFixed, scale * 50.0f);
             UI::TableSetupColumn("name",     UI::TableColumnFlags::WidthFixed, scale * 230.0f);
             UI::TableSetupColumn("year",     UI::TableColumnFlags::WidthFixed, scale * 80.0f);
             UI::TableSetupColumn("month",    UI::TableColumnFlags::WidthFixed, scale * 80.0f);
@@ -320,6 +318,9 @@ void Settings_Debug() {
 
                     UI::TableNextColumn();
                     UI::Text(tostring(campaign.id));
+
+                    UI::TableNextColumn();
+                    UI::Text(tostring(campaign.index));
 
                     UI::TableNextColumn();
                     UI::Text(campaign.name);
