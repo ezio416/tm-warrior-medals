@@ -1,5 +1,5 @@
 // c 2024-07-24
-// m 2025-02-18
+// m 2025-02-20
 
 void MainWindow() {
     UI::PushStyleColor(UI::Col::Button,        vec4(colorVec * 0.8f, 1.0f));
@@ -306,7 +306,7 @@ void Tab_Other() {
                     UI::SameLine();
 
                 UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-                if (UI::Button(campaign.nameStripped + "###button-" + campaign.uid, vec2(scale * unofficialCampaignMaxLength * 0.9f, scale * 25.0f))) {
+                if (UI::Button(campaign.nameStripped + "###button-" + campaign.uid, vec2(unofficialCampaignMaxLength + scale * 15.0f, scale * 25.0f))) {
                     @activeOtherCampaign = @campaign;
                     selected = true;
                 }
