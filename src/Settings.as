@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-02-18
+// m 2025-02-20
 
 [Setting hidden] vec3 S_ColorFall                = vec3(1.0f, 0.5f, 0.0f);
 [Setting hidden] vec3 S_ColorSpring              = vec3(0.3f, 0.9f, 0.3f);
@@ -12,6 +12,7 @@
 [Setting hidden] bool S_MainWindowDetached       = false;
 [Setting hidden] bool S_MainWindowHideWithGame   = true;
 [Setting hidden] bool S_MainWindowHideWithOP     = true;
+[Setting hidden] bool S_MainWindowOldestFirst    = false;
 [Setting hidden] bool S_MainWindowPercentages    = true;
 [Setting hidden] bool S_MainWindowTmioLinks      = true;
 
@@ -55,6 +56,7 @@ void Settings_General() {
         plugin.GetSetting("S_MainWindowTmioLinks").Reset();
         plugin.GetSetting("S_MainWindowCampRefresh").Reset();
         plugin.GetSetting("S_MainWindowPercentages").Reset();
+        plugin.GetSetting("S_MainWindowOldestFirst").Reset();
     }
 
     S_MainWindowDetached = UI::Checkbox(
@@ -96,6 +98,12 @@ void Settings_General() {
         "Show percentages",
         S_MainWindowPercentages
     );
+
+    S_MainWindowOldestFirst = UI::Checkbox(
+        "Sort campaigns oldest to newest",
+        S_MainWindowOldestFirst
+    );
+    HoverTooltipSetting("Seasonal, Weekly Shorts, Track of the Day");
 
     UI::Separator();
 

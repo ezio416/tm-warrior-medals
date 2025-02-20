@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2025-02-18
+// m 2025-02-20
 
 class Campaign {
     int                         clubId     = -1;
@@ -275,6 +275,9 @@ void SortCampaigns() {
 
     if (latestTotd is null)
         warn("couldn't find a recent TOTD");
+
+    campaignsArrRev = campaignsArr;
+    campaignsArrRev.Reverse();
 
     trace("sorting campaigns and maps done after " + (Time::Now - start) + "ms");
 

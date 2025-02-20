@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-02-18
+// m 2025-02-20
 
 Campaign@           activeOtherCampaign;
 Campaign@           activeSeasonalCampaign;
@@ -8,6 +8,7 @@ Campaign@           activeWeeklyWeek;
 Json::Value@        campaignIndices;
 dictionary@         campaigns         = dictionary();
 Campaign@[]         campaignsArr;
+Campaign@[]         campaignsArrRev;
 const string        colorStr          = "\\$3CF";
 const vec3          colorVec          = vec3(0.2f, 0.8f, 1.0f);
 UI::Font@           fontHeader;

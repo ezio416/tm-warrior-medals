@@ -336,10 +336,11 @@ void Tab_Seasonal() {
     UI::BeginTabBar("##tab-bar-seasonal");
 
     if (UI::BeginTabItem(Icons::List + " List")) {
-        uint lastYear = 0;
+        int lastYear = -1;
 
-        for (uint i = 0; i < campaignsArr.Length; i++) {
-            Campaign@ campaign = campaignsArr[i];
+        Campaign@[]@ arr = S_MainWindowOldestFirst ? campaignsArrRev : campaignsArr;
+        for (uint i = 0; i < arr.Length; i++) {
+            Campaign@ campaign = arr[i];
             if (campaign is null || campaign.type != WarriorMedals::CampaignType::Seasonal)
                 continue;
 
@@ -391,20 +392,24 @@ void Tab_Totd() {
     UI::BeginTabBar("##tab-bar-totd");
 
     if (UI::BeginTabItem(Icons::List + " List")) {
-        uint lastYear = 0;
+        uint curMonthInYear = 0;
+        int  lastYear       = -1;
 
-        for (uint i = 0; i < campaignsArr.Length; i++) {
-            Campaign@ campaign = campaignsArr[i];
+        Campaign@[]@ arr = S_MainWindowOldestFirst ? campaignsArrRev : campaignsArr;
+        for (uint i = 0; i < arr.Length; i++) {
+            Campaign@ campaign = arr[i];
             if (campaign is null || campaign.type != WarriorMedals::CampaignType::TrackOfTheDay)
                 continue;
 
             if (lastYear != campaign.year) {
                 lastYear = campaign.year;
+                curMonthInYear = 0;
 
                 UI::PushFont(fontHeader);
                 UI::SeparatorText(tostring(campaign.year + 2020));
                 UI::PopFont();
-            }
+            } else if (curMonthInYear % 3 > 0)
+                UI::SameLine();
 
             bool colored = false;
             if (seasonColors.Length == 4 && campaign.colorIndex < 4) {
@@ -415,7 +420,7 @@ void Tab_Totd() {
             }
 
             UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-            if (UI::Button(campaign.name.SubStr(0, campaign.name.Length - 5) + "##" + campaign.name, vec2(scale * 100.0f, scale * 25.0f))) {
+            if (UI::Button(campaign.name.SubStr(0, campaign.name.Length - 5) + "##" + campaign.name, vec2(scale * 137.0f, scale * 25.0f))) {
                 @activeTotdMonth = @campaign;
                 selected = true;
             }
@@ -424,8 +429,7 @@ void Tab_Totd() {
             if (colored)
                 UI::PopStyleColor(3);
 
-            if ((campaign.month - 1) % 3 > 0)
-                UI::SameLine();
+            curMonthInYear++;
         }
 
         UI::EndTabItem();
@@ -449,10 +453,11 @@ void Tab_Weekly() {
 
     if (UI::BeginTabItem(Icons::List + " List")) {
         uint curWeekInYear = 0;
-        uint lastYear      = 0;
+        int  lastYear      = -1;
 
-        for (uint i = 0; i < campaignsArr.Length; i++) {
-            Campaign@ campaign = campaignsArr[i];
+        Campaign@[]@ arr = S_MainWindowOldestFirst ? campaignsArrRev : campaignsArr;
+        for (uint i = 0; i < arr.Length; i++) {
+            Campaign@ campaign = arr[i];
             if (campaign is null || campaign.type != WarriorMedals::CampaignType::Weekly)
                 continue;
 
@@ -477,7 +482,7 @@ void Tab_Weekly() {
             }
 
             UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-            if (UI::Button(campaign.name, vec2(scale * 60.0f, scale * 25.0f))) {
+            if (UI::Button(campaign.name, vec2(scale * 63.0f, scale * 25.0f))) {
                 @activeWeeklyWeek = @campaign;
                 selected = true;
             }
