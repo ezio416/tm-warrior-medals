@@ -2,10 +2,9 @@
 // m 2025-02-20
 
 namespace API {
-    // const string baseUrl        = "https://e416.dev/api";
-    const string baseUrl        = "http://10.0.0.178:5000/api2";
-    dictionary@  missing        = dictionary();
-    bool         requesting     = false;
+    const string baseUrl    = "https://e416.dev/api2";
+    dictionary@  missing    = dictionary();
+    bool         requesting = false;
 
     Net::HttpRequest@ GetAsync(const string &in url, bool start = true) {
         requesting = true;
