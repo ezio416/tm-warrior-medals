@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2025-02-18
+// m 2025-02-20
 
 uint FrameConfirmQuit = 0;
 const float stdRatio = 16.0f / 9.0f;
@@ -326,7 +326,7 @@ void DrawCampaign(CGameManialinkFrame@ Maps, const string &in uid, bool club = f
         if (Map is null || !Map.Visible)
             continue;
 
-        CGameManialinkFrame@ MedalStack = cast<CGameManialinkFrame@>(Map.GetFirstChild("frame-medal-stack"));
+        CGameManialinkFrame@ MedalStack = cast<CGameManialinkFrame@>(Map.GetFirstChild("frame-medalstack"));
         if (MedalStack is null || !MedalStack.Visible)
             continue;
 
