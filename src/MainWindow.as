@@ -163,8 +163,10 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
                 if (campaign.clubId > 0 && campaign.id > 0)
                     UI::SameLine();
 
-                if (campaign.id > 0 && UI::Button(Icons::ExternalLink + " Campaign"))
-                    OpenBrowserURL("https://trackmania.io/#/campaigns/" + campaign.clubId + "/" + campaign.id);
+                if (campaign.id > 0 && UI::Button(Icons::ExternalLink + " Campaign")) {
+                    const string clubId = campaign.type == WarriorMedals::CampaignType::Seasonal ? "seasonal" : tostring(campaign.clubId);
+                    OpenBrowserURL("https://trackmania.io/#/campaigns/" + clubId + "/" + campaign.id);
+                }
             }
             UI::PopStyleColor();
 
