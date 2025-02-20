@@ -19,11 +19,11 @@ void MainWindow() {
         UI::SameLine();
         UI::PushFont(fontHeader);
         UI::AlignTextToFramePadding();
-        UI::Text(tostring(totalHave) + " / " + total);
+        UI::Text(Shadow() + tostring(totalHave) + " / " + total);
 
         if (S_MainWindowPercentages) {
             UI::SameLine();
-            UI::Text("\\$888" + Text::Format("%.1f", float(totalHave * 100) / Math::Max(1, total)) + "%");
+            UI::Text(Shadow() + "\\$888" + Text::Format("%.1f", float(totalHave * 100) / Math::Max(1, total)) + "%");
         }
 
         UI::PopFont();
@@ -31,7 +31,7 @@ void MainWindow() {
 
         UI::BeginDisabled(feedbackShown);
         UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-        if (UI::Button(Icons::Envelope))
+        if (UI::Button(Shadow() + Icons::Envelope))
             feedbackShown = true;
         UI::PopStyleColor();
         UI::EndDisabled();
@@ -40,7 +40,7 @@ void MainWindow() {
         UI::SameLine();
         UI::BeginDisabled(API::requesting);
         UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-        if (UI::Button(Icons::Refresh))
+        if (UI::Button(Shadow() + Icons::Refresh))
             startnew(API::GetAllMapInfosAsync);
         UI::PopStyleColor();
         UI::EndDisabled();
@@ -60,7 +60,7 @@ void MainWindow() {
 
             } else {
                 UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-                if (UI::Button(Icons::CloudDownload))
+                if (UI::Button(Shadow() + Icons::CloudDownload))
                     startnew(API::Nadeo::GetAllCampaignPBsAsync);
                 UI::PopStyleColor();
 
@@ -110,7 +110,7 @@ void MainWindowDetached() {
 bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
     bool open = campaign !is null;
 
-    if (!open || !UI::BeginTabItem(campaign.nameStripped + "###tab-" + campaign.uid, open, selected ? UI::TabItemFlags::SetSelected : UI::TabItemFlags::None))
+    if (!open || !UI::BeginTabItem(Shadow() + campaign.nameStripped + "###tab-" + campaign.uid, open, selected ? UI::TabItemFlags::SetSelected : UI::TabItemFlags::None))
         return open;
 
     if (UI::BeginTable("##table-campaign-header", 2, UI::TableFlags::SizingStretchProp)) {
@@ -123,7 +123,7 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
 
         UI::TableNextColumn();
         UI::AlignTextToFramePadding();
-        UI::SeparatorText(campaign.nameStripped);
+        UI::SeparatorText(Shadow() + campaign.nameStripped);
         if (campaign.clubName.Length > 0) {
             UI::PopFont();
             HoverTooltip("from the club \"" + WarriorMedals::OpenplanetFormatCodes(campaign.clubName) + "\\$Z\"");
@@ -133,10 +133,10 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
         UI::TableNextColumn();
         UI::Image(icon32, vec2(scale * 32.0f));
         UI::SameLine();
-        UI::Text(tostring(campaign.count) + " / " + campaign.mapsArr.Length);
+        UI::Text(Shadow() + tostring(campaign.count) + " / " + campaign.mapsArr.Length);
         if (S_MainWindowPercentages) {
             UI::SameLine();
-            UI::Text("\\$888" + Text::Format("%.1f", float(campaign.count * 100) / Math::Max(1, campaign.mapsArr.Length)) + "%");
+            UI::Text(Shadow() + "\\$888" + Text::Format("%.1f", float(campaign.count * 100) / Math::Max(1, campaign.mapsArr.Length)) + "%");
         }
 
         UI::PopFont();
@@ -157,13 +157,13 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
             UI::TableNextColumn();
             UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
             if (S_MainWindowTmioLinks) {
-                if (campaign.clubId > 0 && UI::Button(Icons::ExternalLink + " Club"))
+                if (campaign.clubId > 0 && UI::Button(Shadow() + Icons::ExternalLink + " Club"))
                     OpenBrowserURL("https://trackmania.io/#/clubs/" + campaign.clubId);
 
                 if (campaign.clubId > 0 && campaign.id > 0)
                     UI::SameLine();
 
-                if (campaign.id > 0 && UI::Button(Icons::ExternalLink + " Campaign")) {
+                if (campaign.id > 0 && UI::Button(Shadow() + Icons::ExternalLink + " Campaign")) {
                     const string clubId = campaign.type == WarriorMedals::CampaignType::Seasonal ? "seasonal" : tostring(campaign.clubId);
                     OpenBrowserURL("https://trackmania.io/#/campaigns/" + clubId + "/" + campaign.id);
                 }
@@ -175,7 +175,7 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
                 UI::BeginDisabled(campaign.requesting || API::Nadeo::requesting);
 
                 UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-                if (UI::Button(Icons::CloudDownload + "##single-camp"))
+                if (UI::Button(Shadow() + Icons::CloudDownload + "##single-camp"))
                     startnew(CoroutineFunc(campaign.GetPBsAsync));
                 UI::PopStyleColor();
                 HoverTooltip("Get PBs");
@@ -210,24 +210,24 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
 
             UI::TableNextColumn();
             UI::AlignTextToFramePadding();
-            UI::Text(map.nameStripped);
+            UI::Text(Shadow() + map.nameStripped);
             if (map.campaignType == WarriorMedals::CampaignType::TrackOfTheDay)
                 HoverTooltip(map.date);
 
             UI::TableNextColumn();
-            UI::Text(Time::Format(warrior));
+            UI::Text(Shadow() + Time::Format(warrior));
 
             UI::TableNextColumn();
-            UI::Text(map.pb != uint(-1) ? Time::Format(map.pb) : "");
+            UI::Text(Shadow() + (map.pb != uint(-1) ? Time::Format(map.pb) : ""));
 
             UI::TableNextColumn();
-            UI::Text(map.pb != uint(-1) ? (map.pb <= warrior ? "\\$77F\u2212" : "\\$F77+") + Time::Format(uint(Math::Abs(map.pb - warrior))) : "");
+            UI::Text(Shadow() + (map.pb != uint(-1) ? (map.pb <= warrior ? "\\$77F\u2212" : "\\$F77+") + Time::Format(uint(Math::Abs(map.pb - warrior))) : ""));
 
             if (hasPlayPermission) {
                 UI::TableNextColumn();
                 UI::BeginDisabled(map.loading || loading);
                 UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-                if (UI::Button(Icons::Play + "##" + map.uid))
+                if (UI::Button(Shadow() + Icons::Play + "##" + map.uid))
                     startnew(PlayMapAsync, @map);
                 UI::PopStyleColor();
                 UI::EndDisabled();
@@ -247,16 +247,16 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
 }
 
 void Tab_Other() {
-    if (!UI::BeginTabItem(Icons::QuestionCircle + " Other"))
+    if (!UI::BeginTabItem(Shadow() + Icons::QuestionCircle + " Other###tab-other"))
         return;
 
     bool selected = false;
 
     UI::BeginTabBar("##tab-bar-totd");
 
-    if (UI::BeginTabItem(Icons::List + " List")) {
+    if (UI::BeginTabItem(Shadow() + Icons::List + " List")) {
         UI::PushFont(fontHeader);
-        UI::SeparatorText("Official");
+        UI::SeparatorText(Shadow() + "Official");
         UI::PopFont();
 
         uint index = 0;
@@ -282,7 +282,7 @@ void Tab_Other() {
                 UI::SameLine();
 
             UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-            if (UI::Button(campaign.nameStripped + "###button-" + campaign.uid, vec2(scale * 120.0f, scale * 25.0f))) {
+            if (UI::Button(Shadow() + campaign.nameStripped + "###button-" + campaign.uid, vec2(scale * 120.0f, scale * 25.0f))) {
                 @activeOtherCampaign = @campaign;
                 selected = true;
             }
@@ -294,7 +294,7 @@ void Tab_Other() {
             const string clubName = clubs[i];
 
             UI::PushFont(fontHeader);
-            UI::SeparatorText(WarriorMedals::StripFormatCodes(clubName));
+            UI::SeparatorText(Shadow() + WarriorMedals::StripFormatCodes(clubName));
             UI::PopFont();
 
             index = 0;
@@ -308,7 +308,7 @@ void Tab_Other() {
                     UI::SameLine();
 
                 UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-                if (UI::Button(campaign.nameStripped + "###button-" + campaign.uid, vec2(unofficialCampaignMaxLength + scale * 15.0f, scale * 25.0f))) {
+                if (UI::Button(Shadow() + campaign.nameStripped + "###button-" + campaign.uid, vec2(unofficialCampaignMaxLength + scale * 15.0f, scale * 25.0f))) {
                     @activeOtherCampaign = @campaign;
                     selected = true;
                 }
@@ -328,14 +328,14 @@ void Tab_Other() {
 }
 
 void Tab_Seasonal() {
-    if (!UI::BeginTabItem(Icons::SnowflakeO + " Seasonal"))
+    if (!UI::BeginTabItem(Shadow() + Icons::SnowflakeO + " Seasonal###tab-seasonal"))
         return;
 
     bool selected = false;
 
     UI::BeginTabBar("##tab-bar-seasonal");
 
-    if (UI::BeginTabItem(Icons::List + " List")) {
+    if (UI::BeginTabItem(Shadow() + Icons::List + " List")) {
         int lastYear = -1;
 
         Campaign@[]@ arr = S_MainWindowOldestFirst ? campaignsArrRev : campaignsArr;
@@ -348,7 +348,7 @@ void Tab_Seasonal() {
                 lastYear = campaign.year;
 
                 UI::PushFont(fontHeader);
-                UI::SeparatorText(tostring(campaign.year + 2020));
+                UI::SeparatorText(Shadow() + tostring(campaign.year + 2020));
                 UI::PopFont();
             } else
                 UI::SameLine();
@@ -362,7 +362,7 @@ void Tab_Seasonal() {
             }
 
             UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-            if (UI::Button(campaign.name.SubStr(0, campaign.name.Length - 5) + "##" + campaign.name, vec2(scale * 100.0f, scale * 25.0f))) {
+            if (UI::Button(Shadow() + campaign.name.SubStr(0, campaign.name.Length - 5) + "##" + campaign.name, vec2(scale * 100.0f, scale * 25.0f))) {
                 @activeSeasonalCampaign = @campaign;
                 selected = true;
             }
@@ -384,14 +384,14 @@ void Tab_Seasonal() {
 }
 
 void Tab_Totd() {
-    if (!UI::BeginTabItem(Icons::Calendar + " Track of the Day"))
+    if (!UI::BeginTabItem(Shadow() + Icons::Calendar + " Track of the Day###tab-totd"))
         return;
 
     bool selected = false;
 
     UI::BeginTabBar("##tab-bar-totd");
 
-    if (UI::BeginTabItem(Icons::List + " List")) {
+    if (UI::BeginTabItem(Shadow() + Icons::List + " List")) {
         uint curMonthInYear = 0;
         int  lastYear       = -1;
 
@@ -406,7 +406,7 @@ void Tab_Totd() {
                 curMonthInYear = 0;
 
                 UI::PushFont(fontHeader);
-                UI::SeparatorText(tostring(campaign.year + 2020));
+                UI::SeparatorText(Shadow() + tostring(campaign.year + 2020));
                 UI::PopFont();
             } else if (curMonthInYear % 3 > 0)
                 UI::SameLine();
@@ -420,7 +420,7 @@ void Tab_Totd() {
             }
 
             UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-            if (UI::Button(campaign.name.SubStr(0, campaign.name.Length - 5) + "##" + campaign.name, vec2(scale * 137.0f, scale * 25.0f))) {
+            if (UI::Button(Shadow() + campaign.name.SubStr(0, campaign.name.Length - 5) + "##" + campaign.name, vec2(scale * 137.0f, scale * 25.0f))) {
                 @activeTotdMonth = @campaign;
                 selected = true;
             }
@@ -444,14 +444,14 @@ void Tab_Totd() {
 }
 
 void Tab_Weekly() {
-    if (!UI::BeginTabItem(Icons::ClockO + " Weekly Shorts"))
+    if (!UI::BeginTabItem(Shadow() + Icons::ClockO + " Weekly Shorts###tab-weekly"))
         return;
 
     bool selected = false;
 
     UI::BeginTabBar("##tab-bar-weekly");
 
-    if (UI::BeginTabItem(Icons::List + " List")) {
+    if (UI::BeginTabItem(Shadow() + Icons::List + " List")) {
         uint curWeekInYear = 0;
         int  lastYear      = -1;
 
@@ -466,7 +466,7 @@ void Tab_Weekly() {
                 curWeekInYear = 0;
 
                 UI::PushFont(fontHeader);
-                UI::SeparatorText(tostring(campaign.year + 2020));
+                UI::SeparatorText(Shadow() + tostring(campaign.year + 2020));
                 UI::PopFont();
 
             } else if (curWeekInYear % 6 > 0)
@@ -482,7 +482,7 @@ void Tab_Weekly() {
             }
 
             UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-            if (UI::Button(campaign.name, vec2(scale * 63.0f, scale * 25.0f))) {
+            if (UI::Button(Shadow() + campaign.name, vec2(scale * 63.0f, scale * 25.0f))) {
                 @activeWeeklyWeek = @campaign;
                 selected = true;
             }

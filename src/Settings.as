@@ -14,6 +14,7 @@
 [Setting hidden] bool S_MainWindowHideWithOP     = true;
 [Setting hidden] bool S_MainWindowOldestFirst    = false;
 [Setting hidden] bool S_MainWindowPercentages    = true;
+[Setting hidden] bool S_MainWindowTextShadows    = true;
 [Setting hidden] bool S_MainWindowTmioLinks      = true;
 
 [Setting hidden] bool S_MedalWindow              = true;
@@ -57,6 +58,7 @@ void Settings_General() {
         plugin.GetSetting("S_MainWindowCampRefresh").Reset();
         plugin.GetSetting("S_MainWindowPercentages").Reset();
         plugin.GetSetting("S_MainWindowOldestFirst").Reset();
+        plugin.GetSetting("S_MainWindowTextShadows").Reset();
     }
 
     S_MainWindowDetached = UI::Checkbox(
@@ -104,6 +106,11 @@ void Settings_General() {
         S_MainWindowOldestFirst
     );
     HoverTooltipSetting("Seasonal, Weekly Shorts, Track of the Day");
+
+    S_MainWindowTextShadows = UI::Checkbox(
+        "Show text shadows",
+        S_MainWindowTextShadows
+    );
 
     UI::Separator();
 
@@ -441,6 +448,6 @@ void HoverTooltipSetting(const string &in msg, const string &in color = "666") {
 
     UI::SetNextWindowSize(int(Math::Min(Draw::MeasureString(msg).x, 400.0f)), 0.0f);
     UI::BeginTooltip();
-    UI::TextWrapped(msg);
+    UI::TextWrapped(Shadow() + msg);
     UI::EndTooltip();
 }
