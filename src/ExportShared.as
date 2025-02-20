@@ -1,5 +1,5 @@
 // c 2024-07-21
-// m 2025-02-18
+// m 2025-02-20
 
 /*
 Exports from the Warrior Medals plugin.
@@ -171,12 +171,12 @@ namespace WarriorMedals {
         private void set_worldRecord(uint w) { _worldRecord = w; }
 
         Map() { }
-        Map(Json::Value@ map) {  // nadeo api
+        Map(Json::Value@ map) {  // single map
             author        = uint(  map["authorTime"]);
             name          = string(map["name"]).Trim();
             nameFormatted = OpenplanetFormatCodes(name);
             nameStripped  = StripFormatCodes(name);
-            uid           = string(map["uid"]);
+            uid           = string(map["mapUid"]);
             warrior       = uint(  map["warriorTime"]);
             worldRecord   = uint(  map["worldRecord"]);
 
@@ -237,7 +237,7 @@ namespace WarriorMedals {
                 index = int8(Text::ParseUInt(name.SubStr(name.Length - 2)) - 1);
             }
         }
-        Map(Json::Value@ map, const string &in type) {  // edev api
+        Map(Json::Value@ map, const string &in type) {  // full list
             author        = uint(map["authorTime"]);
             name          = string(map["name"]).Trim();
             nameFormatted = OpenplanetFormatCodes(name);

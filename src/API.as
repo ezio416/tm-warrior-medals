@@ -1,10 +1,9 @@
 // c 2024-07-18
-// m 2025-02-18
+// m 2025-02-20
 
 namespace API {
     // const string baseUrl        = "https://e416.dev/api";
     const string baseUrl        = "http://10.0.0.178:5000/api2";
-    bool         feedbackShorts = false;
     dictionary@  missing        = dictionary();
     bool         requesting     = false;
 

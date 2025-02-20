@@ -1,9 +1,6 @@
 // c 2024-07-24
 // m 2025-02-18
 
-[Setting hidden]
-bool getAllClicked = false;
-
 void MainWindow() {
     UI::PushStyleColor(UI::Col::Button,        vec4(colorVec * 0.8f, 1.0f));
     UI::PushStyleColor(UI::Col::ButtonActive,  vec4(colorVec * 0.6f, 1.0f));

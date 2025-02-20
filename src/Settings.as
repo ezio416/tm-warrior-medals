@@ -37,6 +37,9 @@
 [Setting hidden] bool S_UIMedalsTotd             = true;
 [Setting hidden] bool S_UIMedalsWeekly           = true;
 
+[Setting hidden] bool getAllClicked = false;
+[Setting hidden] bool initWeekly    = false;  // set once after weekly PBs are retrieved
+
 [SettingsTab name="General" icon="Cogs"]
 void Settings_General() {
     UI::PushFont(fontHeader);
