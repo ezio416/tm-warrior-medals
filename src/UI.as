@@ -297,7 +297,7 @@ void DrawOverUI() {
     DrawOverTotdPage(Totd);
 }
 
-void DrawCampaign(CGameManialinkFrame@ Maps, const string &in uid, bool club = false) {
+void DrawCampaign(CGameManialinkFrame@ Maps, const string &in uid, bool club = false, bool live = false) {
     if (Maps is null || uid.Length == 0)
         return;
 
@@ -315,7 +315,7 @@ void DrawCampaign(CGameManialinkFrame@ Maps, const string &in uid, bool club = f
             indicesToShow.InsertLast(map.index);
     }
 
-    const string medalStackName = club ? "frame-medal-stack" : "frame-medalstack";
+    const string medalStackName = live ? "frame-medalstack" : "frame-medal-stack";
 
     for (uint i = 0; i < Maps.Controls.Length; i++) {
         if (indicesToShow.Length == 0)
@@ -447,7 +447,7 @@ void DrawOverLiveCampaignPage(CGameManialinkPage@ Page) {
     if (CampaignLabel !is null)
         campaignName = string(CampaignLabel.Value).SubStr(19).Replace("\u0091", " ");
 
-    DrawCampaign(cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-maps")), CampaignUid(campaignName), false);
+    DrawCampaign(cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-maps")), CampaignUid(campaignName), live:true);
 }
 
 // void DrawOverLiveTotdPage(CGameManialinkPage@ Page) {
