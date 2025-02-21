@@ -394,11 +394,12 @@ void _DrawWeekly(CGameManialinkPage@ Page, const string &in campaignName) {
         const vec2  center = vec2(w * 0.5f, h * 0.5f);
         const float unit   = (w / h < stdRatio) ? w / 320.0f : h / 180.0f;
         const vec2  scale  = vec2(unit, -unit);
-        const vec2  offset = vec2(2.0f, -72.15f);
+        const vec2  size   = vec2(unit * 12.04f);
+        const vec2  offset = vec2(size.x * 0.015f, -size.y * 0.5f);
         const vec2  coords = center + offset + scale * MedalStack.AbsolutePosition_V3;
 
         nvg::BeginPath();
-        nvg::FillPaint(nvg::TexturePattern(coords, vec2(unit * 12.05f), 0.0f, iconUI, 1.0f));
+        nvg::FillPaint(nvg::TexturePattern(coords, size, 0.0f, iconUI, 1.0f));
         nvg::Fill();
     }
 }
@@ -591,11 +592,12 @@ void _DrawSoloMedal(CGameManialinkFrame@ MedalStack) {
     const vec2  center = vec2(w * 0.5f, h * 0.5f);
     const float unit   = (w / h < stdRatio) ? w / 320.0f : h / 180.0f;
     const vec2  scale  = vec2(unit, -unit);
-    const vec2  offset = vec2(118.0f, -72.15f);
+    const vec2  size   = vec2(unit * 12.04f);
+    const vec2  offset = vec2(size.x * 0.825f, -size.y * 0.5f);
     const vec2  coords = center + offset + scale * MedalStack.AbsolutePosition_V3;
 
     nvg::BeginPath();
-    nvg::FillPaint(nvg::TexturePattern(coords, vec2(unit * 12.05f), 0.0f, iconUI, 1.0f));
+    nvg::FillPaint(nvg::TexturePattern(coords, size, 0.0f, iconUI, 1.0f));
     nvg::Fill();
 }
 
