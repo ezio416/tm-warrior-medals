@@ -264,6 +264,9 @@ void SortCampaigns() {
     if (campaignsArr.Length > 1)
         campaignsArr.Sort(function(a, b) { return a.index > b.index; });
 
+    if (!initWeekly && !API::Nadeo::allWeekly)
+        startnew(API::Nadeo::GetAllWeeklyPBsAsync);
+
     for (uint i = 0; i < campaignsArr.Length; i++) {
         Campaign@ campaign = campaignsArr[i];
         if (campaign is null || campaign.type != WarriorMedals::CampaignType::TrackOfTheDay)
@@ -284,6 +287,7 @@ void SortCampaigns() {
     @activeOtherCampaign    = null;
     @activeSeasonalCampaign = null;
     @activeTotdMonth        = null;
+    @activeWeeklyWeek       = null;
 
     SetTotals();
 }

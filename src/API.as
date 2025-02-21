@@ -279,6 +279,7 @@ namespace API {
 
     namespace Nadeo {
         string       allCampaignsProgress;
+        bool         allWeekly    = false;
         const string audienceCore = "NadeoServices";
         const string audienceLive = "NadeoLiveServices";
         bool         cancel       = false;
@@ -315,6 +316,25 @@ namespace API {
             trace("got all PBs after " + (Time::Now - start) + "ms");
 
             getAllClicked = true;
+        }
+
+        void GetAllWeeklyPBsAsync() {
+            allWeekly = true;
+            const uint64 start = Time::Now;
+            trace("getting PBs on all Weekly Shorts...");
+
+            for (uint i = 0; i < campaignsArr.Length; i++) {
+                Campaign@ campaign = campaignsArr[i];
+                if (campaign.type != WarriorMedals::CampaignType::Weekly)
+                    continue;
+
+                campaign.GetPBsAsync();
+            }
+
+            trace("got all weekly PBs after " + (Time::Now - start) + "ms");
+
+            initWeekly = true;
+            allWeekly = false;
         }
 
         Net::HttpRequest@ GetAsync(const string &in audience, const string &in url, bool start = true) {
