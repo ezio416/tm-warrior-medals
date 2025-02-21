@@ -315,6 +315,8 @@ void DrawCampaign(CGameManialinkFrame@ Maps, const string &in uid, bool club = f
             indicesToShow.InsertLast(map.index);
     }
 
+    const string medalStackName = club ? "frame-medal-stack" : "frame-medalstack";
+
     for (uint i = 0; i < Maps.Controls.Length; i++) {
         if (indicesToShow.Length == 0)
             break;
@@ -326,7 +328,7 @@ void DrawCampaign(CGameManialinkFrame@ Maps, const string &in uid, bool club = f
         if (Map is null || !Map.Visible)
             continue;
 
-        CGameManialinkFrame@ MedalStack = cast<CGameManialinkFrame@>(Map.GetFirstChild("frame-medalstack"));
+        CGameManialinkFrame@ MedalStack = cast<CGameManialinkFrame@>(Map.GetFirstChild(medalStackName));
         if (MedalStack is null || !MedalStack.Visible)
             continue;
 
