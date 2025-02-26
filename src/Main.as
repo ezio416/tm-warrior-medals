@@ -1,31 +1,32 @@
 // c 2024-07-17
-// m 2024-12-23
+// m 2025-02-20
 
-Campaign@     activeOtherCampaign;
-Campaign@     activeSeasonalCampaign;
-Campaign@     activeTotdMonth;
-Json::Value@  campaignIndices;
-dictionary@   campaigns         = dictionary();
-Campaign@[]   campaignsArr;
-const string  colorStr          = "\\$3CF";
-const vec3    colorVec          = vec3(0.2f, 0.8f, 1.0f);
-UI::Font@     fontHeader;
-UI::Font@     fontMonoTiny;
-UI::Font@     fontSubHeader;
-bool          hasPlayPermission = false;
-nvg::Texture@ iconUI;
-UI::Texture@  icon32;
-UI::Texture@  icon512;
-string        kekw;
-bool          loading           = false;
-dictionary@   maps              = dictionary();
-const float   scale             = UI::GetScale();
-vec3[]        seasonColors;
-bool          settingTotals     = false;
-const string  title             = colorStr + Icons::Circle + "\\$G Warrior Medals";
-uint          total             = 0;
-uint          totalHave         = 0;
-const string  uidSeparator      = "|warrior-campaign|";
+Campaign@           activeOtherCampaign;
+Campaign@           activeSeasonalCampaign;
+Campaign@           activeTotdMonth;
+Campaign@           activeWeeklyWeek;
+Json::Value@        campaignIndices;
+dictionary@         campaigns         = dictionary();
+Campaign@[]         campaignsArr;
+Campaign@[]         campaignsArrRev;
+const string        colorStr          = "\\$3CF";
+const vec3          colorVec          = vec3(0.2f, 0.8f, 1.0f);
+UI::Font@           fontHeader;
+UI::Font@           fontSubHeader;
+bool                hasPlayPermission = false;
+nvg::Texture@       iconUI;
+UI::Texture@        icon32;
+UI::Texture@        icon512;
+WarriorMedals::Map@ latestTotd;
+bool                loading           = false;
+dictionary@         maps              = dictionary();
+const float         scale             = UI::GetScale();
+vec3[]              seasonColors;
+bool                settingTotals     = false;
+const string        title             = colorStr + Icons::Circle + "\\$G Warrior Medals";
+uint                total             = 0;
+uint                totalHave         = 0;
+const string        uidSeparator      = "|warrior-campaign|";
 
 void Main() {
     startnew(API::CheckVersionAsync);
@@ -44,10 +45,6 @@ void Main() {
 
     @fontSubHeader = UI::LoadFont("DroidSans.ttf", 20.0f);
     @fontHeader    = UI::LoadFont("DroidSans.ttf", 26.0f);
-    @fontMonoTiny  = UI::LoadFont("DroidSansMono.ttf", 5.0f);
-
-    IO::FileSource file2("assets/kekw.txt");
-    kekw = file2.ReadToEnd();
 
     startnew(PBLoop);
 

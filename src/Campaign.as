@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2024-10-22
+// m 2025-02-20
 
 class Campaign {
     int                         clubId     = -1;
@@ -18,6 +18,7 @@ class Campaign {
     bool                        requesting = false;
     WarriorMedals::CampaignType type       = WarriorMedals::CampaignType::Unknown;
     string                      uid;
+    uint                        week;
     uint                        year;
 
     uint get_count() {
@@ -65,40 +66,55 @@ class Campaign {
 
         year = Text::ParseUInt(map.campaignName.SubStr(map.campaignName.Length - 4)) - 2020;
 
-        if (type == WarriorMedals::CampaignType::Seasonal) {
-            if (map.campaignName.StartsWith("Summer")) {
-                index = 0 + 4 * year;
-                colorIndex = 2;
-            } else if (map.campaignName.StartsWith("Fall")) {
-                index = 1 + 4 * year;
-                colorIndex = 3;
-            } else if (map.campaignName.StartsWith("Winter")) {
-                index = 2 + 4 * (year - 1);
-                colorIndex = 0;
-            } else {
-                index = 3 + 4 * (year - 1);
-                colorIndex = 1;
-            }
-        } else if (type == WarriorMedals::CampaignType::TrackOfTheDay) {
-            month = Text::ParseUInt(map.date.SubStr(5, 2));
-
-            index = ((month + 5) % 12) + 12 * (year - (month < 7 ? 1 : 0));
-
-            switch (month) {
-                case 1: case 2: case 3:
-                    colorIndex = 0;
-                    break;
-                case 4: case 5: case 6:
-                    colorIndex = 1;
-                    break;
-                case 7: case 8: case 9:
+        switch (type) {
+            case WarriorMedals::CampaignType::Seasonal:
+                if (map.campaignName.StartsWith("Summer")) {
+                    index = 0 + 4 * year;
                     colorIndex = 2;
-                    break;
-                default:
+                } else if (map.campaignName.StartsWith("Fall")) {
+                    index = 1 + 4 * year;
                     colorIndex = 3;
+                } else if (map.campaignName.StartsWith("Winter")) {
+                    index = 2 + 4 * (year - 1);
+                    colorIndex = 0;
+                } else {
+                    index = 3 + 4 * (year - 1);
+                    colorIndex = 1;
+                }
+
+                break;
+
+            case WarriorMedals::CampaignType::Weekly:
+                index = map.number - 1;
+                week = map.week;
+                year = 4 + ((week + 48) / 52);  // breaks at week 212 (end of 2028)
+                break;
+
+            case WarriorMedals::CampaignType::TrackOfTheDay: {
+                month = Text::ParseUInt(map.date.SubStr(5, 2));
+
+                index = ((month + 5) % 12) + 12 * (year - (month < 7 ? 1 : 0));
+
+                switch (month) {
+                    case 1: case 2: case 3:
+                        colorIndex = 0;
+                        break;
+                    case 4: case 5: case 6:
+                        colorIndex = 1;
+                        break;
+                    case 7: case 8: case 9:
+                        colorIndex = 2;
+                        break;
+                    default:
+                        colorIndex = 3;
+                }
+
+                break;
             }
-        } else
-            SetOtherCampaignIndex();
+
+            default:
+                SetOtherCampaignIndex();
+        }
     }
 
     WarriorMedals::Map@ GetMap(const string &in uid) {
@@ -248,11 +264,30 @@ void SortCampaigns() {
     if (campaignsArr.Length > 1)
         campaignsArr.Sort(function(a, b) { return a.index > b.index; });
 
+    if (!initWeekly && !API::Nadeo::allWeekly)
+        startnew(API::Nadeo::GetAllWeeklyPBsAsync);
+
+    for (uint i = 0; i < campaignsArr.Length; i++) {
+        Campaign@ campaign = campaignsArr[i];
+        if (campaign is null || campaign.type != WarriorMedals::CampaignType::TrackOfTheDay)
+            continue;
+
+        @latestTotd = campaign.mapsArr[campaign.mapsArr.Length - 1];
+        break;
+    }
+
+    if (latestTotd is null)
+        warn("couldn't find a recent TOTD");
+
+    campaignsArrRev = campaignsArr;
+    campaignsArrRev.Reverse();
+
     trace("sorting campaigns and maps done after " + (Time::Now - start) + "ms");
 
     @activeOtherCampaign    = null;
     @activeSeasonalCampaign = null;
     @activeTotdMonth        = null;
+    @activeWeeklyWeek       = null;
 
     SetTotals();
 }

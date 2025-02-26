@@ -1,5 +1,5 @@
 // c 2024-07-21
-// m 2024-10-21
+// m 2025-02-20
 
 /*
 Exports from the Warrior Medals plugin.
@@ -10,6 +10,7 @@ namespace WarriorMedals {
     */
     shared enum CampaignType {
         Seasonal,
+        Weekly,
         TrackOfTheDay,
         Other,
         Unknown
@@ -145,6 +146,10 @@ namespace WarriorMedals {
         string get_nameStripped() { return _nameStripped; }
         private void set_nameStripped(const string &in n) { _nameStripped = n; }
 
+        private int _number = -1;  // weekly only
+        int get_number() { return _number; }
+        private void set_number(int n) { _number = n; }
+
         private string _reason;
         string get_reason() { return _reason; }
         private void set_reason(const string &in r) { _reason = r; }
@@ -157,17 +162,21 @@ namespace WarriorMedals {
         uint get_warrior() { return _warrior; }
         private void set_warrior(uint w) { _warrior = w; }
 
+        private int _week = -1;  // weekly only
+        int get_week() { return _week; }
+        private void set_week(int w) { _week = w; }
+
         private uint _worldRecord;
         uint get_worldRecord() { return _worldRecord; }
         private void set_worldRecord(uint w) { _worldRecord = w; }
 
         Map() { }
-        Map(Json::Value@ map) {
+        Map(Json::Value@ map) {  // single map
             author        = uint(  map["authorTime"]);
             name          = string(map["name"]).Trim();
             nameFormatted = OpenplanetFormatCodes(name);
             nameStripped  = StripFormatCodes(name);
-            uid           = string(map["uid"]);
+            uid           = string(map["mapUid"]);
             warrior       = uint(  map["warriorTime"]);
             worldRecord   = uint(  map["worldRecord"]);
 
@@ -227,6 +236,53 @@ namespace WarriorMedals {
                 campaignName = name.SubStr(0, name.Length - 5);
                 index = int8(Text::ParseUInt(name.SubStr(name.Length - 2)) - 1);
             }
+        }
+        Map(Json::Value@ map, const string &in type) {  // full list
+            author        = uint(map["authorTime"]);
+            name          = string(map["name"]).Trim();
+            nameFormatted = OpenplanetFormatCodes(name);
+            nameStripped  = StripFormatCodes(name);
+            uid           = string(map["mapUid"]);
+            warrior       = uint(map["warriorTime"]);
+            worldRecord   = uint(map["worldRecord"]);
+
+            Json::Value@ custom = map["custom"];
+            if (CheckJsonType(custom, Json::Type::Number, "custom", false))
+                this.custom = uint(custom);
+
+            Json::Value@ reason = map["reason"];
+            if (CheckJsonType(reason, Json::Type::String, "reason", false))
+                this.reason = reason;
+
+            if (type == "Seasonal") {
+                campaignType = CampaignType::Seasonal;
+                campaignId = int(map["campaignId"]);
+                campaignName = name.SubStr(0, name.Length - 5);
+                index = int8(Text::ParseUInt(name.SubStr(name.Length - 2)) - 1);
+
+            } else if (type == "Weekly") {
+                campaignType = CampaignType::Weekly;
+                number = int(map["number"]);
+                week = (number - 1) / 5 + 1;
+                campaignName = "Week " + week;
+                index = int8((number - 1) % 5);
+
+            } else if (type == "Totd") {
+                campaignType = CampaignType::TrackOfTheDay;
+                date = string(map["date"]);
+                campaignName = MonthName(Text::ParseUInt(date.SubStr(5, 2))) + " " + date.SubStr(0, 4);
+                index = int8(Text::ParseUInt(date.SubStr(date.Length - 2)) - 1);
+
+            } else if (type == "Other") {
+                campaignType = CampaignType::Other;
+                campaignId = int(map["campaignId"]);
+                campaignName = string(map["campaignName"]);
+                clubId = int(map["clubId"]);
+                clubName = string(map["clubName"]);
+                index = int8(map["mapIndex"]);
+
+            } else
+                throw("invalid map type: " + type);
         }
 
         void GetPB() {

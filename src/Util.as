@@ -1,5 +1,5 @@
 // c 2024-07-18
-// m 2024-12-24
+// m 2025-02-20
 
 float GayHue(uint cycleTimeMs = 5000, float offset = 0.0f, bool reverse = false) {
     const float h = float(Time::Now % cycleTimeMs) / float(cycleTimeMs) + offset;
@@ -43,7 +43,7 @@ void HoverTooltip(const string &in msg) {
         return;
 
     UI::BeginTooltip();
-    UI::Text(msg);
+    UI::Text(Shadow() + msg);
     UI::EndTooltip();
 }
 
@@ -72,4 +72,8 @@ void PlayMapAsync(ref@ m) {
     loading = true;
     map.PlayAsync();
     loading = false;
+}
+
+string Shadow() {
+    return S_MainWindowTextShadows ? "\\$S" : "";
 }

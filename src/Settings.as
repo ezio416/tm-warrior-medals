@@ -1,7 +1,5 @@
 // c 2024-07-17
-// m 2024-12-24
-
-[Setting hidden] bool S_ShowWeeklyPreview        = true;
+// m 2025-02-20
 
 [Setting hidden] vec3 S_ColorFall                = vec3(1.0f, 0.5f, 0.0f);
 [Setting hidden] vec3 S_ColorSpring              = vec3(0.3f, 0.9f, 0.3f);
@@ -14,7 +12,9 @@
 [Setting hidden] bool S_MainWindowDetached       = false;
 [Setting hidden] bool S_MainWindowHideWithGame   = true;
 [Setting hidden] bool S_MainWindowHideWithOP     = true;
+[Setting hidden] bool S_MainWindowOldestFirst    = false;
 [Setting hidden] bool S_MainWindowPercentages    = true;
+[Setting hidden] bool S_MainWindowTextShadows    = true;
 [Setting hidden] bool S_MainWindowTmioLinks      = true;
 
 [Setting hidden] bool S_MedalWindow              = true;
@@ -34,9 +34,13 @@
 [Setting hidden] bool S_UIMedalsLiveCampaign     = true;
 [Setting hidden] bool S_UIMedalsLiveTotd         = false;
 [Setting hidden] bool S_UIMedalsSeasonalCampaign = true;
+[Setting hidden] bool S_UIMedalsSoloMenu         = true;
 [Setting hidden] bool S_UIMedalStart             = true;
 [Setting hidden] bool S_UIMedalsTotd             = true;
-[Setting hidden] bool S_UIMedalsTraining         = true;
+[Setting hidden] bool S_UIMedalsWeekly           = true;
+
+[Setting hidden] bool getAllClicked = false;
+[Setting hidden] bool initWeekly    = false;  // set once after weekly PBs are retrieved
 
 [SettingsTab name="General" icon="Cogs"]
 void Settings_General() {
@@ -53,7 +57,8 @@ void Settings_General() {
         plugin.GetSetting("S_MainWindowTmioLinks").Reset();
         plugin.GetSetting("S_MainWindowCampRefresh").Reset();
         plugin.GetSetting("S_MainWindowPercentages").Reset();
-        plugin.GetSetting("S_ShowWeeklyPreview").Reset();
+        plugin.GetSetting("S_MainWindowOldestFirst").Reset();
+        plugin.GetSetting("S_MainWindowTextShadows").Reset();
     }
 
     S_MainWindowDetached = UI::Checkbox(
@@ -96,9 +101,15 @@ void Settings_General() {
         S_MainWindowPercentages
     );
 
-    S_ShowWeeklyPreview = UI::Checkbox(
-        "Show fake Weekly Shorts tab",
-        S_ShowWeeklyPreview
+    S_MainWindowOldestFirst = UI::Checkbox(
+        "Sort campaigns oldest to newest",
+        S_MainWindowOldestFirst
+    );
+    HoverTooltipSetting("Seasonal, Weekly Shorts, Track of the Day");
+
+    S_MainWindowTextShadows = UI::Checkbox(
+        "Show text shadows",
+        S_MainWindowTextShadows
     );
 
     UI::Separator();
@@ -205,14 +216,17 @@ void Settings_MedalsInUI() {
 
         if (UI::Button("Reset to default##menu")) {
             Meta::Plugin@ plugin = Meta::ExecutingPlugin();
+            plugin.GetSetting("S_UIMedalsSoloMenu").Reset();
             plugin.GetSetting("S_UIMedalsSeasonalCampaign").Reset();
             plugin.GetSetting("S_UIMedalsLiveCampaign").Reset();
             plugin.GetSetting("S_UIMedalsClubCampaign").Reset();
             plugin.GetSetting("S_UIMedalsTotd").Reset();
             // plugin.GetSetting("S_UIMedalsLiveTotd").Reset();
-            plugin.GetSetting("S_UIMedalsTraining").Reset();
+            plugin.GetSetting("S_UIMedalsWeekly").Reset();
         }
 
+        S_UIMedalsSoloMenu         = UI::Checkbox("Solo menu",                S_UIMedalsSoloMenu);
+        HoverTooltipSetting("Shown on top of the Campaign and Track of the Day tiles");
         S_UIMedalsSeasonalCampaign = UI::Checkbox("Seasonal campaign",        S_UIMedalsSeasonalCampaign);
         S_UIMedalsLiveCampaign     = UI::Checkbox("Seasonal campaign (live)", S_UIMedalsLiveCampaign);
         HoverTooltipSetting("In the arcade");
@@ -220,7 +234,7 @@ void Settings_MedalsInUI() {
         // S_UIMedalsLiveTotd         = UI::Checkbox("Track of the Day (live)",  S_UIMedalsLiveTotd);
         S_UIMedalsClubCampaign     = UI::Checkbox("Club campaign",            S_UIMedalsClubCampaign);
         HoverTooltipSetting("May be inaccurate if a club or campaign's name is changed");
-        S_UIMedalsTraining         = UI::Checkbox("Training",                 S_UIMedalsTraining);
+        S_UIMedalsWeekly           = UI::Checkbox("Weekly Shorts",            S_UIMedalsWeekly);
 
         UI::Separator();
 
@@ -289,7 +303,7 @@ void Settings_Debug() {
 
         UI::Text("campaigns: " + uids.Length);
 
-        if (UI::BeginTable("##table-campaigns", 5, UI::TableFlags::RowBg | UI::TableFlags::ScrollY)) {
+        if (UI::BeginTable("##table-campaigns", 9, UI::TableFlags::RowBg | UI::TableFlags::ScrollY)) {
             UI::PushStyleColor(UI::Col::TableRowBgAlt, vec4(0.0f, 0.0f, 0.0f, 0.5f));
 
             UI::TableSetupScrollFreeze(0, 1);
@@ -297,7 +311,11 @@ void Settings_Debug() {
             UI::TableSetupColumn("clubId",   UI::TableColumnFlags::WidthFixed, scale * 50.0f);
             UI::TableSetupColumn("clubName", UI::TableColumnFlags::WidthFixed, scale * 230.0f);
             UI::TableSetupColumn("id",       UI::TableColumnFlags::WidthFixed, scale * 50.0f);
+            UI::TableSetupColumn("index",    UI::TableColumnFlags::WidthFixed, scale * 50.0f);
             UI::TableSetupColumn("name",     UI::TableColumnFlags::WidthFixed, scale * 230.0f);
+            UI::TableSetupColumn("year",     UI::TableColumnFlags::WidthFixed, scale * 80.0f);
+            UI::TableSetupColumn("month",    UI::TableColumnFlags::WidthFixed, scale * 80.0f);
+            UI::TableSetupColumn("week",     UI::TableColumnFlags::WidthFixed, scale * 80.0f);
             UI::TableHeadersRow();
 
             UI::ListClipper clipper(uids.Length);
@@ -320,7 +338,19 @@ void Settings_Debug() {
                     UI::Text(tostring(campaign.id));
 
                     UI::TableNextColumn();
+                    UI::Text(tostring(campaign.index));
+
+                    UI::TableNextColumn();
                     UI::Text(campaign.name);
+
+                    UI::TableNextColumn();
+                    UI::Text(tostring(campaign.year));
+
+                    UI::TableNextColumn();
+                    UI::Text(tostring(campaign.month));
+
+                    UI::TableNextColumn();
+                    UI::Text(tostring(campaign.week));
                 }
             }
 
@@ -407,7 +437,7 @@ void Settings_Debug() {
 
 [SettingsTab name="Warrior Medals" icon="Circle" order=3]
 void Settings_MainWindow() {
-    MainWindow(true);
+    MainWindow();
 }
 
 void HoverTooltipSetting(const string &in msg, const string &in color = "666") {
@@ -418,6 +448,6 @@ void HoverTooltipSetting(const string &in msg, const string &in color = "666") {
 
     UI::SetNextWindowSize(int(Math::Min(Draw::MeasureString(msg).x, 400.0f)), 0.0f);
     UI::BeginTooltip();
-    UI::TextWrapped(msg);
+    UI::TextWrapped(Shadow() + msg);
     UI::EndTooltip();
 }

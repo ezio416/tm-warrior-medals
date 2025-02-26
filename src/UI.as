@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2024-12-24
+// m 2025-02-20
 
 uint FrameConfirmQuit = 0;
 const float stdRatio = 16.0f / 9.0f;
@@ -16,11 +16,12 @@ void DrawOverUI() {
         || !S_UIMedals
         || iconUI is null
         || (true
+            && !S_UIMedalsSoloMenu
             && !S_UIMedalsSeasonalCampaign
             && !S_UIMedalsLiveCampaign
             && !S_UIMedalsTotd
             && !S_UIMedalsClubCampaign
-            && !S_UIMedalsTraining
+            && !S_UIMedalsWeekly
             && !S_UIMedalBanner
             && !S_UIMedalStart
             && !S_UIMedalPause
@@ -201,19 +202,22 @@ void DrawOverUI() {
     if (Title is null || Title.UILayers.Length == 0)
         return;
 
+    CGameManialinkPage@ Solo;
     CGameManialinkPage@ Campaign;
     CGameManialinkPage@ LiveCampaign;
     // CGameManialinkPage@ LiveTotd;
     CGameManialinkPage@ Totd;
-    CGameManialinkPage@ Training;
 
     for (uint i = 0; i < Title.UILayers.Length; i++) {
         if (true
-            && !(Campaign     is null && (S_UIMedalsSeasonalCampaign || S_UIMedalsClubCampaign))
+            && !(Campaign     is null && (false
+                || S_UIMedalsSeasonalCampaign
+                || S_UIMedalsClubCampaign
+                || S_UIMedalsWeekly
+            ))
             && !(LiveCampaign is null && S_UIMedalsLiveCampaign)
             && !(Totd         is null && S_UIMedalsTotd)
             // && !(LiveTotd     is null && S_UIMedalsLiveTotd)
-            && !(Training     is null && S_UIMedalsTraining)
         )
             break;
 
@@ -229,25 +233,38 @@ void DrawOverUI() {
 
         const string pageName = Layer.ManialinkPageUtf8.Trim().SubStr(17, 27);
 
-        if (pageName.StartsWith("Overlay_ReportSystem")) {
+        if (pageName.StartsWith("Overlay_ReportSystem")) {  // 2024-12-12_15_15 index 8
             CGameManialinkFrame@ Frame = cast<CGameManialinkFrame@>(Layer.LocalPage.GetFirstChild("frame-report-system"));
             if (Frame !is null && Frame.Visible)
                 return;
         }
 
+        if (true
+            && S_UIMedalsSoloMenu
+            && Solo is null
+            && pageName.StartsWith("Page_Solo")  // 2024-12-12_15_15 index 16
+        ) {
+            @Solo = Layer.LocalPage;
+            continue;
+        }
+
         // if (true
         //     && S_UIMedalsLiveTotd
         //     && LiveTotd is null
-            // && pageName.StartsWith("Page_TOTDChannelDisplay")
+            // && pageName.StartsWith("Page_TOTDChannelDisplay")  // 2024-12-12_15_15 index 26
         // ) {
         //     @LiveTotd = Layer.LocalPage;
         //     continue;
         // }
 
         if (true
-            && (S_UIMedalsSeasonalCampaign || S_UIMedalsClubCampaign)
+            && (false
+                || S_UIMedalsSeasonalCampaign
+                || S_UIMedalsClubCampaign
+                || S_UIMedalsWeekly
+            )
             && Campaign is null
-            && pageName.StartsWith("Page_CampaignDisplay")
+            && pageName.StartsWith("Page_CampaignDisplay")  // 2024-12-12_15_15 index 29
         ) {
             @Campaign = Layer.LocalPage;
             continue;
@@ -256,54 +273,49 @@ void DrawOverUI() {
         if (true
             && S_UIMedalsTotd
             && Totd is null
-            && pageName.StartsWith("Page_MonthlyCampaignDisplay")
+            && pageName.StartsWith("Page_MonthlyCampaignDisplay")  // 2024-12-12_15_15 index 30
         ) {
             @Totd = Layer.LocalPage;
             continue;
         }
 
         if (true
-            && S_UIMedalsTraining
-            && Training is null
-            && pageName.StartsWith("Page_TrainingDisplay")
-        ) {
-            @Training = Layer.LocalPage;
-            continue;
-        }
-
-        if (true
             && S_UIMedalsLiveCampaign
             && LiveCampaign is null
-            && pageName.StartsWith("Page_RoomCampaignDisplay")
+            && pageName.StartsWith("Page_RoomCampaignDisplay")  // 2024-12-12_15_15 index 40
         ) {
             @LiveCampaign = Layer.LocalPage;
             continue;
         }
     }
 
+    if (Campaign is null && Totd is null)
+        DrawOverSoloPage(Solo);
     DrawOverCampaignPage(Campaign);
     DrawOverLiveCampaignPage(LiveCampaign);
     // DrawOverLiveTotdPage(LiveTotd);
     DrawOverTotdPage(Totd);
-    DrawOverTrainingPage(Training);
 }
 
-void DrawCampaign(CGameManialinkFrame@ Maps, const string &in uid, bool club = false) {
+void DrawCampaign(CGameManialinkFrame@ Maps, const string &in uid, bool club = false, bool live = false) {
     if (Maps is null || uid.Length == 0)
         return;
 
-    int8[] indicesToShow;
     Campaign@ campaign = GetCampaign(uid);
-    if (campaign !is null) {
-        for (uint i = 0; i < campaign.mapsArr.Length; i++) {
-            WarriorMedals::Map@ map = campaign.mapsArr[i];
-            if (map is null)
-                continue;
+    if (campaign is null)
+        return;
 
-            if (map.hasWarrior || S_UIMedalsAlwaysMenu)
-                indicesToShow.InsertLast(map.index);
-        }
+    int8[] indicesToShow;
+    for (uint i = 0; i < campaign.mapsArr.Length; i++) {
+        WarriorMedals::Map@ map = campaign.mapsArr[i];
+        if (map is null)
+            continue;
+
+        if (map.hasWarrior || S_UIMedalsAlwaysMenu)
+            indicesToShow.InsertLast(map.index);
     }
+
+    const string medalStackName = live ? "frame-medalstack" : "frame-medal-stack";
 
     for (uint i = 0; i < Maps.Controls.Length; i++) {
         if (indicesToShow.Length == 0)
@@ -316,7 +328,7 @@ void DrawCampaign(CGameManialinkFrame@ Maps, const string &in uid, bool club = f
         if (Map is null || !Map.Visible)
             continue;
 
-        CGameManialinkFrame@ MedalStack = cast<CGameManialinkFrame@>(Map.GetFirstChild("frame-medal-stack"));
+        CGameManialinkFrame@ MedalStack = cast<CGameManialinkFrame@>(Map.GetFirstChild(medalStackName));
         if (MedalStack is null || !MedalStack.Visible)
             continue;
 
@@ -336,6 +348,62 @@ void DrawCampaign(CGameManialinkFrame@ Maps, const string &in uid, bool club = f
     }
 }
 
+void _DrawWeekly(CGameManialinkPage@ Page, const string &in campaignName) {
+    if (!S_UIMedalsWeekly)
+        return;
+
+    uint week = 0;
+    if (!Text::TryParseUInt(campaignName.SubStr(11), week))
+        return;
+
+    Campaign@ campaign = GetCampaign(CampaignUid("week " + week));
+    if (campaign is null)
+        return;
+
+    int8[] indicesToShow;
+    for (uint i = 0; i < campaign.mapsArr.Length; i++) {
+        WarriorMedals::Map@ map = campaign.mapsArr[i];
+        if (map is null)
+            continue;
+
+        if (map.hasWarrior || S_UIMedalsAlwaysMenu)
+            indicesToShow.InsertLast(map.index);
+    }
+
+    CGameManialinkFrame@ Maps = cast<CGameManialinkFrame>(Page.GetFirstChild("frame-short-maps"));
+    if (Maps is null)
+        return;
+
+    for (uint i = 0; i < Maps.Controls.Length; i++) {
+        if (indicesToShow.Length == 0)
+            break;
+
+        if (indicesToShow.Find(i) == -1)
+            continue;
+
+        CGameManialinkFrame@ Map = cast<CGameManialinkFrame@>(Maps.Controls[i]);
+        if (Map is null || !Map.Visible)
+            continue;
+
+        CGameManialinkFrame@ MedalStack = cast<CGameManialinkFrame@>(Map.GetFirstChild("frame-medal-stack"));
+        if (MedalStack is null || !MedalStack.Visible)
+            continue;
+
+        const float w      = Math::Max(1, Draw::GetWidth());
+        const float h      = Math::Max(1, Draw::GetHeight());
+        const vec2  center = vec2(w * 0.5f, h * 0.5f);
+        const float unit   = (w / h < stdRatio) ? w / 320.0f : h / 180.0f;
+        const vec2  scale  = vec2(unit, -unit);
+        const vec2  size   = vec2(unit * 12.04f);
+        const vec2  offset = vec2(size.x * 0.015f, -size.y * 0.5f);
+        const vec2  coords = center + offset + scale * MedalStack.AbsolutePosition_V3;
+
+        nvg::BeginPath();
+        nvg::FillPaint(nvg::TexturePattern(coords, size, 0.0f, iconUI, 1.0f));
+        nvg::Fill();
+    }
+}
+
 void DrawOverCampaignPage(CGameManialinkPage@ Page) {
     if (Page is null)
         return;
@@ -344,6 +412,11 @@ void DrawOverCampaignPage(CGameManialinkPage@ Page) {
     CGameManialinkLabel@ CampaignLabel = cast<CGameManialinkLabel@>(Page.GetFirstChild("label-title"));
     if (CampaignLabel !is null)
         campaignName = CampaignLabel.Value;
+
+    if (campaignName.StartsWith("\u0091Week %1\u0091")) {
+        _DrawWeekly(Page, campaignName);
+        return;
+    }
 
     string clubName;
     CGameManialinkFrame@ ClubLink = cast<CGameManialinkFrame@>(Page.GetFirstChild("button-club"));
@@ -375,7 +448,7 @@ void DrawOverLiveCampaignPage(CGameManialinkPage@ Page) {
     if (CampaignLabel !is null)
         campaignName = string(CampaignLabel.Value).SubStr(19).Replace("\u0091", " ");
 
-    DrawCampaign(cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-maps")), CampaignUid(campaignName), false);
+    DrawCampaign(cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-maps")), CampaignUid(campaignName), live:true);
 }
 
 // void DrawOverLiveTotdPage(CGameManialinkPage@ Page) {
@@ -510,6 +583,80 @@ void DrawOverPlaygroundPage(CGameManialinkPage@ Page, PlaygroundPageType type = 
     nvg::Fill();
 }
 
+void _DrawSoloMedal(CGameManialinkFrame@ MedalStack) {
+    if (MedalStack is null || !MedalStack.Visible)
+        return;
+
+    const float w      = Math::Max(1, Draw::GetWidth());
+    const float h      = Math::Max(1, Draw::GetHeight());
+    const vec2  center = vec2(w * 0.5f, h * 0.5f);
+    const float unit   = (w / h < stdRatio) ? w / 320.0f : h / 180.0f;
+    const vec2  scale  = vec2(unit, -unit);
+    const vec2  size   = vec2(unit * 12.04f);
+    const vec2  offset = vec2(size.x * 0.825f, -size.y * 0.5f);
+    const vec2  coords = center + offset + scale * MedalStack.AbsolutePosition_V3;
+
+    nvg::BeginPath();
+    nvg::FillPaint(nvg::TexturePattern(coords, size, 0.0f, iconUI, 1.0f));
+    nvg::Fill();
+}
+
+void _DrawSoloCampaign(CGameManialinkPage@ Page) {
+    CGameManialinkFrame@ Camp = cast<CGameManialinkFrame>(Page.GetFirstChild("frame-campaign"));
+    if (Camp is null)
+        return;
+
+    CGameManialinkLabel@ Label = cast<CGameManialinkLabel@>(Camp.GetFirstChild("Trackmania_Button_label-value"));
+    if (Label is null)
+        return;
+
+    string[]@ parts = string(Label.Value).Split("|");
+    if (parts.Length == 0)
+        return;
+
+    Campaign@ campaign = GetCampaign(CampaignUid(parts[parts.Length - 1].Replace("\u0091", " ")));
+    if (campaign is null || (campaign.count < 25 && !S_UIMedalsAlwaysMenu))
+        return;
+
+    _DrawSoloMedal(cast<CGameManialinkFrame@>(Camp.GetFirstChild("frame-medal-stack-quarterly")));
+}
+
+void _DrawSoloTotd(CGameManialinkPage@ Page) {
+    if (latestTotd is null)
+        return;
+
+    CGameManialinkFrame@ Totd = cast<CGameManialinkFrame>(Page.GetFirstChild("frame-totd"));
+    if (Totd is null)
+        return;
+
+    CGameManialinkLabel@ Date = cast<CGameManialinkLabel@>(Totd.GetFirstChild("label-totd-date"));
+    if (Date is null)
+        return;
+
+    try {
+        if (
+            Text::ParseUInt(string(Date.Value).Split(" ")[1].Split(",")[0])
+            != Text::ParseUInt(latestTotd.date.Split("-")[2])
+        )
+            return;
+    } catch {
+        return;
+    }
+
+    if (!latestTotd.hasWarrior && !S_UIMedalsAlwaysMenu)
+        return;
+
+    _DrawSoloMedal(cast<CGameManialinkFrame@>(Totd.GetFirstChild("frame-medal-stack-totd")));
+}
+
+void DrawOverSoloPage(CGameManialinkPage@ Page) {
+    if (Page is null)
+        return;
+
+    _DrawSoloCampaign(Page);
+    _DrawSoloTotd(Page);
+}
+
 void DrawOverTotdPage(CGameManialinkPage@ Page) {
     if (Page is null)
         return;
@@ -571,11 +718,4 @@ void DrawOverTotdPage(CGameManialinkPage@ Page) {
         nvg::FillPaint(nvg::TexturePattern(coords, vec2(unit * 9.15f), 0.0f, iconUI, 1.0f));
         nvg::Fill();
     }
-}
-
-void DrawOverTrainingPage(CGameManialinkPage@ Page) {
-    if (Page is null)
-        return;
-
-    DrawCampaign(cast<CGameManialinkFrame@>(Page.GetFirstChild("frame-maps")), CampaignUid("training"), true);
 }

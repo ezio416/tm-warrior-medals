@@ -1,11 +1,10 @@
 // c 2024-07-18
-// m 2024-12-24
+// m 2025-02-20
 
 namespace API {
-    const string baseUrl        = "https://e416.dev/api";
-    bool         feedbackShorts = false;
-    dictionary@  missing        = dictionary();
-    bool         requesting     = false;
+    const string baseUrl    = "https://e416.dev/api2";
+    dictionary@  missing    = dictionary();
+    bool         requesting = false;
 
     Net::HttpRequest@ GetAsync(const string &in url, bool start = true) {
         requesting = true;
@@ -41,8 +40,6 @@ namespace API {
         const int code = req.ResponseCode();
         switch (code) {
             case 200:
-                if (req.String().Contains("feedback-shorts"))
-                    feedbackShorts = true;
                 break;
 
             case 426: {
@@ -79,12 +76,18 @@ namespace API {
 
         yield();
 
-        string[]@ uids = data.GetKeys();
-        for (uint i = 0; i < uids.Length; i++) {
-            const string uid = uids[i];
+        string[]@ types = data.GetKeys();
+        for (uint i = 0; i < types.Length; i++) {
+            Json::Value@ section = data.Get(types[i]);
+            if (!WarriorMedals::CheckJsonType(section, Json::Type::Array, "section-" + i)) {
+                error("getting all map infos failed after " + (Time::Now - start) + "ms");
+                return;
+            }
 
-            WarriorMedals::Map@ map = WarriorMedals::Map(data[uid]);
-            maps[uid] = @map;
+            for (uint j = 0; j < section.Length; j++) {
+                WarriorMedals::Map@ map = WarriorMedals::Map(section[j], types[i]);
+                maps[map.uid] = @map;
+            }
         }
 
         trace("got all map infos after " + (Time::Now - start) + "ms");
@@ -276,6 +279,7 @@ namespace API {
 
     namespace Nadeo {
         string       allCampaignsProgress;
+        bool         allWeekly    = false;
         const string audienceCore = "NadeoServices";
         const string audienceLive = "NadeoLiveServices";
         bool         cancel       = false;
@@ -312,6 +316,25 @@ namespace API {
             trace("got all PBs after " + (Time::Now - start) + "ms");
 
             getAllClicked = true;
+        }
+
+        void GetAllWeeklyPBsAsync() {
+            allWeekly = true;
+            const uint64 start = Time::Now;
+            trace("getting PBs on all Weekly Shorts...");
+
+            for (uint i = 0; i < campaignsArr.Length; i++) {
+                Campaign@ campaign = campaignsArr[i];
+                if (campaign.type != WarriorMedals::CampaignType::Weekly)
+                    continue;
+
+                campaign.GetPBsAsync();
+            }
+
+            trace("got all weekly PBs after " + (Time::Now - start) + "ms");
+
+            initWeekly = true;
+            allWeekly = false;
         }
 
         Net::HttpRequest@ GetAsync(const string &in audience, const string &in url, bool start = true) {
