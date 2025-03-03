@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2025-02-20
+// m 2025-03-03
 
 uint FrameConfirmQuit = 0;
 const float stdRatio = 16.0f / 9.0f;
@@ -126,7 +126,11 @@ void DrawOverUI() {
             )
                 continue;
 
-            const string pageName = Layer.ManialinkPageUtf8.Trim().SubStr(0, 64);
+            const int start = Layer.ManialinkPageUtf8.IndexOf("<");
+            const int end = Layer.ManialinkPageUtf8.IndexOf(">");
+            if (start == -1 || end == -1)
+                continue;
+            const string pageName = Layer.ManialinkPageUtf8.SubStr(start, end);
 
             if (true
                 && pauseDisplayed
@@ -231,7 +235,11 @@ void DrawOverUI() {
         )
             continue;
 
-        const string pageName = Layer.ManialinkPageUtf8.Trim().SubStr(17, 27);
+        const int start = Layer.ManialinkPageUtf8.IndexOf("<");
+        const int end = Layer.ManialinkPageUtf8.IndexOf(">");
+        if (start == -1 || end == -1)
+            continue;
+        const string pageName = Layer.ManialinkPageUtf8.SubStr(start, end);
 
         if (pageName.StartsWith("Overlay_ReportSystem")) {  // 2024-12-12_15_15 index 8
             CGameManialinkFrame@ Frame = cast<CGameManialinkFrame@>(Layer.LocalPage.GetFirstChild("frame-report-system"));
