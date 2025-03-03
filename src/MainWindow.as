@@ -1,5 +1,5 @@
 // c 2024-07-24
-// m 2025-03-02
+// m 2025-03-03
 
 void MainWindow() {
     UI::PushStyleColor(UI::Col::Button,        vec4(colorVec * 0.8f, 1.0f));
@@ -469,12 +469,12 @@ void Tab_Weekly() {
                 UI::SeparatorText(Shadow() + tostring(campaign.year + 2020));
                 UI::PopFont();
 
-            } else if (curWeekInYear % 6 > 0)
+            } else if (curWeekInYear % 5 > 0)
                 UI::SameLine();
 
             bool colored = false;
             if (campaign.week < 5) {
-                const vec3 colorNadeo = vec3(1.0f, 0.8f, 0.1f);
+                const vec3 colorNadeo = vec3(1.0f, 0.75f, 0.1f);
                 UI::PushStyleColor(UI::Col::Button,        vec4(colorNadeo * 0.9f, 1.0f));
                 UI::PushStyleColor(UI::Col::ButtonActive,  vec4(colorNadeo * 0.6f, 1.0f));
                 UI::PushStyleColor(UI::Col::ButtonHovered, vec4(colorNadeo,        1.0f));
@@ -482,7 +482,7 @@ void Tab_Weekly() {
             }
 
             UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-            if (UI::Button(Shadow() + campaign.name, vec2(scale * 63.0f, scale * 25.0f))) {
+            if (UI::Button(Shadow() + campaign.name, vec2(scale * 78.0f, scale * 25.0f))) {
                 @activeWeeklyWeek = @campaign;
                 selected = true;
             }
