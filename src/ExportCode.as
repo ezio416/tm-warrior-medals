@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2024-10-21
+// m 2025-03-02
 
 /*
 Exports from the Warrior Medals plugin.
@@ -9,7 +9,7 @@ namespace WarriorMedals {
     Returns the plugin's main color as a string.
     */
     string GetColorStr() {
-        return colorStr;
+        return pluginColor;
     }
 
     /*

@@ -1,27 +1,36 @@
 // c 2024-07-18
-// m 2025-02-20
+// m 2025-03-02
 
 namespace API {
     const string baseUrl    = "https://e416.dev/api2";
+    string       checkingUid;
     dictionary@  missing    = dictionary();
     bool         requesting = false;
 
-    Net::HttpRequest@ GetAsync(const string &in url, bool start = true) {
+    string EdevAgent() {
+        string executing;
+        Meta::Plugin@ pluginExec = Meta::ExecutingPlugin();
+        if (pluginExec !is pluginMeta)
+            executing = " (" + pluginExec.ID + " " + pluginExec.Version + ")";
+
+        CSystemPlatformScript@ SysPlat = GetApp().SystemPlatform;
+        return reqAgentStart + executing + " / " + SysPlat.ExtraTool_Info.Replace("Openplanet ", "") + " / " + SysPlat.ExeVersion;
+    }
+
+    Net::HttpRequest@ GetAsync(const string &in url, bool start = true, const string &in agent = "") {
         requesting = true;
-
-        if (start) {
-            Net::HttpRequest@ req = Net::HttpGet(url);
-
-            while (!req.Finished())
-                yield();
-
-            requesting = false;
-            return req;
-        }
 
         Net::HttpRequest@ req = Net::HttpRequest();
         req.Method = Net::HttpMethod::Get;
         req.Url = url;
+        if (agent.Length > 0)
+            req.Headers["User-Agent"] = agent;
+
+        if (start) {
+            req.Start();
+            while (!req.Finished())
+                yield();
+        }
 
         requesting = false;
         return req;
@@ -31,7 +40,7 @@ namespace API {
         while (requesting)
             yield();
 
-        return GetAsync(baseUrl + endpoint, start);
+        return GetAsync(baseUrl + endpoint, start, EdevAgent());
     }
 
     void CheckVersionAsync() {
@@ -45,7 +54,7 @@ namespace API {
             case 426: {
                 const string msg = "Please update through the Plugin Manager at the top. Your plugin version will soon be unsupported!";
                 warn(msg);
-                UI::ShowNotification(title, msg, vec4(colorVec * 0.5f, 1.0f), 10000);
+                UI::ShowNotification(pluginTitle, msg, vec4(colorVec * 0.5f, 1.0f), 10000);
                 break;
             }
 
@@ -131,7 +140,7 @@ namespace API {
     }
 
     void GetMapInfoAsync(const string &in uid) {
-        if (maps.Exists(uid))
+        if (uid.Length == 0 || uid == checkingUid || maps.Exists(uid))
             return;
 
         if (missing.Exists(uid)) {
@@ -141,11 +150,9 @@ namespace API {
             missing.Delete(uid);
         }
 
-        if (maps.Exists(uid))
-            return;
-
         const uint64 start = Time::Now;
         trace("getting map info for " + uid);
+        checkingUid = uid;
 
         Net::HttpRequest@ req = GetEdevAsync("/tm/warrior?uid=" + uid);
 
@@ -155,9 +162,11 @@ namespace API {
                 break;
             case 429:
                 error("getting map info for " + uid + " failed after " + (Time::Now - start) + "ms: too many requests");
+                checkingUid = "";
                 return;
             default:
                 error("getting map info for " + uid + " failed after " + (Time::Now - start) + "ms: code: " + respCode + " | msg: " + req.String().Replace("\n", " "));
+                checkingUid = "";
                 return;
         }
 
@@ -172,39 +181,40 @@ namespace API {
             warn("map info not found for " + uid + " after " + (Time::Now - start) + "ms");
             missing[uid] = Time::Stamp + 600;  // wait 10 minutes to check map again
         }
+
+        checkingUid = "";
     }
 
-    Net::HttpRequest@ PostAsync(const string &in url, const string &in body = "", const string &in contentType = "application/json", bool start = true) {
+    Net::HttpRequest@ PostAsync(const string &in url, const string &in body = "", bool start = true, const string &in agent = "") {
         requesting = true;
-
-        if (start) {
-            Net::HttpRequest@ req = Net::HttpPost(url, body, contentType);
-
-            while (!req.Finished())
-                yield();
-
-            requesting = false;
-            return req;
-        }
 
         Net::HttpRequest@ req = Net::HttpRequest();
         req.Method = Net::HttpMethod::Post;
         req.Url = url;
         req.Body = body;
+        req.Headers["Content-Type"] = "application/json";
+        if (agent.Length > 0)
+            req.Headers["User-Agent"] = agent;
+
+        if (start) {
+            req.Start();
+            while (!req.Finished())
+                yield();
+        }
 
         requesting = false;
         return req;
     }
 
-    Net::HttpRequest@ PostAsync(const string &in url, Json::Value@ body = null, const string &in contentType = "application/json", bool start = true) {
-        return PostAsync(url, Json::Write(body), contentType, start);
+    Net::HttpRequest@ PostAsync(const string &in url, Json::Value@ body = null, bool start = true, const string &in agent = "") {
+        return PostAsync(url, Json::Write(body), start, agent);
     }
 
     Net::HttpRequest@ PostEdevAsync(const string &in endpoint, const string &in body = "", bool start = true) {
         while (requesting)
             yield();
 
-        return PostAsync(baseUrl + endpoint, body, start:start);
+        return PostAsync(baseUrl + endpoint, body, start, EdevAgent());
     }
 
     Net::HttpRequest@ PostEdevAsync(const string &in endpoint, Json::Value@ body = null, bool start = true) {
@@ -225,14 +235,8 @@ namespace API {
             body["mapUid"] = GetApp().RootMap.EdChallengeId;
 
         CTrackMania@ App = cast<CTrackMania@>(GetApp());
-
         if (!anonymous && App.LocalPlayerInfo !is null)
             body["accountId"] = App.LocalPlayerInfo.WebServicesUserId;
-
-        if (App.SystemPlatform !is null) {
-            body["exeVersion"] = App.SystemPlatform.ExeVersion;
-            body["opVersion"] = App.SystemPlatform.ExtraTool_Info;
-        }
 
         Net::HttpRequest@ req = PostEdevAsync("/tm/warrior/feedback", body);
 
@@ -245,7 +249,7 @@ namespace API {
             case 429: {
                 const string msg = "You've sent enough feedback for today.";
                 warn(msg);
-                UI::ShowNotification(title, msg, vec4(1.0f, 0.6f, 0.0f, 0.8f));
+                UI::ShowNotification(pluginTitle, msg, vec4(1.0f, 0.6f, 0.0f, 0.8f));
                 feedbackLocked = true;
                 return false;
             }
@@ -253,7 +257,7 @@ namespace API {
             default:
                 warn(Icons::ExclamationTriangle + " failed (" + code + "), can't send: " + Json::Write(body));
                 warn(req.String());
-                UI::ShowNotification(title, "Something went wrong, check the log!", vec4(1.0f, 0.3f, 0.0f, 0.8f));
+                UI::ShowNotification(pluginTitle, "Something went wrong, check the log!", vec4(1.0f, 0.3f, 0.0f, 0.8f));
                 return false;
         }
     }

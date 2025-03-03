@@ -1,5 +1,5 @@
 // c 2024-12-23
-// m 2024-12-24
+// m 2025-03-02
 
 bool   feedbackAnon   = true;
 bool   feedbackLocked = false;
@@ -16,7 +16,7 @@ void FeedbackWindow() {
         return;
 
     UI::SetNextWindowSize(300, 250);
-    if (UI::Begin(title + " \\$FA3Feedback###warrior-medals-feedback", feedbackShown, UI::WindowFlags::AlwaysAutoResize)) {
+    if (UI::Begin(pluginTitle + " \\$FA3Feedback###warrior-medals-feedback", feedbackShown, UI::WindowFlags::AlwaysAutoResize)) {
         UI::BeginDisabled(API::requesting);
 
         UI::AlignTextToFramePadding();
@@ -60,7 +60,7 @@ void SendFeedbackAsync() {
 
     const string msg = "Thanks for the feedback!";
     print("\\$0F0" + msg);
-    UI::ShowNotification(title, msg);
+    UI::ShowNotification(pluginTitle, msg);
 
     feedbackSubject = "";
     feedbackMessage = "";

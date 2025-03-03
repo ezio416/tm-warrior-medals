@@ -1,5 +1,5 @@
 // c 2024-07-24
-// m 2025-02-20
+// m 2025-03-02
 
 void MainWindow() {
     UI::PushStyleColor(UI::Col::Button,        vec4(colorVec * 0.8f, 1.0f));
@@ -98,7 +98,7 @@ void MainWindowDetached() {
         return;
 
     if (UI::Begin(
-        title,
+        pluginTitle,
         S_MainWindowDetached,
         S_MainWindowAutoResize ? UI::WindowFlags::AlwaysAutoResize : UI::WindowFlags::None
     ))
