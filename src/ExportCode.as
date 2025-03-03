@@ -59,7 +59,7 @@ namespace WarriorMedals {
     */
     uint GetWMTime() {
         if (!pluginMeta.Enabled) {
-            warn("plugin disabled");
+            warn("Warrior Medals is disabled");
             return 0;
         }
 
@@ -79,7 +79,7 @@ namespace WarriorMedals {
     */
     uint GetWMTime(const string &in uid) {
         if (!pluginMeta.Enabled) {
-            warn("plugin disabled");
+            warn("Warrior Medals is disabled");
             return 0;
         }
 
@@ -101,7 +101,7 @@ namespace WarriorMedals {
     */
     uint GetWMTimeAsync() {
         if (!pluginMeta.Enabled) {
-            warn("plugin disabled");
+            warn("Warrior Medals is disabled");
             return 0;
         }
 
@@ -121,7 +121,7 @@ namespace WarriorMedals {
     */
     uint GetWMTimeAsync(const string &in uid) {
         if (!pluginMeta.Enabled) {
-            warn("plugin disabled");
+            warn("Warrior Medals is disabled");
             return 0;
         }
 
