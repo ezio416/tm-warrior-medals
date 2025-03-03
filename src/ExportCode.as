@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-03-02
+// m 2025-03-03
 
 /*
 Exports from the Warrior Medals plugin.
@@ -58,7 +58,7 @@ namespace WarriorMedals {
     Only use this if you need a synchronous function.
     */
     uint GetWMTime() {
-        if (!Meta::ExecutingPlugin().Enabled) {
+        if (!pluginMeta.Enabled) {
             warn("plugin disabled");
             return 0;
         }
@@ -78,7 +78,7 @@ namespace WarriorMedals {
     Only use this if you need a synchronous function.
     */
     uint GetWMTime(const string &in uid) {
-        if (!Meta::ExecutingPlugin().Enabled) {
+        if (!pluginMeta.Enabled) {
             warn("plugin disabled");
             return 0;
         }
@@ -100,7 +100,7 @@ namespace WarriorMedals {
     Use this instead of the synchronous version if possible.
     */
     uint GetWMTimeAsync() {
-        if (!Meta::ExecutingPlugin().Enabled) {
+        if (!pluginMeta.Enabled) {
             warn("plugin disabled");
             return 0;
         }
@@ -120,7 +120,7 @@ namespace WarriorMedals {
     Use this instead of the synchronous version if possible.
     */
     uint GetWMTimeAsync(const string &in uid) {
-        if (!Meta::ExecutingPlugin().Enabled) {
+        if (!pluginMeta.Enabled) {
             warn("plugin disabled");
             return 0;
         }
