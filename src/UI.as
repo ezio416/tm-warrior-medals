@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2025-03-03
+// m 2025-03-04
 
 uint FrameConfirmQuit = 0;
 const float stdRatio = 16.0f / 9.0f;
@@ -241,7 +241,7 @@ void DrawOverUI() {
             continue;
         const string pageName = Layer.ManialinkPageUtf8.SubStr(start, end);
 
-        if (pageName.StartsWith("Overlay_ReportSystem")) {  // 2024-12-12_15_15 index 8
+        if (pageName.Contains("Overlay_ReportSystem")) {  // 2024-12-12_15_15 index 8
             CGameManialinkFrame@ Frame = cast<CGameManialinkFrame@>(Layer.LocalPage.GetFirstChild("frame-report-system"));
             if (Frame !is null && Frame.Visible)
                 return;
@@ -250,7 +250,7 @@ void DrawOverUI() {
         if (true
             && S_UIMedalsSoloMenu
             && Solo is null
-            && pageName.StartsWith("Page_Solo")  // 2024-12-12_15_15 index 16
+            && pageName.Contains("Page_Solo")  // 2024-12-12_15_15 index 16
         ) {
             @Solo = Layer.LocalPage;
             continue;
@@ -259,7 +259,7 @@ void DrawOverUI() {
         // if (true
         //     && S_UIMedalsLiveTotd
         //     && LiveTotd is null
-            // && pageName.StartsWith("Page_TOTDChannelDisplay")  // 2024-12-12_15_15 index 26
+            // && pageName.Contains("Page_TOTDChannelDisplay")  // 2024-12-12_15_15 index 26
         // ) {
         //     @LiveTotd = Layer.LocalPage;
         //     continue;
@@ -272,7 +272,7 @@ void DrawOverUI() {
                 || S_UIMedalsWeekly
             )
             && Campaign is null
-            && pageName.StartsWith("Page_CampaignDisplay")  // 2024-12-12_15_15 index 29
+            && pageName.Contains("Page_CampaignDisplay")  // 2024-12-12_15_15 index 29
         ) {
             @Campaign = Layer.LocalPage;
             continue;
@@ -281,7 +281,7 @@ void DrawOverUI() {
         if (true
             && S_UIMedalsTotd
             && Totd is null
-            && pageName.StartsWith("Page_MonthlyCampaignDisplay")  // 2024-12-12_15_15 index 30
+            && pageName.Contains("Page_MonthlyCampaignDisplay")  // 2024-12-12_15_15 index 30
         ) {
             @Totd = Layer.LocalPage;
             continue;
@@ -290,7 +290,7 @@ void DrawOverUI() {
         if (true
             && S_UIMedalsLiveCampaign
             && LiveCampaign is null
-            && pageName.StartsWith("Page_RoomCampaignDisplay")  // 2024-12-12_15_15 index 40
+            && pageName.Contains("Page_RoomCampaignDisplay")  // 2024-12-12_15_15 index 40
         ) {
             @LiveCampaign = Layer.LocalPage;
             continue;
