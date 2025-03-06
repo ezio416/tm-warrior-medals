@@ -1,5 +1,5 @@
 // c 2024-07-18
-// m 2025-02-20
+// m 2025-03-05
 
 float GayHue(uint cycleTimeMs = 5000, float offset = 0.0f, bool reverse = false) {
     const float h = float(Time::Now % cycleTimeMs) / float(cycleTimeMs) + offset;
@@ -68,6 +68,11 @@ void PlayMapAsync(ref@ m) {
         warn("given map is null");
         return;
     }
+
+#if DEPENDENCY_MLHOOK
+    if (Meta::GetPluginFromID("MLHook").Enabled)
+        MLHook::Queue_Menu_SendCustomEvent("Event_UpdateLoadingScreen", {map.name});
+#endif
 
     loading = true;
     map.PlayAsync();
