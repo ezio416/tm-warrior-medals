@@ -204,14 +204,13 @@ void Settings_MedalsInUI() {
         UI::PopFont();
 
         if (UI::Button("Reset to default##menu")) {
-            Meta::Plugin@ plugin = Meta::ExecutingPlugin();
-            plugin.GetSetting("S_UIMedalsSoloMenu").Reset();
-            plugin.GetSetting("S_UIMedalsSeasonalCampaign").Reset();
-            plugin.GetSetting("S_UIMedalsLiveCampaign").Reset();
-            plugin.GetSetting("S_UIMedalsClubCampaign").Reset();
-            plugin.GetSetting("S_UIMedalsTotd").Reset();
-            // plugin.GetSetting("S_UIMedalsLiveTotd").Reset();
-            plugin.GetSetting("S_UIMedalsWeekly").Reset();
+            pluginMeta.GetSetting("S_UIMedalsSoloMenu").Reset();
+            pluginMeta.GetSetting("S_UIMedalsSeasonalCampaign").Reset();
+            pluginMeta.GetSetting("S_UIMedalsLiveCampaign").Reset();
+            pluginMeta.GetSetting("S_UIMedalsClubCampaign").Reset();
+            pluginMeta.GetSetting("S_UIMedalsTotd").Reset();
+            // pluginMeta.GetSetting("S_UIMedalsLiveTotd").Reset();
+            pluginMeta.GetSetting("S_UIMedalsWeekly").Reset();
         }
 
         S_UIMedalsSoloMenu         = UI::Checkbox("Solo menu",                S_UIMedalsSoloMenu);
@@ -232,11 +231,10 @@ void Settings_MedalsInUI() {
         UI::PopFont();
 
         if (UI::Button("Reset to default##playing")) {
-            Meta::Plugin@ plugin = Meta::ExecutingPlugin();
-            plugin.GetSetting("S_UIMedalBanner").Reset();
-            plugin.GetSetting("S_UIMedalStart").Reset();
-            plugin.GetSetting("S_UIMedalPause").Reset();
-            plugin.GetSetting("S_UIMedalEnd").Reset();
+            pluginMeta.GetSetting("S_UIMedalBanner").Reset();
+            pluginMeta.GetSetting("S_UIMedalStart").Reset();
+            pluginMeta.GetSetting("S_UIMedalPause").Reset();
+            pluginMeta.GetSetting("S_UIMedalEnd").Reset();
         }
 
         S_UIMedalBanner = UI::Checkbox("Record banner", S_UIMedalBanner);
