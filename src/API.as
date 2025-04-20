@@ -1,5 +1,5 @@
 // c 2024-07-18
-// m 2025-03-02
+// m 2025-04-20
 
 namespace API {
     const string baseUrl    = "https://e416.dev/api2";
@@ -49,6 +49,10 @@ namespace API {
         const int code = req.ResponseCode();
         switch (code) {
             case 200:
+                break;
+
+            case 403:
+                warn("You've been denied access to the plugin. If you believe this is an error, contact the plugin author (Ezio).");
                 break;
 
             case 426: {
@@ -160,10 +164,16 @@ namespace API {
         switch (respCode) {
             case 200:
                 break;
+
+            case 403:
+                warn("You've been denied access to the plugin. If you believe this is an error, contact Ezio on Discord.");
+                return;
+
             case 429:
                 error("getting map info for " + uid + " failed after " + (Time::Now - start) + "ms: too many requests");
                 checkingUid = "";
                 return;
+
             default:
                 error("getting map info for " + uid + " failed after " + (Time::Now - start) + "ms: code: " + respCode + " | msg: " + req.String().Replace("\n", " "));
                 checkingUid = "";
@@ -245,6 +255,10 @@ namespace API {
             case 200:
                 print(Icons::InfoCircle + " sent: " + req.Body);
                 return true;
+
+            case 403:
+                warn("You've been denied access to the plugin. If you believe this is an error, contact Ezio on Discord.");
+                break;
 
             case 429: {
                 const string msg = "You've sent enough feedback for today.";
