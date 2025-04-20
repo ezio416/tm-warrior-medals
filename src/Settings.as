@@ -1,46 +1,46 @@
 // c 2024-07-17
-// m 2025-02-20
+// m 2025-04-20
 
-[Setting hidden] vec3 S_ColorFall                = vec3(1.0f, 0.5f, 0.0f);
-[Setting hidden] vec3 S_ColorSpring              = vec3(0.3f, 0.9f, 0.3f);
-[Setting hidden] vec3 S_ColorSummer              = vec3(1.0f, 0.8f, 0.0f);
-[Setting hidden] vec3 S_ColorWinter              = vec3(0.0f, 0.8f, 1.0f);
-[Setting hidden] vec4 S_ColorButtonFont          = vec4(1.0f);
+[Setting hidden category="Colors"]       vec3 S_ColorFall                  = vec3(1.0f, 0.5f, 0.0f);
+[Setting hidden category="Colors"]       vec3 S_ColorSpring                = vec3(0.3f, 0.9f, 0.3f);
+[Setting hidden category="Colors"]       vec3 S_ColorSummer                = vec3(1.0f, 0.8f, 0.0f);
+[Setting hidden category="Colors"]       vec3 S_ColorWinter                = vec3(0.0f, 0.8f, 1.0f);
+[Setting hidden category="Colors"]       vec4 S_ColorButtonFont            = vec4(1.0f);
 
-[Setting hidden] bool S_MainWindowAutoResize     = false;
-[Setting hidden] bool S_MainWindowCampRefresh    = true;
-[Setting hidden] bool S_MainWindowDetached       = false;
-[Setting hidden] bool S_MainWindowHideWithGame   = true;
-[Setting hidden] bool S_MainWindowHideWithOP     = true;
-[Setting hidden] bool S_MainWindowOldestFirst    = false;
-[Setting hidden] bool S_MainWindowPercentages    = true;
-[Setting hidden] bool S_MainWindowTextShadows    = true;
-[Setting hidden] bool S_MainWindowTmioLinks      = true;
+[Setting hidden category="Main Window"]  bool S_MainWindowAutoResize       = false;
+[Setting hidden category="Main Window"]  bool S_MainWindowCampRefresh      = true;
+[Setting hidden category="Main Window"]  bool S_MainWindowDetached         = false;
+[Setting hidden category="Main Window"]  bool S_MainWindowHideWithGame     = true;
+[Setting hidden category="Main Window"]  bool S_MainWindowHideWithOP       = true;
+[Setting hidden category="Main Window"]  bool S_MainWindowOldestFirst      = false;
+[Setting hidden category="Main Window"]  bool S_MainWindowPercentages      = true;
+[Setting hidden category="Main Window"]  bool S_MainWindowTextShadows      = true;
+[Setting hidden category="Main Window"]  bool S_MainWindowTmioLinks        = true;
 
-[Setting hidden] bool S_MedalWindow              = true;
-[Setting hidden] bool S_MedalWindowDelta         = true;
-[Setting hidden] bool S_MedalWindowHideWithGame  = true;
-[Setting hidden] bool S_MedalWindowHideWithOP    = false;
-[Setting hidden] bool S_MedalWindowIcon          = true;
-[Setting hidden] bool S_MedalWindowName          = true;
+[Setting hidden category="Medal Window"] bool S_MedalWindow                = true;
+[Setting hidden category="Medal Window"] bool S_MedalWindowDelta           = true;
+[Setting hidden category="Medal Window"] bool S_MedalWindowHideWithGame    = true;
+[Setting hidden category="Medal Window"] bool S_MedalWindowHideWithOP      = false;
+[Setting hidden category="Medal Window"] bool S_MedalWindowIcon            = true;
+[Setting hidden category="Medal Window"] bool S_MedalWindowName            = true;
 
-[Setting hidden] bool S_UIMedals                 = true;
-[Setting hidden] bool S_UIMedalBanner            = true;
-[Setting hidden] bool S_UIMedalEnd               = true;
-[Setting hidden] bool S_UIMedalPause             = true;
-[Setting hidden] bool S_UIMedalsAlwaysMenu       = false;
-[Setting hidden] bool S_UIMedalsAlwaysPlayground = false;
-[Setting hidden] bool S_UIMedalsClubCampaign     = true;
-[Setting hidden] bool S_UIMedalsLiveCampaign     = true;
-[Setting hidden] bool S_UIMedalsLiveTotd         = false;
-[Setting hidden] bool S_UIMedalsSeasonalCampaign = true;
-[Setting hidden] bool S_UIMedalsSoloMenu         = true;
-[Setting hidden] bool S_UIMedalStart             = true;
-[Setting hidden] bool S_UIMedalsTotd             = true;
-[Setting hidden] bool S_UIMedalsWeekly           = true;
+[Setting hidden category="UI Medals"]    bool S_UIMedals                   = true;
+[Setting hidden category="UI Medals"]    bool S_UIMedalBanner              = true;
+[Setting hidden category="UI Medals"]    bool S_UIMedalEnd                 = true;
+[Setting hidden category="UI Medals"]    bool S_UIMedalPause               = true;
+/*[Setting hidden category="UI Medals"]*/bool S_UIMedalsAlwaysMenu         = false;
+/*[Setting hidden category="UI Medals"]*/bool S_UIMedalsAlwaysPlayground   = false;
+[Setting hidden category="UI Medals"]    bool S_UIMedalsClubCampaign       = true;
+[Setting hidden category="UI Medals"]    bool S_UIMedalsLiveCampaign       = true;
+[Setting hidden category="UI Medals"]    bool S_UIMedalsLiveTotd           = false;
+[Setting hidden category="UI Medals"]    bool S_UIMedalsSeasonalCampaign   = true;
+[Setting hidden category="UI Medals"]    bool S_UIMedalsSoloMenu           = true;
+[Setting hidden category="UI Medals"]    bool S_UIMedalStart               = true;
+[Setting hidden category="UI Medals"]    bool S_UIMedalsTotd               = true;
+[Setting hidden category="UI Medals"]    bool S_UIMedalsWeekly             = true;
 
-[Setting hidden] bool getAllClicked = false;
-[Setting hidden] bool initWeekly    = false;  // set once after weekly PBs are retrieved
+[Setting hidden category="Init"]         bool getAllClicked                = false;
+[Setting hidden category="Init"]         bool initWeekly                   = false;  // set once after weekly PBs are retrieved
 
 [SettingsTab name="General" icon="Cogs"]
 void Settings_General() {
@@ -48,17 +48,12 @@ void Settings_General() {
     UI::Text("Main Window");
     UI::PopFont();
 
-    if (UI::Button("Reset to default##main")) {
-        Meta::Plugin@ plugin = Meta::ExecutingPlugin();
-        plugin.GetSetting("S_MainWindowDetached").Reset();
-        plugin.GetSetting("S_MainWindowHideWithGame").Reset();
-        plugin.GetSetting("S_MainWindowHideWithOP").Reset();
-        plugin.GetSetting("S_MainWindowAutoResize").Reset();
-        plugin.GetSetting("S_MainWindowTmioLinks").Reset();
-        plugin.GetSetting("S_MainWindowCampRefresh").Reset();
-        plugin.GetSetting("S_MainWindowPercentages").Reset();
-        plugin.GetSetting("S_MainWindowOldestFirst").Reset();
-        plugin.GetSetting("S_MainWindowTextShadows").Reset();
+    if (UI::Button("Reset to default##mainwindow")) {
+        Meta::PluginSetting@[]@ settings = pluginMeta.GetSettings();
+        for (uint i = 0; i < settings.Length; i++) {
+            if (settings[i].Category == "Main Window")
+                settings[i].Reset();
+        }
     }
 
     S_MainWindowDetached = UI::Checkbox(
@@ -118,15 +113,12 @@ void Settings_General() {
     UI::Text("Medal Window");
     UI::PopFont();
 
-    if (UI::Button("Reset to default##medal")) {
-        Meta::Plugin@ plugin = Meta::ExecutingPlugin();
-        plugin.GetSetting("S_MedalWindow").Reset();
-        plugin.GetSetting("S_MedalWindowHideWithGame").Reset();
-        plugin.GetSetting("S_MedalWindowHideWithOP").Reset();
-        plugin.GetSetting("S_MedalWindowDelta").Reset();
-        plugin.GetSetting("S_MedalWindowIcon").Reset();
-        plugin.GetSetting("S_MedalWindowName").Reset();
-
+    if (UI::Button("Reset to default##medalwindow")) {
+        Meta::PluginSetting@[]@ settings = pluginMeta.GetSettings();
+        for (uint i = 0; i < settings.Length; i++) {
+            if (settings[i].Category == "Medal Window")
+                settings[i].Reset();
+        }
     }
 
     if ((S_MedalWindow = UI::Checkbox("Show medal window when playing", S_MedalWindow))) {
@@ -168,12 +160,11 @@ void Settings_General() {
     UI::PopFont();
 
     if (UI::Button("Reset to default##colors")) {
-        Meta::Plugin@ plugin = Meta::ExecutingPlugin();
-        plugin.GetSetting("S_ColorWinter").Reset();
-        plugin.GetSetting("S_ColorSpring").Reset();
-        plugin.GetSetting("S_ColorSummer").Reset();
-        plugin.GetSetting("S_ColorFall").Reset();
-        plugin.GetSetting("S_ColorButtonFont").Reset();
+        Meta::PluginSetting@[]@ settings = pluginMeta.GetSettings();
+        for (uint i = 0; i < settings.Length; i++) {
+            if (settings[i].Category == "Colors")
+                settings[i].Reset();
+        }
     }
 
     S_ColorWinter     = UI::InputColor3("Winter / Jan-Mar", S_ColorWinter);
@@ -199,10 +190,8 @@ void Settings_MedalsInUI() {
     UI::Text("Toggle");
     UI::PopFont();
 
-    if (UI::Button("Reset to default##main")) {
-        Meta::Plugin@ plugin = Meta::ExecutingPlugin();
-        plugin.GetSetting("S_UIMedals").Reset();
-    }
+    if (UI::Button("Reset to default##mainui"))
+        pluginMeta.GetSetting("S_UIMedals").Reset();
 
     S_UIMedals = UI::Checkbox("Show medals in UI", S_UIMedals);
     HoverTooltipSetting("Showing Warrior medal icons in the UI can be laggy, but it's a nice touch to see them more easily in a vanilla-looking way");
@@ -264,11 +253,10 @@ void Settings_MedalsInUI() {
         UI::Text("Debug");
         UI::PopFont();
 
-        if (UI::Button("Reset to default##ui-debug")) {
-            Meta::Plugin@ plugin = Meta::ExecutingPlugin();
-            plugin.GetSetting("S_UIMedalsAlwaysMenu").Reset();
-            plugin.GetSetting("S_UIMedalsAlwaysPlayground").Reset();
-        }
+        // if (UI::Button("Reset to default##ui-debug")) {
+        //     pluginMeta.GetSetting("S_UIMedalsAlwaysMenu").Reset();
+        //     pluginMeta.GetSetting("S_UIMedalsAlwaysPlayground").Reset();
+        // }
 
         S_UIMedalsAlwaysMenu       = UI::Checkbox("Always show in menu",       S_UIMedalsAlwaysMenu);
         S_UIMedalsAlwaysPlayground = UI::Checkbox("Always show in playground", S_UIMedalsAlwaysPlayground);
@@ -418,7 +406,8 @@ void Settings_Debug() {
                     UI::Text(tostring(map.index));
 
                     UI::TableNextColumn();
-                    UI::Text(Time::Format(map.custom));
+                    if (map.custom > 0)
+                        UI::Text(Time::Format(map.custom));
 
                     UI::TableNextColumn();
                     UI::Text(map.reason);
