@@ -258,7 +258,7 @@ namespace API {
 
             case 403:
                 warn("You've been denied access to the plugin. If you believe this is an error, contact Ezio on Discord.");
-                break;
+                return false;
 
             case 429: {
                 const string msg = "You've sent enough feedback for today.";
