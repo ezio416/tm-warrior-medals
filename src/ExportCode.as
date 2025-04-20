@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-03-03
+// m 2025-03-31
 
 /*
 Exports from the Warrior Medals plugin.
@@ -83,8 +83,10 @@ namespace WarriorMedals {
             return 0;
         }
 
-        if (!maps.Exists(uid))
+        if (!maps.Exists(uid)) {
+            // startnew(GetWMTimeAsync, uid);
             return 0;
+        }
 
         Map@ map = cast<Map@>(maps[uid]);
         if (map is null)
