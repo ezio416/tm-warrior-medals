@@ -52,7 +52,7 @@ namespace API {
                 break;
 
             case 403:
-                warn("You've been denied access to the plugin. If you believe this is an error, contact the plugin author (Ezio).");
+                warn("You've been denied access to the plugin. If you believe this is an error, contact Ezio on Discord.");
                 break;
 
             case 426: {
