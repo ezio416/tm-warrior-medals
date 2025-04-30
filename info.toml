@@ -2,11 +2,12 @@
 name = "Warrior Medals"
 author = "Ezio"
 category = "Race"
-version = "1.6.1"
+version = "1.7.0"
 siteid = 590
 
 [script]
 dependencies = [ "NadeoServices" ]
+optional_dependencies = [ "MLHook" ]
 module = "WarriorMedals"
 exports = [ "src/Export.as" ]
 shared_exports = [ "src/ExportShared.as" ]

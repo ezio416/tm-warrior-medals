@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-02-20
+// m 2025-03-02
 
 Campaign@           activeOtherCampaign;
 Campaign@           activeSeasonalCampaign;
@@ -9,7 +9,6 @@ Json::Value@        campaignIndices;
 dictionary@         campaigns         = dictionary();
 Campaign@[]         campaignsArr;
 Campaign@[]         campaignsArrRev;
-const string        colorStr          = "\\$3CF";
 const vec3          colorVec          = vec3(0.2f, 0.8f, 1.0f);
 UI::Font@           fontHeader;
 UI::Font@           fontSubHeader;
@@ -20,10 +19,14 @@ UI::Texture@        icon512;
 WarriorMedals::Map@ latestTotd;
 bool                loading           = false;
 dictionary@         maps              = dictionary();
+const string        pluginColor       = "\\$3CF";
+const string        pluginIcon        = Icons::Circle;
+Meta::Plugin@       pluginMeta        = Meta::ExecutingPlugin();
+const string        pluginTitle       = pluginColor + pluginIcon + "\\$G " + pluginMeta.Name;
+const string        reqAgentStart     = "Openplanet / Net::HttpRequest / " + pluginMeta.ID + " " + pluginMeta.Version;
 const float         scale             = UI::GetScale();
 vec3[]              seasonColors;
 bool                settingTotals     = false;
-const string        title             = colorStr + Icons::Circle + "\\$G Warrior Medals";
 uint                total             = 0;
 uint                totalHave         = 0;
 const string        uidSeparator      = "|warrior-campaign|";
@@ -88,11 +91,11 @@ void RenderEarly() {
 }
 
 void RenderMenu() {
-    if (UI::BeginMenu(title)) {
-        if (UI::MenuItem(colorStr + Icons::WindowMaximize + "\\$G Detached main window", "", S_MainWindowDetached))
+    if (UI::BeginMenu(pluginTitle)) {
+        if (UI::MenuItem(pluginColor + Icons::WindowMaximize + "\\$G Detached main window", "", S_MainWindowDetached))
             S_MainWindowDetached = !S_MainWindowDetached;
 
-        if (UI::MenuItem(colorStr + Icons::Circle + "\\$G Medal window", "", S_MedalWindow))
+        if (UI::MenuItem(pluginColor + Icons::Circle + "\\$G Medal window", "", S_MedalWindow))
             S_MedalWindow = !S_MedalWindow;
 
         UI::EndMenu();

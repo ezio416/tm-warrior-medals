@@ -1,5 +1,5 @@
 // c 2024-07-24
-// m 2024-10-23
+// m 2025-03-02
 
 void MedalWindow() {
     if (false
@@ -22,7 +22,7 @@ void MedalWindow() {
     if (!UI::IsOverlayShown())
         flags |= UI::WindowFlags::NoMove;
 
-    if (UI::Begin(title + "-medal", S_MedalWindow, flags)) {
+    if (UI::Begin(pluginTitle + "-medal", S_MedalWindow, flags)) {
         const uint warrior = map.custom > 0 ? map.custom : map.warrior;
         const bool delta = S_MedalWindowDelta && map.pb != uint(-1);
 
@@ -39,7 +39,7 @@ void MedalWindow() {
             if (S_MedalWindowIcon)
                 UI::Image(icon32, vec2(scale * 16.0f));
             else
-                UI::Text(colorStr + Icons::Circle);
+                UI::Text(pluginColor + Icons::Circle);
 
             if (S_MedalWindowName) {
                 UI::TableNextColumn();

@@ -1,5 +1,5 @@
 // c 2024-07-24
-// m 2025-02-20
+// m 2025-03-03
 
 void MainWindow() {
     UI::PushStyleColor(UI::Col::Button,        vec4(colorVec * 0.8f, 1.0f));
@@ -98,7 +98,7 @@ void MainWindowDetached() {
         return;
 
     if (UI::Begin(
-        title,
+        pluginTitle,
         S_MainWindowDetached,
         S_MainWindowAutoResize ? UI::WindowFlags::AlwaysAutoResize : UI::WindowFlags::None
     ))
@@ -124,7 +124,7 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
         UI::TableNextColumn();
         UI::AlignTextToFramePadding();
         UI::SeparatorText(Shadow() + campaign.nameStripped);
-        if (campaign.clubName.Length > 0) {
+        if (campaign.clubName.Length > 0 && campaign.clubName != "None") {
             UI::PopFont();
             HoverTooltip("from the club \"" + WarriorMedals::OpenplanetFormatCodes(campaign.clubName) + "\\$Z\"");
             UI::PushFont(fontHeader);
@@ -144,8 +144,10 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
         UI::EndTable();
     }
 
+    const bool totd = campaign.type == WarriorMedals::CampaignType::TrackOfTheDay;
+
     if (false
-        || (S_MainWindowTmioLinks && (campaign.clubId > 0 || campaign.id > 0))
+        || (S_MainWindowTmioLinks && (campaign.clubId > 0 || campaign.id > 0 || totd))
         || S_MainWindowCampRefresh
     ) {
         if (UI::BeginTable("#table-campaign-buttons", 2, UI::TableFlags::SizingStretchProp)) {
@@ -163,9 +165,13 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
                 if (campaign.clubId > 0 && campaign.id > 0)
                     UI::SameLine();
 
-                if (campaign.id > 0 && UI::Button(Shadow() + Icons::ExternalLink + " Campaign")) {
-                    const string clubId = campaign.type == WarriorMedals::CampaignType::Seasonal ? "seasonal" : tostring(campaign.clubId);
-                    OpenBrowserURL("https://trackmania.io/#/campaigns/" + clubId + "/" + campaign.id);
+                if ((totd || campaign.id > 0) && UI::Button(Shadow() + Icons::ExternalLink + " Campaign")) {
+                    if (totd)
+                        OpenBrowserURL("https://trackmania.io/#/totd/" + (campaign.year + 2020) + "-" + campaign.month);
+                    else {
+                        const string clubId = campaign.type == WarriorMedals::CampaignType::Seasonal ? "seasonal" : tostring(campaign.clubId);
+                        OpenBrowserURL("https://trackmania.io/#/campaigns/" + clubId + "/" + campaign.id);
+                    }
                 }
             }
             UI::PopStyleColor();
@@ -187,7 +193,7 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
         }
     }
 
-    if (UI::BeginTable("##table-campaign-maps", hasPlayPermission ? 5 : 4, UI::TableFlags::RowBg | UI::TableFlags::ScrollY | UI::TableFlags::SizingStretchProp)) {
+    if (UI::BeginTable("##table-campaign-maps", hasPlayPermission ? 6 : 5, UI::TableFlags::RowBg | UI::TableFlags::ScrollY | UI::TableFlags::SizingStretchProp)) {
         UI::PushStyleColor(UI::Col::TableRowBgAlt, vec4(vec3(), 0.5f));
 
         UI::TableSetupScrollFreeze(0, 1);
@@ -196,7 +202,8 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
         UI::TableSetupColumn("PB",      UI::TableColumnFlags::WidthFixed, scale * 75.0f);
         UI::TableSetupColumn("Delta",   UI::TableColumnFlags::WidthFixed, scale * 75.0f);
         if (hasPlayPermission)
-            UI::TableSetupColumn("Play", UI::TableColumnFlags::WidthFixed, scale * 40.0f);
+            UI::TableSetupColumn("Play", UI::TableColumnFlags::WidthFixed, scale * 35.0f);
+        UI::TableSetupColumn("Tmio", UI::TableColumnFlags::WidthFixed, scale * 35.0f);
         UI::TableHeadersRow();
 
         for (uint i = 0; i < campaign.mapsArr.Length; i++) {
@@ -213,6 +220,13 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
             UI::Text(Shadow() + map.nameStripped);
             if (map.campaignType == WarriorMedals::CampaignType::TrackOfTheDay)
                 HoverTooltip(map.date);
+            if (map.custom > 0) {
+                UI::SameLine();
+                HoverTooltipSetting(
+                    "custom time (was " + Time::Format(map.warrior) + " based on WR of "
+                    + Time::Format(map.worldRecord) + ")\n\"" + map.reason + "\""
+                );
+            }
 
             UI::TableNextColumn();
             UI::Text(Shadow() + Time::Format(warrior));
@@ -233,6 +247,10 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
                 UI::EndDisabled();
                 HoverTooltip("Play " + map.nameStripped);
             }
+
+            UI::TableNextColumn();
+            if (UI::Button(Shadow() + Icons::Heartbeat + "##" + map.uid))
+                OpenBrowserURL("https://trackmania.io/#/leaderboard/" + map.uid);
         }
 
         UI::TableNextRow();
@@ -469,12 +487,12 @@ void Tab_Weekly() {
                 UI::SeparatorText(Shadow() + tostring(campaign.year + 2020));
                 UI::PopFont();
 
-            } else if (curWeekInYear % 6 > 0)
+            } else if (curWeekInYear % 5 > 0)
                 UI::SameLine();
 
             bool colored = false;
             if (campaign.week < 5) {
-                const vec3 colorNadeo = vec3(1.0f, 0.8f, 0.1f);
+                const vec3 colorNadeo = vec3(1.0f, 0.75f, 0.1f);
                 UI::PushStyleColor(UI::Col::Button,        vec4(colorNadeo * 0.9f, 1.0f));
                 UI::PushStyleColor(UI::Col::ButtonActive,  vec4(colorNadeo * 0.6f, 1.0f));
                 UI::PushStyleColor(UI::Col::ButtonHovered, vec4(colorNadeo,        1.0f));
@@ -482,7 +500,7 @@ void Tab_Weekly() {
             }
 
             UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-            if (UI::Button(Shadow() + campaign.name, vec2(scale * 63.0f, scale * 25.0f))) {
+            if (UI::Button(Shadow() + campaign.name, vec2(scale * 78.0f, scale * 25.0f))) {
                 @activeWeeklyWeek = @campaign;
                 selected = true;
             }

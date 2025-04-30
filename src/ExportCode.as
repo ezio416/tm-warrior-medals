@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2024-10-21
+// m 2025-03-31
 
 /*
 Exports from the Warrior Medals plugin.
@@ -9,7 +9,7 @@ namespace WarriorMedals {
     Returns the plugin's main color as a string.
     */
     string GetColorStr() {
-        return colorStr;
+        return pluginColor;
     }
 
     /*
@@ -58,8 +58,8 @@ namespace WarriorMedals {
     Only use this if you need a synchronous function.
     */
     uint GetWMTime() {
-        if (!Meta::ExecutingPlugin().Enabled) {
-            warn("plugin disabled");
+        if (!pluginMeta.Enabled) {
+            warn("Warrior Medals is disabled");
             return 0;
         }
 
@@ -78,13 +78,15 @@ namespace WarriorMedals {
     Only use this if you need a synchronous function.
     */
     uint GetWMTime(const string &in uid) {
-        if (!Meta::ExecutingPlugin().Enabled) {
-            warn("plugin disabled");
+        if (!pluginMeta.Enabled) {
+            warn("Warrior Medals is disabled");
             return 0;
         }
 
-        if (!maps.Exists(uid))
+        if (!maps.Exists(uid)) {
+            // startnew(GetWMTimeAsync, uid);
             return 0;
+        }
 
         Map@ map = cast<Map@>(maps[uid]);
         if (map is null)
@@ -100,8 +102,8 @@ namespace WarriorMedals {
     Use this instead of the synchronous version if possible.
     */
     uint GetWMTimeAsync() {
-        if (!Meta::ExecutingPlugin().Enabled) {
-            warn("plugin disabled");
+        if (!pluginMeta.Enabled) {
+            warn("Warrior Medals is disabled");
             return 0;
         }
 
@@ -120,8 +122,8 @@ namespace WarriorMedals {
     Use this instead of the synchronous version if possible.
     */
     uint GetWMTimeAsync(const string &in uid) {
-        if (!Meta::ExecutingPlugin().Enabled) {
-            warn("plugin disabled");
+        if (!pluginMeta.Enabled) {
+            warn("Warrior Medals is disabled");
             return 0;
         }
 
