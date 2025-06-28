@@ -1,5 +1,5 @@
 // c 2024-07-24
-// m 2025-03-03
+// m 2025-06-08
 
 void MainWindow() {
     UI::PushStyleColor(UI::Col::Button,        vec4(colorVec * 0.8f, 1.0f));
@@ -362,7 +362,7 @@ void Tab_Seasonal() {
             if (campaign is null || campaign.type != WarriorMedals::CampaignType::Seasonal)
                 continue;
 
-            if (lastYear != campaign.year) {
+            if (uint(lastYear) != campaign.year) {
                 lastYear = campaign.year;
 
                 UI::PushFont(fontHeader);
@@ -419,7 +419,7 @@ void Tab_Totd() {
             if (campaign is null || campaign.type != WarriorMedals::CampaignType::TrackOfTheDay)
                 continue;
 
-            if (lastYear != campaign.year) {
+            if (uint(lastYear) != campaign.year) {
                 lastYear = campaign.year;
                 curMonthInYear = 0;
 
@@ -479,7 +479,7 @@ void Tab_Weekly() {
             if (campaign is null || campaign.type != WarriorMedals::CampaignType::Weekly)
                 continue;
 
-            if (lastYear != campaign.year) {
+            if (uint(lastYear) != campaign.year) {
                 lastYear = campaign.year;
                 curWeekInYear = 0;
 
