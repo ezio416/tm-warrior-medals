@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-03-02
+// m 2025-06-28
 
 Campaign@           activeOtherCampaign;
 Campaign@           activeSeasonalCampaign;
@@ -31,6 +31,12 @@ uint                total             = 0;
 uint                totalHave         = 0;
 const string        uidSeparator      = "|warrior-campaign|";
 
+void OnDestroyed() {
+#if DEPENDENCY_ULTIMATEMEDALSEXTENDED
+    UltimateMedalsExtended::RemoveMedal("Warrior");
+#endif
+}
+
 void Main() {
     startnew(API::CheckVersionAsync);
 
@@ -50,6 +56,12 @@ void Main() {
     @fontHeader    = UI::LoadFont("DroidSans.ttf", 26.0f);
 
     startnew(PBLoop);
+
+#if DEPENDENCY_ULTIMATEMEDALSEXTENDED
+    print("registering UME medal");
+    UME_Medal@ medal = UME_Medal();
+    UltimateMedalsExtended::AddMedal(medal);
+#endif
 
     bool inMap = InMap();
     bool wasInMap = false;
