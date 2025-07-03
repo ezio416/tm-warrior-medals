@@ -1,9 +1,10 @@
 // c 2025-06-27
-// m 2025-06-28
+// m 2025-07-03
+
+#if DEPENDENCY_ULTIMATEMEDALSEXTENDED
 
 UltimateMedalsExtended::Config@ UME_Config;
 
-#if DEPENDENCY_ULTIMATEMEDALSEXTENDED
 class UME_Medal : UltimateMedalsExtended::IMedal {
     UME_Medal() {
         @UME_Config = UltimateMedalsExtended::Config();
@@ -29,4 +30,5 @@ class UME_Medal : UltimateMedalsExtended::IMedal {
 
     void UpdateMedal(const string&in uid) override { }
 }
+
 #endif
