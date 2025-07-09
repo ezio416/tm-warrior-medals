@@ -1,5 +1,5 @@
 // c 2024-12-23
-// m 2025-03-02
+// m 2025-07-08
 
 bool   feedbackAnon   = true;
 bool   feedbackLocked = false;
@@ -14,6 +14,8 @@ void FeedbackWindow() {
         || !UI::IsOverlayShown()
     )
         return;
+
+    const float scale = UI::GetScale();
 
     UI::SetNextWindowSize(300, 250);
     if (UI::Begin(pluginTitle + " \\$FA3Feedback###warrior-medals-feedback", feedbackShown, UI::WindowFlags::AlwaysAutoResize)) {

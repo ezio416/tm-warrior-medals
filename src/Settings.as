@@ -263,6 +263,8 @@ void Settings_MedalsInUI() {
 
 [SettingsTab name="Debug" icon="Bug" order=2]
 void Settings_Debug() {
+    const float scale = UI::GetScale();
+
     if (API::Nadeo::requesting) {
         UI::BeginDisabled(API::Nadeo::cancel);
         if (UI::ButtonColored(Icons::Times + " Cancel", 0.0f))

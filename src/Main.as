@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-06-28
+// m 2025-07-08
 
 Campaign@           activeOtherCampaign;
 Campaign@           activeSeasonalCampaign;
@@ -24,7 +24,6 @@ const string        pluginIcon        = Icons::Circle;
 Meta::Plugin@       pluginMeta        = Meta::ExecutingPlugin();
 const string        pluginTitle       = pluginColor + pluginIcon + "\\$G " + pluginMeta.Name;
 const string        reqAgentStart     = "Openplanet / Net::HttpRequest / " + pluginMeta.ID + " " + pluginMeta.Version;
-const float         scale             = UI::GetScale();
 vec3[]              seasonColors;
 bool                settingTotals     = false;
 uint                total             = 0;

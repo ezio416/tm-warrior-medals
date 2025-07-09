@@ -1,5 +1,5 @@
 // c 2024-07-24
-// m 2025-03-02
+// m 2025-07-08
 
 void MedalWindow() {
     if (false
@@ -17,6 +17,8 @@ void MedalWindow() {
     WarriorMedals::Map@ map = cast<WarriorMedals::Map@>(maps[uid]);
     if (map is null)
         return;
+
+    const float scale = UI::GetScale();
 
     int flags = UI::WindowFlags::AlwaysAutoResize | UI::WindowFlags::NoTitleBar;
     if (!UI::IsOverlayShown())

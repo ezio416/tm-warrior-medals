@@ -1,10 +1,12 @@
 // c 2024-07-24
-// m 2025-06-08
+// m 2025-07-08
 
 void MainWindow() {
     UI::PushStyleColor(UI::Col::Button,        vec4(colorVec * 0.8f, 1.0f));
     UI::PushStyleColor(UI::Col::ButtonActive,  vec4(colorVec * 0.6f, 1.0f));
     UI::PushStyleColor(UI::Col::ButtonHovered, vec4(colorVec,        1.0f));
+
+    const float scale = UI::GetScale();
 
     if (UI::BeginTable("##table-main-header", 2, UI::TableFlags::SizingStretchProp)) {
         UI::TableSetupColumn("total",   UI::TableColumnFlags::WidthStretch);
@@ -112,6 +114,8 @@ bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
 
     if (!open || !UI::BeginTabItem(Shadow() + campaign.nameStripped + "###tab-" + campaign.uid, open, selected ? UI::TabItemFlags::SetSelected : UI::TabItemFlags::None))
         return open;
+
+    const float scale = UI::GetScale();
 
     if (UI::BeginTable("##table-campaign-header", 2, UI::TableFlags::SizingStretchProp)) {
         UI::TableSetupColumn("name", UI::TableColumnFlags::WidthStretch);
@@ -268,6 +272,7 @@ void Tab_Other() {
     if (!UI::BeginTabItem(Shadow() + Icons::QuestionCircle + " Other###tab-other"))
         return;
 
+    const float scale = UI::GetScale();
     bool selected = false;
 
     UI::BeginTabBar("##tab-bar-totd");
@@ -349,6 +354,7 @@ void Tab_Seasonal() {
     if (!UI::BeginTabItem(Shadow() + Icons::SnowflakeO + " Seasonal###tab-seasonal"))
         return;
 
+    const float scale = UI::GetScale();
     bool selected = false;
 
     UI::BeginTabBar("##tab-bar-seasonal");
@@ -405,6 +411,7 @@ void Tab_Totd() {
     if (!UI::BeginTabItem(Shadow() + Icons::Calendar + " Track of the Day###tab-totd"))
         return;
 
+    const float scale = UI::GetScale();
     bool selected = false;
 
     UI::BeginTabBar("##tab-bar-totd");
@@ -465,6 +472,7 @@ void Tab_Weekly() {
     if (!UI::BeginTabItem(Shadow() + Icons::ClockO + " Weekly Shorts###tab-weekly"))
         return;
 
+    const float scale = UI::GetScale();
     bool selected = false;
 
     UI::BeginTabBar("##tab-bar-weekly");
