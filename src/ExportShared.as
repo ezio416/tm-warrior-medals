@@ -1,5 +1,5 @@
 // c 2024-07-21
-// m 2025-02-20
+// m 2025-07-08
 
 /*
 Exports from the Warrior Medals plugin.
@@ -125,6 +125,10 @@ namespace WarriorMedals {
             return pb != uint(-1) && pb <= (custom > 0 ? custom : warrior);
         }
 
+        private string _id;
+        string get_id() { return _id; }
+        private void set_id(const string &in i) { _id = i; }
+
         // private uint8 _index = uint8(-1);
         // uint8 get_index() { return _index; }
         // private void set_index(uint8 i) { _index = i; }
@@ -173,6 +177,7 @@ namespace WarriorMedals {
         Map() { }
         Map(Json::Value@ map) {  // single map
             author        = uint(  map["authorTime"]);
+            id            = string(map["mapId"]);
             name          = string(map["name"]).Trim();
             nameFormatted = OpenplanetFormatCodes(name);
             nameStripped  = StripFormatCodes(name);
@@ -239,6 +244,7 @@ namespace WarriorMedals {
         }
         Map(Json::Value@ map, const string &in type) {  // full list
             author        = uint(map["authorTime"]);
+            id            = string(map["mapId"]);
             name          = string(map["name"]).Trim();
             nameFormatted = OpenplanetFormatCodes(name);
             nameStripped  = StripFormatCodes(name);

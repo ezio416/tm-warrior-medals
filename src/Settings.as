@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-04-20
+// m 2025-07-08
 
 [Setting hidden category="Colors"]       vec3 S_ColorFall                  = vec3(1.0f, 0.5f, 0.0f);
 [Setting hidden category="Colors"]       vec3 S_ColorSpring                = vec3(0.3f, 0.9f, 0.3f);
@@ -352,7 +352,7 @@ void Settings_Debug() {
 
         UI::Text("maps: " + uids.Length);
 
-        if (UI::BeginTable("##table-maps", 11, UI::TableFlags::RowBg | UI::TableFlags::ScrollY)) {
+        if (UI::BeginTable("##table-maps", 12, UI::TableFlags::RowBg | UI::TableFlags::ScrollY)) {
             UI::PushStyleColor(UI::Col::TableRowBgAlt, vec4(0.0f, 0.0f, 0.0f, 0.5f));
 
             UI::TableSetupScrollFreeze(0, 1);
@@ -365,6 +365,7 @@ void Settings_Debug() {
             UI::TableSetupColumn("date",     UI::TableColumnFlags::WidthFixed, scale * 70.0f);
             UI::TableSetupColumn("campaign", UI::TableColumnFlags::WidthFixed, scale * 100.0f);
             UI::TableSetupColumn("index",    UI::TableColumnFlags::WidthFixed, scale * 40.0f);
+            UI::TableSetupColumn("id",       UI::TableColumnFlags::WidthFixed, scale * 280.0f);
             UI::TableSetupColumn("custom",   UI::TableColumnFlags::WidthFixed, scale * 60.0f);
             UI::TableSetupColumn("reason");
             UI::TableHeadersRow();
@@ -402,6 +403,9 @@ void Settings_Debug() {
 
                     UI::TableNextColumn();
                     UI::Text(tostring(map.index));
+
+                    UI::TableNextColumn();
+                    UI::Text(map.id);
 
                     UI::TableNextColumn();
                     if (map.custom > 0)
