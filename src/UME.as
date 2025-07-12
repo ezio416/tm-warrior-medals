@@ -1,30 +1,29 @@
 // c 2025-06-27
-// m 2025-07-03
+// m 2025-07-12
 
 #if DEPENDENCY_ULTIMATEMEDALSEXTENDED
 
-UltimateMedalsExtended::Config@ UME_Config;
-
 class UME_Medal : UltimateMedalsExtended::IMedal {
-    UME_Medal() {
-        @UME_Config = UltimateMedalsExtended::Config();
-        UME_Config.defaultName = "Warrior";
-        UME_Config.icon = pluginColor + Icons::Circle;
-    }
-
     UltimateMedalsExtended::Config GetConfig() override {
-        return UME_Config;
+        UltimateMedalsExtended::Config c;
+
+        c.defaultName = "Warrior";
+        c.icon = pluginColor + Icons::Circle;
+
+        return c;
     }
 
     uint GetMedalTime() override {
-        Meta::Plugin@ plugin = Meta::GetPluginFromID("WarriorMedals");
-        if (plugin is null or !plugin.Enabled) {
+        if (pluginMeta is null or !pluginMeta.Enabled) {
             return 0;
         }
         return WarriorMedals::GetWMTime();
     }
 
     bool HasMedalTime(const string&in uid) override {
+        if (pluginMeta is null or !pluginMeta.Enabled) {
+            return false;
+        }
         return WarriorMedals::GetWMTime(uid) > 0;
     }
 
