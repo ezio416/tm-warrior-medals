@@ -14,16 +14,24 @@ class UME_Medal : UltimateMedalsExtended::IMedal {
     }
 
     uint GetMedalTime() override {
-        if (pluginMeta is null or !pluginMeta.Enabled) {
+        if (false
+            or pluginMeta is null
+            or !pluginMeta.Enabled
+        ) {
             return 0;
         }
+
         return WarriorMedals::GetWMTime();
     }
 
     bool HasMedalTime(const string&in uid) override {
-        if (pluginMeta is null or !pluginMeta.Enabled) {
+        if (false
+            or pluginMeta is null
+            or !pluginMeta.Enabled
+        ) {
             return false;
         }
+
         return WarriorMedals::GetWMTime(uid) > 0;
     }
 
