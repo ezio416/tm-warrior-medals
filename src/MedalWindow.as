@@ -1,47 +1,54 @@
 // c 2024-07-24
-// m 2025-07-08
+// m 2025-07-12
 
 void MedalWindow() {
     if (false
-        || !S_MedalWindow
-        || (S_MedalWindowHideWithGame && !UI::IsGameUIVisible())
-        || (S_MedalWindowHideWithOP && !UI::IsOverlayShown())
-        || !InMap()
-    )
+        or !S_MedalWindow
+        or (S_MedalWindowHideWithGame and !UI::IsGameUIVisible())
+        or (S_MedalWindowHideWithOP and !UI::IsOverlayShown())
+        or !InMap()
+    ) {
         return;
+    }
 
-    const string uid = cast<CTrackMania@>(GetApp()).RootMap.EdChallengeId;
-    if (!maps.Exists(uid))
+    const string uid = cast<CTrackMania>(GetApp()).RootMap.EdChallengeId;
+    if (!maps.Exists(uid)) {
         return;
+    }
 
-    WarriorMedals::Map@ map = cast<WarriorMedals::Map@>(maps[uid]);
-    if (map is null)
+    auto map = cast<WarriorMedals::Map>(maps[uid]);
+    if (map is null) {
         return;
+    }
 
     const float scale = UI::GetScale();
 
     int flags = UI::WindowFlags::AlwaysAutoResize | UI::WindowFlags::NoTitleBar;
-    if (!UI::IsOverlayShown())
+    if (!UI::IsOverlayShown()) {
         flags |= UI::WindowFlags::NoMove;
+    }
 
     if (UI::Begin(pluginTitle + "-medal", S_MedalWindow, flags)) {
         const uint warrior = map.custom > 0 ? map.custom : map.warrior;
         const bool delta = S_MedalWindowDelta && map.pb != uint(-1);
 
         int cols = 2;
-        if (S_MedalWindowName)
+        if (S_MedalWindowName) {
             cols++;
-        if (delta)
+        }
+        if (delta) {
             cols++;
+        }
 
         if (UI::BeginTable("##table-times", cols)) {
             UI::TableNextRow();
 
             UI::TableNextColumn();
-            if (S_MedalWindowIcon)
+            if (S_MedalWindowIcon) {
                 UI::Image(icon32, vec2(scale * 16.0f));
-            else
+            } else {
                 UI::Text(pluginColor + Icons::Circle);
+            }
 
             if (S_MedalWindowName) {
                 UI::TableNextColumn();

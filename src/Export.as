@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2024-07-21
+// m 2025-07-12
 
 /*
 Exports from the Warrior Medals plugin.
@@ -45,7 +45,7 @@ namespace WarriorMedals {
     This does not query the API for a time, so the plugin must already have it cached for this to return a time.
     Only use this if you need a synchronous function.
     */
-    import uint GetWMTime(const string &in uid) from "WarriorMedals";
+    import uint GetWMTime(const string&in uid) from "WarriorMedals";
 
     /*
     Gets the warrior medal time for the current map.
@@ -61,5 +61,5 @@ namespace WarriorMedals {
     Queries the API for a medal time if the plugin does not have it cached.
     Use this instead of the synchronous version if possible.
     */
-    import uint GetWMTimeAsync(const string &in uid) from "WarriorMedals";
+    import uint GetWMTimeAsync(const string&in uid) from "WarriorMedals";
 }

@@ -1,15 +1,5 @@
 // c 2024-07-18
-// m 2025-03-05
-
-float GayHue(uint cycleTimeMs = 5000, float offset = 0.0f, bool reverse = false) {
-    const float h = float(Time::Now % cycleTimeMs) / float(cycleTimeMs) + offset;
-    const float normal = h - Math::Floor(h);
-
-    if (reverse)
-        return 1.0f - normal;
-
-    return normal;
-}
+// m 2025-07-12
 
 void GetAllPBsAsync() {
     const string[]@ uids = maps.GetKeys();
@@ -27,9 +17,10 @@ void GetAllPBsAsync() {
             yield();
         }
 
-        WarriorMedals::Map@ map = cast<WarriorMedals::Map@>(maps[uids[i]]);
-        if (map is null)
+        auto map = cast<WarriorMedals::Map>(maps[uids[i]]);
+        if (map is null) {
             continue;
+        }
 
         map.GetPB();
         Files::AddPB(map);
@@ -38,9 +29,10 @@ void GetAllPBsAsync() {
     trace("got all PBs from game after " + (Time::Now - start) + "ms");
 }
 
-void HoverTooltip(const string &in msg) {
-    if (!UI::IsItemHovered(UI::HoveredFlags::AllowWhenDisabled))
+void HoverTooltip(const string&in msg) {
+    if (!UI::IsItemHovered(UI::HoveredFlags::AllowWhenDisabled)) {
         return;
+    }
 
     UI::BeginTooltip();
     UI::Text(Shadow() + msg);
@@ -48,12 +40,12 @@ void HoverTooltip(const string &in msg) {
 }
 
 bool InMap(bool allowEditor = false) {
-    CTrackMania@ App = cast<CTrackMania@>(GetApp());
+    auto App = cast<CTrackMania>(GetApp());
 
     return true
-        && App.RootMap !is null
-        && App.CurrentPlayground !is null
-        && (App.Editor is null || allowEditor)
+        and App.RootMap !is null
+        and App.CurrentPlayground !is null
+        and (App.Editor is null or allowEditor)
     ;
 }
 
@@ -63,15 +55,16 @@ void PlayMapAsync(ref@ m) {
         return;
     }
 
-    WarriorMedals::Map@ map = cast<WarriorMedals::Map@>(m);
+    auto map = cast<WarriorMedals::Map>(m);
     if (map is null) {
         warn("given map is null");
         return;
     }
 
 #if DEPENDENCY_MLHOOK
-    if (Meta::GetPluginFromID("MLHook").Enabled)
+    if (Meta::GetPluginFromID("MLHook").Enabled) {
         MLHook::Queue_Menu_SendCustomEvent("Event_UpdateLoadingScreen", {map.name});
+    }
 #endif
 
     loading = true;

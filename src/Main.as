@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-07-08
+// m 2025-07-12
 
 Campaign@           activeOtherCampaign;
 Campaign@           activeSeasonalCampaign;
@@ -58,8 +58,7 @@ void Main() {
 
 #if DEPENDENCY_ULTIMATEMEDALSEXTENDED
     print("registering UME medal");
-    UME_Medal@ medal = UME_Medal();
-    UltimateMedalsExtended::AddMedal(medal);
+    UltimateMedalsExtended::AddMedal(UME_Medal());
 #endif
 
     bool inMap = InMap();
@@ -73,8 +72,9 @@ void Main() {
         if (wasInMap != inMap) {
             wasInMap = inMap;
 
-            if (inMap)
+            if (inMap) {
                 API::GetMapInfoAsync();
+            }
         }
     }
 }
@@ -89,8 +89,9 @@ void OnSettingsChanged() {
 }
 
 void Render() {
-    if (icon32 is null)
+    if (icon32 is null) {
         return;
+    }
 
     MainWindowDetached();
     MedalWindow();
@@ -103,11 +104,13 @@ void RenderEarly() {
 
 void RenderMenu() {
     if (UI::BeginMenu(pluginTitle)) {
-        if (UI::MenuItem(pluginColor + Icons::WindowMaximize + "\\$G Detached main window", "", S_MainWindowDetached))
+        if (UI::MenuItem(pluginColor + Icons::WindowMaximize + "\\$G Detached main window", "", S_MainWindowDetached)) {
             S_MainWindowDetached = !S_MainWindowDetached;
+        }
 
-        if (UI::MenuItem(pluginColor + Icons::Circle + "\\$G Medal window", "", S_MedalWindow))
+        if (UI::MenuItem(pluginColor + Icons::Circle + "\\$G Medal window", "", S_MedalWindow)) {
             S_MedalWindow = !S_MedalWindow;
+        }
 
         UI::EndMenu();
     }
@@ -117,11 +120,16 @@ void PBLoop() {
     while (true) {
         sleep(500);
 
-        CTrackMania@ App = cast<CTrackMania@>(GetApp());
-        if (App.RootMap is null || !maps.Exists(App.RootMap.EdChallengeId))
+        auto App = cast<CTrackMania>(GetApp());
+        if (false
+            or App.RootMap is null
+            or App.Editor !is null
+            or !maps.Exists(App.RootMap.EdChallengeId)
+        ) {
             continue;
+        }
 
-        WarriorMedals::Map@ map = cast<WarriorMedals::Map@>(maps[App.RootMap.EdChallengeId]);
+        auto map = cast<WarriorMedals::Map>(maps[App.RootMap.EdChallengeId]);
         if (map !is null) {
             const uint prevPb = map.pb;
 
@@ -137,8 +145,9 @@ void PBLoop() {
 }
 
 void SetTotals() {
-    if (settingTotals)
+    if (settingTotals) {
         return;
+    }
 
     settingTotals = true;
 
@@ -150,8 +159,9 @@ void SetTotals() {
 
     for (uint i = 0; i < campaignsArr.Length; i++) {
         Campaign@ campaign = campaignsArr[i];
-        if (campaign !is null)
+        if (campaign !is null) {
             totalHave += campaign.count;
+        }
     }
 
     trace("setting totals done after " + (Time::Now - start) + "ms");
