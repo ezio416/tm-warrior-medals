@@ -1,12 +1,12 @@
 // c 2024-07-24
-// m 2025-07-08
+// m 2025-07-12
 
 void MainWindow() {
+    const float scale = UI::GetScale();
+
     UI::PushStyleColor(UI::Col::Button,        vec4(colorVec * 0.8f, 1.0f));
     UI::PushStyleColor(UI::Col::ButtonActive,  vec4(colorVec * 0.6f, 1.0f));
     UI::PushStyleColor(UI::Col::ButtonHovered, vec4(colorVec,        1.0f));
-
-    const float scale = UI::GetScale();
 
     if (UI::BeginTable("##table-main-header", 2, UI::TableFlags::SizingStretchProp)) {
         UI::TableSetupColumn("total",   UI::TableColumnFlags::WidthStretch);
@@ -40,39 +40,42 @@ void MainWindow() {
         HoverTooltip("Send feedback to the plugin author (Ezio)");
 
         UI::SameLine();
-        UI::BeginDisabled(API::requesting);
+        UI::BeginDisabled(false
+            or API::requesting
+            or API::Nadeo::allPbsNew
+        );
         UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
         if (UI::Button(Shadow() + Icons::Refresh))
             startnew(API::GetAllMapInfosAsync);
         UI::PopStyleColor();
         UI::EndDisabled();
-        HoverTooltip("Get maps and medals info\nThis does NOT get your PBs");
+        HoverTooltip("Get maps, medals info, and PBs");
 
-        if (!getAllClicked) {
-            UI::SameLine();
-            if (API::Nadeo::requesting) {
-                UI::BeginDisabled(API::Nadeo::cancel);
-                UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-                if (UI::ButtonColored(Icons::Times, 0.0f))
-                    API::Nadeo::cancel = true;
-                UI::PopStyleColor();
-                UI::EndDisabled();
+        // if (!getAllClicked) {
+        //     UI::SameLine();
+        //     if (API::Nadeo::requesting) {
+        //         UI::BeginDisabled(API::Nadeo::cancel);
+        //         UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
+        //         if (UI::ButtonColored(Icons::Times, 0.0f))
+        //             API::Nadeo::cancel = true;
+        //         UI::PopStyleColor();
+        //         UI::EndDisabled();
 
-                HoverTooltip(API::Nadeo::allCampaignsProgress);
+        //         HoverTooltip(API::Nadeo::allCampaignsProgress);
 
-            } else {
-                UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-                if (UI::Button(Shadow() + Icons::CloudDownload))
-                    startnew(API::Nadeo::GetAllCampaignPBsAsync);
-                UI::PopStyleColor();
+        //     } else {
+        //         UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
+        //         if (UI::Button(Shadow() + Icons::CloudDownload))
+        //             startnew(API::Nadeo::GetAllCampaignPBsAsync);
+        //         UI::PopStyleColor();
 
-                HoverTooltip(
-                    "Get PBs from Nadeo on all maps"
-                    + "\n  This takes about " + Time::Format(campaignsArr.Length * 1100) + " depending on your connection."
-                    + "\n  You should only need to do this once. This button will be hidden afterwards."
-                );
-            }
-        }
+        //         HoverTooltip(
+        //             "Get PBs from Nadeo on all maps"
+        //             + "\n  This takes about " + Time::Format(campaignsArr.Length * 1100) + " depending on your connection."
+        //             + "\n  You should only need to do this once. This button will be hidden afterwards."
+        //         );
+        //     }
+        // }
 
         UI::EndTable();
     }

@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2025-02-20
+// m 2025-07-12
 
 class Campaign {
     int                         clubId     = -1;
@@ -158,7 +158,7 @@ class Campaign {
             body["maps"].Add(map);
         }
 
-        Net::HttpRequest@ req = API::Nadeo::PostLiveAsync("/api/token/leaderboard/group/map", body);
+        Net::HttpRequest@ req = API::Nadeo::PostLiveAsync("/api/token/leaderboard/group/map", Json::Write(body));
         // warn("setting clipboard");
         // IO::SetClipboard(req.String());
 
@@ -264,8 +264,8 @@ void SortCampaigns() {
     if (campaignsArr.Length > 1)
         campaignsArr.Sort(function(a, b) { return a.index > b.index; });
 
-    if (!initWeekly && !API::Nadeo::allWeekly)
-        startnew(API::Nadeo::GetAllWeeklyPBsAsync);
+    // if (!initWeekly && !API::Nadeo::allWeekly)
+    //     startnew(API::Nadeo::GetAllWeeklyPBsAsync);
 
     for (uint i = 0; i < campaignsArr.Length; i++) {
         Campaign@ campaign = campaignsArr[i];

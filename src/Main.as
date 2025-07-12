@@ -19,6 +19,7 @@ UI::Texture@        icon512;
 WarriorMedals::Map@ latestTotd;
 bool                loading           = false;
 dictionary@         maps              = dictionary();
+dictionary@         mapsById          = dictionary();
 const string        pluginColor       = "\\$3CF";
 const string        pluginIcon        = Icons::Circle;
 Meta::Plugin@       pluginMeta        = Meta::ExecutingPlugin();
