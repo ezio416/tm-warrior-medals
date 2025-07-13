@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-07-12
+// m 2025-07-13
 
 Campaign@           activeOtherCampaign;
 Campaign@           activeSeasonalCampaign;
@@ -9,7 +9,7 @@ Json::Value@        campaignIndices;
 dictionary@         campaigns         = dictionary();
 Campaign@[]         campaignsArr;
 Campaign@[]         campaignsArrRev;
-const vec3          colorVec          = vec3(0.2f, 0.8f, 1.0f);
+const vec3          colorVec          = vec3(0.18f, 0.58f, 0.8f);
 UI::Font@           fontHeader;
 UI::Font@           fontSubHeader;
 bool                hasPlayPermission = false;
@@ -20,7 +20,7 @@ WarriorMedals::Map@ latestTotd;
 bool                loading           = false;
 dictionary@         maps              = dictionary();
 dictionary@         mapsById          = dictionary();
-const string        pluginColor       = "\\$3CF";
+const string        pluginColor       = "\\$38C";
 const string        pluginIcon        = Icons::Circle;
 Meta::Plugin@       pluginMeta        = Meta::ExecutingPlugin();
 const string        pluginTitle       = pluginColor + pluginIcon + "\\$G " + pluginMeta.Name;
