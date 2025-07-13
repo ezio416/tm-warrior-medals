@@ -1,5 +1,5 @@
 // c 2025-06-27
-// m 2025-07-12
+// m 2025-07-13
 
 #if DEPENDENCY_ULTIMATEMEDALSEXTENDED
 
@@ -9,6 +9,7 @@ class UME_Medal : UltimateMedalsExtended::IMedal {
 
         c.defaultName = "Warrior";
         c.icon = pluginColor + Icons::Circle;
+        c.iconOverlay = "\\$DB4" + Icons::CircleO;
 
         return c;
     }
