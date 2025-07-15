@@ -28,6 +28,14 @@ void MainWindow() {
             UI::Text(Shadow() + "\\$888" + Text::Format("%.1f", float(totalHave * 100) / Math::Max(1, total)) + "%");
         }
 
+        if (false
+            or API::requesting
+            or API::Nadeo::allPbsNew
+        ) {
+            UI::SameLine();
+            UI::Text(Shadow() + "\\$888Loading...");
+        }
+
         UI::PopFont();
         UI::TableNextColumn();
 
@@ -307,6 +315,8 @@ void Tab_Other() {
     const float scale = UI::GetScale();
     int selected = -2;
 
+    TypeTotals(WarriorMedals::CampaignType::Other);
+
     UI::BeginTabBar("##tab-bar-totd");
 
     if (UI::BeginTabItem(Shadow() + Icons::List + " List")) {
@@ -409,6 +419,8 @@ void Tab_Seasonal() {
     const float scale = UI::GetScale();
     int selected = -2;
 
+    TypeTotals(WarriorMedals::CampaignType::Seasonal);
+
     UI::BeginTabBar("##tab-bar-seasonal");
 
     if (UI::BeginTabItem(Shadow() + Icons::List + " List")) {
@@ -483,6 +495,8 @@ void Tab_Totd() {
 
     const float scale = UI::GetScale();
     int selected = -2;
+
+    TypeTotals(WarriorMedals::CampaignType::TrackOfTheDay);
 
     UI::BeginTabBar("##tab-bar-totd");
 
@@ -563,6 +577,8 @@ void Tab_Weekly() {
     const float scale = UI::GetScale();
     int selected = -2;
 
+    TypeTotals(WarriorMedals::CampaignType::Weekly);
+
     UI::BeginTabBar("##tab-bar-weekly");
 
     if (UI::BeginTabItem(Shadow() + Icons::List + " List")) {
@@ -631,4 +647,44 @@ void Tab_Weekly() {
     UI::EndTabBar();
 
     UI::EndTabItem();
+}
+
+void TypeTotals(const WarriorMedals::CampaignType type) {
+    if (S_MainWindowTypeTotals) {
+        uint total = 0;
+        uint totalHave = 0;
+
+        switch (type) {
+            case WarriorMedals::CampaignType::Other:
+                total = totalOther;
+                totalHave = totalOtherHave;
+                break;
+
+            case WarriorMedals::CampaignType::Seasonal:
+                total = totalSeasonal;
+                totalHave = totalSeasonalHave;
+                break;
+
+            case WarriorMedals::CampaignType::TrackOfTheDay:
+                total = totalTotd;
+                totalHave = totalTotdHave;
+                break;
+
+            case WarriorMedals::CampaignType::Weekly:
+                total = totalWeekly;
+                totalHave = totalWeeklyHave;
+                break;
+        }
+
+        UI::Image(icon32, vec2(UI::GetScale() * 32.0f));
+        UI::SameLine();
+        UI::PushFont(fontHeader);
+        UI::AlignTextToFramePadding();
+        UI::Text(Shadow() + tostring(totalHave) + " / " + total);
+        if (S_MainWindowPercentages) {
+            UI::SameLine();
+            UI::Text(Shadow() + "\\$888" + Text::Format("%.1f", float(totalHave * 100) / Math::Max(1, total)) + "%");
+        }
+        UI::PopFont();
+    }
 }

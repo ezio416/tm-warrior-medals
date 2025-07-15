@@ -16,6 +16,7 @@
 [Setting hidden category="Main Window"]  bool S_MainWindowPercentages      = true;
 [Setting hidden category="Main Window"]  bool S_MainWindowTextShadows      = true;
 [Setting hidden category="Main Window"]  bool S_MainWindowTmioLinks        = true;
+[Setting hidden category="Main Window"]  bool S_MainWindowTypeTotals       = true;
 
 [Setting hidden category="Medal Window"] bool S_MedalWindow                = true;
 [Setting hidden category="Medal Window"] bool S_MedalWindowDelta           = true;
@@ -90,6 +91,12 @@ void Settings_General() {
         "Show PB refresh button on campaigns",
         S_MainWindowCampRefresh
     );
+
+    S_MainWindowTypeTotals = UI::Checkbox(
+        "Show totals per campaign type",
+        S_MainWindowTypeTotals
+    );
+    HoverTooltipSetting("Seasonal, Totd, etc.");
 
     S_MainWindowPercentages = UI::Checkbox(
         "Show percentages",

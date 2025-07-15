@@ -29,6 +29,14 @@ vec3[]              seasonColors;
 bool                settingTotals     = false;
 uint                total             = 0;
 uint                totalHave         = 0;
+uint                totalOther        = 0;
+uint                totalOtherHave    = 0;
+uint                totalSeasonal     = 0;
+uint                totalSeasonalHave = 0;
+uint                totalTotd         = 0;
+uint                totalTotdHave     = 0;
+uint                totalWeekly       = 0;
+uint                totalWeeklyHave   = 0;
 const string        uidSeparator      = "|warrior-campaign|";
 
 void OnDestroyed() {
@@ -155,12 +163,43 @@ void SetTotals() {
     trace("setting totals");
 
     total = maps.GetKeys().Length;
-    totalHave = 0;
+    totalHave         = 0;
+    totalOther        = 0;
+    totalOtherHave    = 0;
+    totalSeasonal     = 0;
+    totalSeasonalHave = 0;
+    totalTotd         = 0;
+    totalTotdHave     = 0;
+    totalWeekly       = 0;
+    totalWeeklyHave   = 0;
 
     for (uint i = 0; i < campaignsArr.Length; i++) {
         Campaign@ campaign = campaignsArr[i];
         if (campaign !is null) {
-            totalHave += campaign.count;
+            const uint count = campaign.count;
+            totalHave += count;
+
+            switch (campaign.type) {
+                case WarriorMedals::CampaignType::Other:
+                    totalOther += campaign.mapsArr.Length;
+                    totalOtherHave += count;
+                    break;
+
+                case WarriorMedals::CampaignType::Seasonal:
+                    totalSeasonal += campaign.mapsArr.Length;
+                    totalSeasonalHave += count;
+                    break;
+
+                case WarriorMedals::CampaignType::TrackOfTheDay:
+                    totalTotd += campaign.mapsArr.Length;
+                    totalTotdHave += count;
+                    break;
+
+                case WarriorMedals::CampaignType::Weekly:
+                    totalWeekly += campaign.mapsArr.Length;
+                    totalWeeklyHave += count;
+                    break;
+            }
         }
     }
 
