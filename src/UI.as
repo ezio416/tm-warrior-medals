@@ -436,6 +436,14 @@ void DrawCampaign(CGameManialinkFrame@ Maps, const string&in uid, const bool clu
 
     const string medalStackName = live ? "frame-medalstack" : "frame-medal-stack";
 
+    const float w      = Math::Max(1, Draw::GetWidth());
+    const float h      = Math::Max(1, Draw::GetHeight());
+    const vec2  center = vec2(w * 0.5f, h * 0.5f);
+    const float unit   = (w / h < stdRatio) ? w / 320.0f : h / 180.0f;
+    const vec2  scale  = vec2(unit, -unit);
+    const vec2  size   = vec2(unit * 9.6f);
+    const vec2  offset = vec2(-99.8f, 1.05f) + (club ? vec2(0.4f, 2.51f) : vec2());
+
     for (uint i = 0; i < Maps.Controls.Length; i++) {
         if (indicesToShow.Length == 0) {
             break;
@@ -461,18 +469,12 @@ void DrawCampaign(CGameManialinkFrame@ Maps, const string&in uid, const bool clu
             continue;
         }
 
-        const float w         = Math::Max(1, Draw::GetWidth());
-        const float h         = Math::Max(1, Draw::GetHeight());
-        const vec2  center    = vec2(w * 0.5f, h * 0.5f);
-        const float unit      = (w / h < stdRatio) ? w / 320.0f : h / 180.0f;
-        const vec2  scale     = vec2(unit, -unit);
-        const vec2  offset    = vec2(-99.8f, 1.05f) + (club ? vec2(0.4f, 2.51f) : vec2());
-        const vec2  rowOffset = vec2(-2.02f, -11.5f) * (i % 5);
-        const vec2  colOffset = vec2(36.0f, 0.0f) * (i / 5);
-        const vec2  coords    = center + scale * (offset + rowOffset + colOffset);
+        const vec2 rowOffset = vec2(-2.02f, -11.5f) * (i % 5);
+        const vec2 colOffset = vec2(36.0f, 0.0f) * (i / 5);
+        const vec2 coords    = center + scale * (offset + rowOffset + colOffset);
 
         nvg::BeginPath();
-        nvg::FillPaint(nvg::TexturePattern(coords, vec2(unit * 9.6f), 0.0f, iconUI, 1.0f));
+        nvg::FillPaint(nvg::TexturePattern(coords, size, 0.0f, iconUI, 1.0f));
         nvg::Fill();
     }
 }
@@ -512,6 +514,14 @@ void _DrawWeekly(CGameManialinkPage@ Page, const string&in campaignName) {
         return;
     }
 
+    const float w      = Math::Max(1, Draw::GetWidth());
+    const float h      = Math::Max(1, Draw::GetHeight());
+    const vec2  center = vec2(w * 0.5f, h * 0.5f);
+    const float unit   = (w / h < stdRatio) ? w / 320.0f : h / 180.0f;
+    const vec2  scale  = vec2(unit, -unit);
+    const vec2  size   = vec2(unit * 12.04f);
+    const vec2  offset = vec2(size.x * 0.015f, -size.y * 0.5f);
+
     for (uint i = 0; i < Maps.Controls.Length; i++) {
         if (indicesToShow.Length == 0) {
             break;
@@ -537,14 +547,7 @@ void _DrawWeekly(CGameManialinkPage@ Page, const string&in campaignName) {
             continue;
         }
 
-        const float w      = Math::Max(1, Draw::GetWidth());
-        const float h      = Math::Max(1, Draw::GetHeight());
-        const vec2  center = vec2(w * 0.5f, h * 0.5f);
-        const float unit   = (w / h < stdRatio) ? w / 320.0f : h / 180.0f;
-        const vec2  scale  = vec2(unit, -unit);
-        const vec2  size   = vec2(unit * 12.04f);
-        const vec2  offset = vec2(size.x * 0.015f, -size.y * 0.5f);
-        const vec2  coords = center + offset + scale * MedalStack.AbsolutePosition_V3;
+        const vec2 coords = center + offset + scale * MedalStack.AbsolutePosition_V3;
 
         nvg::BeginPath();
         nvg::FillPaint(nvg::TexturePattern(coords, size, 0.0f, iconUI, 1.0f));
@@ -928,6 +931,14 @@ void DrawOverTotdPage(CGameManialinkPage@ Page) {
         }
     }
 
+    const float w      = Math::Max(1, Draw::GetWidth());
+    const float h      = Math::Max(1, Draw::GetHeight());
+    const vec2  center = vec2(w * 0.5f, h * 0.5f);
+    const float unit   = (w / h < stdRatio) ? w / 320.0f : h / 180.0f;
+    const vec2  scale  = vec2(unit, -unit);
+    const vec2  size   = vec2(unit * 9.15f);
+    const vec2  offset = vec2(-118.2f, 1.2f);
+
     uint indexOffset = 0;
     for (uint i = 0; i < Maps.Controls.Length; i++) {
         if (indexOffset > 6) {
@@ -959,18 +970,12 @@ void DrawOverTotdPage(CGameManialinkPage@ Page) {
             continue;
         }
 
-        const float w         = Math::Max(1, Draw::GetWidth());
-        const float h         = Math::Max(1, Draw::GetHeight());
-        const vec2  center    = vec2(w * 0.5f, h * 0.5f);
-        const float unit      = (w / h < stdRatio) ? w / 320.0f : h / 180.0f;
-        const vec2  scale     = vec2(unit, -unit);
-        const vec2  offset    = vec2(-118.2f, 1.2f);
-        const vec2  colOffset = vec2(29.1f, 0.0f) * (i % 7);
-        const vec2  rowOffset = vec2(-2.02f, -11.5f) * (i / 7);
-        const vec2  coords    = center + scale * (offset + colOffset + rowOffset);
+        const vec2 colOffset = vec2(29.1f, 0.0f) * (i % 7);
+        const vec2 rowOffset = vec2(-2.02f, -11.5f) * (i / 7);
+        const vec2 coords    = center + scale * (offset + colOffset + rowOffset);
 
         nvg::BeginPath();
-        nvg::FillPaint(nvg::TexturePattern(coords, vec2(unit * 9.15f), 0.0f, iconUI, 1.0f));
+        nvg::FillPaint(nvg::TexturePattern(coords, size, 0.0f, iconUI, 1.0f));
         nvg::Fill();
     }
 }
