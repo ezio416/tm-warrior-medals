@@ -12,7 +12,7 @@ Campaign@[]         campaignsArrRev;
 const vec3          colorVec          = vec3(0.18f, 0.58f, 0.8f);
 UI::Font@           fontHeader;
 UI::Font@           fontSubHeader;
-bool                hasPlayPermission = false;
+const bool          hasPlayPermission = Permissions::PlayLocalMap();
 nvg::Texture@       iconUI;
 UI::Texture@        icon32;
 UI::Texture@        icon512;
@@ -51,7 +51,6 @@ void Main() {
     OnSettingsChanged();
     startnew(API::GetAllMapInfosAsync);
     WarriorMedals::GetIcon32();
-    hasPlayPermission = Permissions::PlayLocalMap();
 
     yield();
 
