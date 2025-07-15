@@ -383,15 +383,13 @@ namespace API {
                 offset += 1000;
             }
 
-            trace("player has " + pbs.Length + " PBs");
-
             try {
                 Json::ToFile(IO::FromStorageFolder("pbs2.json"), pbs, true);
             } catch {
                 error("error writing all PBs to file: " + getExceptionInfo());
             }
 
-            trace("got all PBs after " + (Time::Now - start) + "ms");
+            trace("got all PBs (" + pbs.Length + ") after " + (Time::Now - start) + "ms");
 
             allPbsNew = false;
         }
