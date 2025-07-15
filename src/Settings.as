@@ -40,9 +40,6 @@
 [Setting hidden category="UI Medals"]    bool S_UIMedalsTotd               = true;
 [Setting hidden category="UI Medals"]    bool S_UIMedalsWeekly             = true;
 
-[Setting hidden category="Init"]         bool getAllClicked                = false;
-[Setting hidden category="Init"]         bool initWeekly                   = false;  // set once after weekly PBs are retrieved
-
 [SettingsTab name="General" icon="Cogs"]
 void Settings_General() {
     const float scale = UI::GetScale();
