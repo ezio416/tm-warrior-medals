@@ -4,7 +4,7 @@
 namespace API {
     const string baseUrl    = "https://e416.dev/api2";
     string       checkingUid;
-    dictionary@  missing    = dictionary();
+    dictionary   missing;
     bool         requesting = false;
 
     string EdevAgent() {

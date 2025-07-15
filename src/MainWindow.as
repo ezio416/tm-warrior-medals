@@ -89,8 +89,16 @@ void MainWindowDetached() {
 bool Tab_SingleCampaign(Campaign@ campaign, bool selected) {
     bool open = campaign !is null;
 
-    if (!open || !UI::BeginTabItem(Shadow() + campaign.nameStripped + "###tab-" + campaign.uid, open, selected ? UI::TabItemFlags::SetSelected : UI::TabItemFlags::None))
+    if (false
+        or !open
+        or !UI::BeginTabItem(
+            Shadow() + campaign.nameStripped + "###tab-" + campaign.uid,
+            open,
+            selected ? UI::TabItemFlags::SetSelected : UI::TabItemFlags::None
+        )
+    ) {
         return open;
+    }
 
     const float scale = UI::GetScale();
 
@@ -250,7 +258,7 @@ void Tab_Other() {
         return;
 
     const float scale = UI::GetScale();
-    bool selected = false;
+    int selected = -2;
 
     UI::BeginTabBar("##tab-bar-totd");
 
@@ -261,7 +269,7 @@ void Tab_Other() {
 
         uint index = 0;
 
-        dictionary@ uniqueClubs = dictionary();
+        dictionary uniqueClubs;
         Campaign@[] unofficialCampaigns;
 
         float unofficialCampaignMaxLength = 0.0f;
@@ -283,8 +291,12 @@ void Tab_Other() {
 
             UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
             if (UI::Button(Shadow() + campaign.nameStripped + "###button-" + campaign.uid, vec2(scale * 120.0f, scale * 25.0f))) {
-                @activeOtherCampaign = @campaign;
-                selected = true;
+                const int index2 = activeOtherCampaigns.FindByRef(campaign);
+                if (index2 > -1) {
+                    activeOtherCampaigns.RemoveAt(index2);
+                }
+                activeOtherCampaigns.InsertLast(campaign);
+                selected = activeOtherCampaigns.Length - 1;
             }
             UI::PopStyleColor();
         }
@@ -309,8 +321,12 @@ void Tab_Other() {
 
                 UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
                 if (UI::Button(Shadow() + campaign.nameStripped + "###button-" + campaign.uid, vec2(unofficialCampaignMaxLength + scale * 15.0f, scale * 25.0f))) {
-                    @activeOtherCampaign = @campaign;
-                    selected = true;
+                    const int index2 = activeOtherCampaigns.FindByRef(campaign);
+                    if (index2 > -1) {
+                        activeOtherCampaigns.RemoveAt(index2);
+                    }
+                    activeOtherCampaigns.InsertLast(campaign);
+                    selected = activeOtherCampaigns.Length - 1;
                 }
                 UI::PopStyleColor();
             }
@@ -319,8 +335,12 @@ void Tab_Other() {
         UI::EndTabItem();
     }
 
-    if (!Tab_SingleCampaign(@activeOtherCampaign, selected))
-        @activeOtherCampaign = null;
+    for (int i = 0; i < int(activeOtherCampaigns.Length); i++) {
+        if (!Tab_SingleCampaign(activeOtherCampaigns[i], i == selected)) {
+            activeOtherCampaigns.RemoveAt(i);
+            i--;
+        }
+    }
 
     UI::EndTabBar();
 
@@ -332,7 +352,7 @@ void Tab_Seasonal() {
         return;
 
     const float scale = UI::GetScale();
-    bool selected = false;
+    int selected = -2;
 
     UI::BeginTabBar("##tab-bar-seasonal");
 
@@ -364,8 +384,12 @@ void Tab_Seasonal() {
 
             UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
             if (UI::Button(Shadow() + campaign.name.SubStr(0, campaign.name.Length - 5) + "##" + campaign.name, vec2(scale * 100.0f, scale * 25.0f))) {
-                @activeSeasonalCampaign = @campaign;
-                selected = true;
+                const int index = activeSeasonalCampaigns.FindByRef(campaign);
+                if (index > -1) {
+                    activeSeasonalCampaigns.RemoveAt(index);
+                }
+                activeSeasonalCampaigns.InsertLast(campaign);
+                selected = activeSeasonalCampaigns.Length - 1;
             }
             UI::PopStyleColor();
 
@@ -376,8 +400,12 @@ void Tab_Seasonal() {
         UI::EndTabItem();
     }
 
-    if (!Tab_SingleCampaign(@activeSeasonalCampaign, selected))
-        @activeSeasonalCampaign = null;
+    for (int i = 0; i < int(activeSeasonalCampaigns.Length); i++) {
+        if (!Tab_SingleCampaign(activeSeasonalCampaigns[i], i == selected)) {
+            activeSeasonalCampaigns.RemoveAt(i);
+            i--;
+        }
+    }
 
     UI::EndTabBar();
 
@@ -389,7 +417,7 @@ void Tab_Totd() {
         return;
 
     const float scale = UI::GetScale();
-    bool selected = false;
+    int selected = -2;
 
     UI::BeginTabBar("##tab-bar-totd");
 
@@ -423,8 +451,12 @@ void Tab_Totd() {
 
             UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
             if (UI::Button(Shadow() + campaign.name.SubStr(0, campaign.name.Length - 5) + "##" + campaign.name, vec2(scale * 137.0f, scale * 25.0f))) {
-                @activeTotdMonth = @campaign;
-                selected = true;
+                const int index = activeTotdMonths.FindByRef(campaign);
+                if (index > -1) {
+                    activeTotdMonths.RemoveAt(index);
+                }
+                activeTotdMonths.InsertLast(campaign);
+                selected = activeTotdMonths.Length - 1;
             }
             UI::PopStyleColor();
 
@@ -437,8 +469,12 @@ void Tab_Totd() {
         UI::EndTabItem();
     }
 
-    if (!Tab_SingleCampaign(@activeTotdMonth, selected))
-        @activeTotdMonth = null;
+    for (int i = 0; i < int(activeTotdMonths.Length); i++) {
+        if (!Tab_SingleCampaign(activeTotdMonths[i], i == selected)) {
+            activeTotdMonths.RemoveAt(i);
+            i--;
+        }
+    }
 
     UI::EndTabBar();
 
@@ -450,7 +486,7 @@ void Tab_Weekly() {
         return;
 
     const float scale = UI::GetScale();
-    bool selected = false;
+    int selected = -2;
 
     UI::BeginTabBar("##tab-bar-weekly");
 
@@ -486,8 +522,12 @@ void Tab_Weekly() {
 
             UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
             if (UI::Button(Shadow() + campaign.name, vec2(scale * 78.0f, scale * 25.0f))) {
-                @activeWeeklyWeek = @campaign;
-                selected = true;
+                const int index = activeWeeklyWeeks.FindByRef(campaign);
+                if (index > -1) {
+                    activeWeeklyWeeks.RemoveAt(index);
+                }
+                activeWeeklyWeeks.InsertLast(campaign);
+                selected = activeWeeklyWeeks.Length - 1;
             }
             UI::PopStyleColor();
 
@@ -500,8 +540,12 @@ void Tab_Weekly() {
         UI::EndTabItem();
     }
 
-    if (!Tab_SingleCampaign(@activeWeeklyWeek, selected))
-        @activeWeeklyWeek = null;
+    for (int i = 0; i < int(activeWeeklyWeeks.Length); i++) {
+        if (!Tab_SingleCampaign(activeWeeklyWeeks[i], i == selected)) {
+            activeWeeklyWeeks.RemoveAt(i);
+            i--;
+        }
+    }
 
     UI::EndTabBar();
 

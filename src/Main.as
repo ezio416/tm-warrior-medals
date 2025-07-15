@@ -1,12 +1,12 @@
 // c 2024-07-17
-// m 2025-07-13
+// m 2025-07-15
 
-Campaign@           activeOtherCampaign;
-Campaign@           activeSeasonalCampaign;
-Campaign@           activeTotdMonth;
-Campaign@           activeWeeklyWeek;
+Campaign@[]         activeOtherCampaigns;
+Campaign@[]         activeSeasonalCampaigns;
+Campaign@[]         activeTotdMonths;
+Campaign@[]         activeWeeklyWeeks;
 Json::Value@        campaignIndices;
-dictionary@         campaigns         = dictionary();
+dictionary          campaigns;
 Campaign@[]         campaignsArr;
 Campaign@[]         campaignsArrRev;
 const vec3          colorVec          = vec3(0.18f, 0.58f, 0.8f);
@@ -18,8 +18,8 @@ UI::Texture@        icon32;
 UI::Texture@        icon512;
 WarriorMedals::Map@ latestTotd;
 bool                loading           = false;
-dictionary@         maps              = dictionary();
-dictionary@         mapsById          = dictionary();
+dictionary          maps;
+dictionary          mapsById;
 const string        pluginColor       = "\\$38C";
 const string        pluginIcon        = Icons::Circle;
 Meta::Plugin@       pluginMeta        = Meta::ExecutingPlugin();

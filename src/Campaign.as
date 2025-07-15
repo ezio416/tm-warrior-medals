@@ -9,7 +9,7 @@ class Campaign {
     uint8                       colorIndex = uint8(-1);
     int                         id         = -1;
     int                         index      = -1;
-    dictionary@                 maps       = dictionary();
+    dictionary                  maps;
     WarriorMedals::Map@[]       mapsArr;
     uint                        month;
     string                      name;
@@ -264,10 +264,10 @@ void SortCampaigns() {
 
     trace("sorting campaigns and maps done after " + (Time::Now - start) + "ms");
 
-    @activeOtherCampaign    = null;
-    @activeSeasonalCampaign = null;
-    @activeTotdMonth        = null;
-    @activeWeeklyWeek       = null;
+    activeOtherCampaigns    = {};
+    activeSeasonalCampaigns = {};
+    activeTotdMonths        = {};
+    activeWeeklyWeeks       = {};
 
     SetTotals();
 }
