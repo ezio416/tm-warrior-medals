@@ -321,7 +321,14 @@ namespace WarriorMedals {
                 return;
             }
 
-            pb = App.MenuManager.MenuCustom_CurrentManiaApp.ScoreMgr.Map_GetRecord_v2(App.UserManagerScript.Users[0].Id, uid, "PersonalBest", "", "TimeAttack", "");
+            pb = App.MenuManager.MenuCustom_CurrentManiaApp.ScoreMgr.Map_GetRecord_v2(
+                App.UserManagerScript.Users[0].Id,
+                uid,
+                "PersonalBest",
+                "",
+                "TimeAttack",
+                ""
+            );
         }
 
         void GetPBAsync() {
