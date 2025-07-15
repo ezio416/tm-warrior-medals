@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2025-07-12
+// m 2025-07-15
 
 class Campaign {
     int                         clubId     = -1;
@@ -124,21 +124,6 @@ class Campaign {
         return cast<WarriorMedals::Map@>(maps[uid]);
     }
 
-    // void GetPBs() {
-    //     const string[]@ uids = maps.GetKeys();
-
-    //     for (uint i = 0; i < uids.Length; i++) {
-    //         WarriorMedals::Map@ map = cast<WarriorMedals::Map@>(maps[uids[i]]);
-    //         if (map is null)
-    //             continue;
-
-    //         map.GetPB();
-    //         Files::AddPB(map);
-    //     }
-
-    //     Files::SavePBs();
-    // }
-
     void GetPBsAsync() {
         while (requesting)
             yield();
@@ -184,10 +169,9 @@ class Campaign {
             uid = JsonExt::GetString(map_api, "mapUid");
 
             WarriorMedals::Map@ map = GetMap(uid);
-            if (map !is null)
+            if (map !is null) {
                 map.SetPBFromAPI(map_api);
-
-            Files::AddPB(map);
+            }
         }
 
         requesting = false;
@@ -195,7 +179,6 @@ class Campaign {
         trace("got PBs for " + nameStripped + " after " + (Time::Now - start) + "ms");
 
         SetTotals();
-        Files::SavePBs();
     }
 
     void SetOtherCampaignIndex() {
@@ -263,9 +246,6 @@ void SortCampaigns() {
 
     if (campaignsArr.Length > 1)
         campaignsArr.Sort(function(a, b) { return a.index > b.index; });
-
-    // if (!initWeekly && !API::Nadeo::allWeekly)
-    //     startnew(API::Nadeo::GetAllWeeklyPBsAsync);
 
     for (uint i = 0; i < campaignsArr.Length; i++) {
         Campaign@ campaign = campaignsArr[i];

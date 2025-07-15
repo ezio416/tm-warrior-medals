@@ -1,5 +1,5 @@
 // c 2024-07-18
-// m 2025-07-12
+// m 2025-07-15
 
 namespace API {
     const string baseUrl    = "https://e416.dev/api2";
@@ -110,11 +110,8 @@ namespace API {
 
         trace("got all map infos after " + (Time::Now - start) + "ms");
 
-        // GetAllPBsAsync();
         Nadeo::GetAllPbsNewAsync();
-        // Files::LoadPBs();
         BuildCampaigns();
-        // Files::SavePBs();
     }
 
     bool GetCampaignIndicesAsync() {
@@ -333,37 +330,6 @@ namespace API {
         const uint64 minimumWait  = 1000;
         bool         requesting   = false;
 
-        string get_urlCore() { return NadeoServices::BaseURLCore(); }
-        string get_urlLive() { return NadeoServices::BaseURLLive(); }
-        string get_urlMeet() { return NadeoServices::BaseURLMeet(); }
-
-        // void GetAllCampaignPBsAsync() {
-        //     const uint64 start = Time::Now;
-        //     trace("getting PBs on all campaigns...");
-
-        //     allCampaignsProgress = "Getting PBs...\n0 / " + campaignsArr.Length + "\n0 %";
-
-        //     for (uint i = 0; i < campaignsArr.Length; i++) {
-        //         Campaign@ campaign = campaignsArr[i];
-
-        //         campaign.GetPBsAsync();
-
-        //         allCampaignsProgress = "Getting PBs...\n" + (i + 1) + " / " + campaignsArr.Length
-        //             + "\n" + Text::Format("%.1f", float(i + 1) * 100.0f / campaignsArr.Length) + "%"
-        //             + "\n" + Time::Format((campaignsArr.Length - (i + 1)) * 1100) + " left";
-
-        //         if (cancel) {
-        //             trace("got some PBs (cancelled) after " + (Time::Now - start) + "ms");
-        //             cancel = false;
-        //             return;
-        //         }
-        //     }
-
-        //     trace("got all PBs after " + (Time::Now - start) + "ms");
-
-        //     getAllClicked = true;
-        // }
-
         void GetAllPbsNewAsync() {
             allPbsNew = true;
             const uint64 start = Time::Now;
@@ -428,26 +394,6 @@ namespace API {
             allPbsNew = false;
         }
 
-        // void GetAllWeeklyPBsAsync() {
-        //     allWeekly = true;
-        //     const uint64 start = Time::Now;
-        //     trace("getting PBs on all Weekly Shorts...");
-
-        //     for (uint i = 0; i < campaignsArr.Length; i++) {
-        //         Campaign@ campaign = campaignsArr[i];
-        //         if (campaign.type != WarriorMedals::CampaignType::Weekly) {
-        //             continue;
-        //         }
-
-        //         campaign.GetPBsAsync();
-        //     }
-
-        //     trace("got all weekly PBs after " + (Time::Now - start) + "ms");
-
-        //     initWeekly = true;
-        //     allWeekly = false;
-        // }
-
         Net::HttpRequest@ GetAsync(const string&in audience, const string&in url, bool start = true) {
             NadeoServices::AddAudience(audience);
 
@@ -478,15 +424,7 @@ namespace API {
         }
 
         Net::HttpRequest@ GetCoreAsync(const string&in endpoint, bool start = true) {
-            return GetAsync(audienceCore, urlCore + endpoint, start);
-        }
-
-        Net::HttpRequest@ GetLiveAsync(const string&in endpoint, bool start = true) {
-            return GetAsync(audienceLive, urlLive + endpoint, start);
-        }
-
-        Net::HttpRequest@ GetMeetAsync(const string&in endpoint, bool start = true) {
-            return GetAsync(audienceLive, urlMeet + endpoint, start);
+            return GetAsync(audienceCore, NadeoServices::BaseURLCore() + endpoint, start);
         }
 
         Net::HttpRequest@ PostAsync(const string&in audience, const string&in url, const string&in body = "", bool start = true) {
@@ -518,16 +456,8 @@ namespace API {
             return req;
         }
 
-        Net::HttpRequest@ PostCoreAsync(const string&in endpoint, const string&in body = "", bool start = true) {
-            return PostAsync(audienceCore, urlCore + endpoint, body, start);
-        }
-
         Net::HttpRequest@ PostLiveAsync(const string&in endpoint, const string&in body = "", bool start = true) {
-            return PostAsync(audienceLive, urlLive + endpoint, body, start);
-        }
-
-        Net::HttpRequest@ PostMeetAsync(const string&in endpoint, const string&in body = "", bool start = true) {
-            return PostAsync(audienceLive, urlMeet + endpoint, body, start);
+            return PostAsync(audienceLive, NadeoServices::BaseURLLive() + endpoint, body, start);
         }
 
         void WaitAsync() {

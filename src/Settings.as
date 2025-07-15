@@ -268,33 +268,6 @@ void Settings_MedalsInUI() {
 void Settings_Debug() {
     const float scale = UI::GetScale();
 
-    if (false
-        or API::Nadeo::requesting
-        or API::Nadeo::allPbsNew
-    ) {
-        // UI::BeginDisabled(API::Nadeo::cancel);
-        // if (UI::ButtonColored(Icons::Times + " Cancel", 0.0f))
-        //     API::Nadeo::cancel = true;
-        UI::BeginDisabled();
-        UI::Button(Icons::CloudDownload + " Getting PBs...");
-        UI::EndDisabled();
-
-        // HoverTooltipSetting(API::Nadeo::allCampaignsProgress);
-
-    } else {
-        if (UI::Button(Icons::CloudDownload + " Get All PBs")) {
-            // startnew(API::Nadeo::GetAllCampaignPBsAsync);
-            startnew(API::Nadeo::GetAllPbsNewAsync);
-        }
-
-        HoverTooltipSetting(
-            "This requests PBs from Nadeo. Please do not spam this. "
-            "This is run automatically every time the plugin starts, so you should never need to click it."
-            // + "Unless I've made a mistake, you should only need to click it once ever,"
-            // + " in which case it would be hidden from your main window now."
-        );
-    }
-
     UI::BeginTabBar("##tabs-debug");
 
     if (UI::BeginTabItem("Campaigns")) {

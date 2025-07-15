@@ -118,10 +118,11 @@ void RenderMenu() {
 }
 
 void PBLoop() {
+    auto App = cast<CTrackMania>(GetApp());
+
     while (true) {
         sleep(500);
 
-        auto App = cast<CTrackMania>(GetApp());
         if (false
             or App.RootMap is null
             or App.Editor !is null
@@ -135,11 +136,9 @@ void PBLoop() {
             const uint prevPb = map.pb;
 
             map.GetPBAsync();
-            Files::AddPB(map);
 
             if (prevPb != map.pb) {
                 SetTotals();
-                Files::SavePB(map);
             }
         }
     }

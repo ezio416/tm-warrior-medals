@@ -1,5 +1,5 @@
 // c 2024-07-24
-// m 2025-07-12
+// m 2025-07-15
 
 void MainWindow() {
     const float scale = UI::GetScale();
@@ -50,32 +50,6 @@ void MainWindow() {
         UI::PopStyleColor();
         UI::EndDisabled();
         HoverTooltip("Get maps, medals info, and PBs");
-
-        // if (!getAllClicked) {
-        //     UI::SameLine();
-        //     if (API::Nadeo::requesting) {
-        //         UI::BeginDisabled(API::Nadeo::cancel);
-        //         UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-        //         if (UI::ButtonColored(Icons::Times, 0.0f))
-        //             API::Nadeo::cancel = true;
-        //         UI::PopStyleColor();
-        //         UI::EndDisabled();
-
-        //         HoverTooltip(API::Nadeo::allCampaignsProgress);
-
-        //     } else {
-        //         UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-        //         if (UI::Button(Shadow() + Icons::CloudDownload))
-        //             startnew(API::Nadeo::GetAllCampaignPBsAsync);
-        //         UI::PopStyleColor();
-
-        //         HoverTooltip(
-        //             "Get PBs from Nadeo on all maps"
-        //             + "\n  This takes about " + Time::Format(campaignsArr.Length * 1100) + " depending on your connection."
-        //             + "\n  You should only need to do this once. This button will be hidden afterwards."
-        //         );
-        //     }
-        // }
 
         UI::EndTable();
     }

@@ -1,33 +1,5 @@
 // c 2024-07-18
-// m 2025-07-12
-
-void GetAllPBsAsync() {
-    const string[]@ uids = maps.GetKeys();
-
-    uint64 lastYield = Time::Now;
-    const uint64 maxFrameTime = 50;
-
-    const uint64 start = lastYield;
-    trace("getting all PBs from game");
-
-    for (uint i = 0; i < uids.Length; i++) {
-        const uint64 now = Time::Now;
-        if (now - lastYield > maxFrameTime) {
-            lastYield = now;
-            yield();
-        }
-
-        auto map = cast<WarriorMedals::Map>(maps[uids[i]]);
-        if (map is null) {
-            continue;
-        }
-
-        map.GetPB();
-        Files::AddPB(map);
-    }
-
-    trace("got all PBs from game after " + (Time::Now - start) + "ms");
-}
+// m 2025-07-15
 
 void HoverTooltip(const string&in msg) {
     if (!UI::IsItemHovered(UI::HoveredFlags::AllowWhenDisabled)) {
