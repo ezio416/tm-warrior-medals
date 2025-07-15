@@ -18,7 +18,7 @@ namespace API {
         return reqAgentStart + executing + " / " + SysPlat.ExtraTool_Info.Replace("Openplanet ", "") + " / " + SysPlat.ExeVersion;
     }
 
-    Net::HttpRequest@ GetAsync(const string&in url, bool start = true, const string&in agent = "") {
+    Net::HttpRequest@ GetAsync(const string&in url, const bool start = true, const string&in agent = "") {
         requesting = true;
 
         Net::HttpRequest@ req = Net::HttpRequest();
@@ -39,7 +39,7 @@ namespace API {
         return req;
     }
 
-    Net::HttpRequest@ GetEdevAsync(const string&in endpoint, bool start = true) {
+    Net::HttpRequest@ GetEdevAsync(const string&in endpoint, const bool start = true) {
         while (requesting) {
             yield();
         }
@@ -211,7 +211,7 @@ namespace API {
         checkingUid = "";
     }
 
-    Net::HttpRequest@ PostAsync(const string&in url, const string&in body = "", bool start = true, const string&in agent = "") {
+    Net::HttpRequest@ PostAsync(const string&in url, const string&in body = "", const bool start = true, const string&in agent = "") {
         requesting = true;
 
         Net::HttpRequest@ req = Net::HttpRequest();
@@ -234,7 +234,7 @@ namespace API {
         return req;
     }
 
-    Net::HttpRequest@ PostEdevAsync(const string&in endpoint, const string&in body = "", bool start = true) {
+    Net::HttpRequest@ PostEdevAsync(const string&in endpoint, const string&in body = "", const bool start = true) {
         while (requesting) {
             yield();
         }
@@ -242,7 +242,7 @@ namespace API {
         return PostAsync(baseUrl + endpoint, body, start, EdevAgent());
     }
 
-    bool SendFeedbackAsync(const string&in subject, const string&in message, bool anonymous = false) {
+    bool SendFeedbackAsync(const string&in subject, const string&in message, const bool anonymous = false) {
         if (false
             or subject.Length > 1000
             or message.Length > 10000
@@ -267,7 +267,7 @@ namespace API {
             body["accountId"] = App.LocalPlayerInfo.WebServicesUserId;
         }
 
-        Net::HttpRequest@ req = PostEdevAsync("/tm/warrior/feedback", body);
+        Net::HttpRequest@ req = PostEdevAsync("/tm/warrior/feedback", Json::Write(body));
 
         const int code = req.ResponseCode();
         switch (code) {
@@ -394,7 +394,7 @@ namespace API {
             allPbsNew = false;
         }
 
-        Net::HttpRequest@ GetAsync(const string&in audience, const string&in url, bool start = true) {
+        Net::HttpRequest@ GetAsync(const string&in audience, const string&in url, const bool start = true) {
             NadeoServices::AddAudience(audience);
 
             while (false
@@ -423,11 +423,11 @@ namespace API {
             return req;
         }
 
-        Net::HttpRequest@ GetCoreAsync(const string&in endpoint, bool start = true) {
+        Net::HttpRequest@ GetCoreAsync(const string&in endpoint, const bool start = true) {
             return GetAsync(audienceCore, NadeoServices::BaseURLCore() + endpoint, start);
         }
 
-        Net::HttpRequest@ PostAsync(const string&in audience, const string&in url, const string&in body = "", bool start = true) {
+        Net::HttpRequest@ PostAsync(const string&in audience, const string&in url, const string&in body = "", const bool start = true) {
             NadeoServices::AddAudience(audience);
 
             while (false
@@ -456,7 +456,7 @@ namespace API {
             return req;
         }
 
-        Net::HttpRequest@ PostLiveAsync(const string&in endpoint, const string&in body = "", bool start = true) {
+        Net::HttpRequest@ PostLiveAsync(const string&in endpoint, const string&in body = "", const bool start = true) {
             return PostAsync(audienceLive, NadeoServices::BaseURLLive() + endpoint, body, start);
         }
 

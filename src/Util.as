@@ -17,7 +17,10 @@ bool InMap(bool allowEditor = false) {
     return true
         and App.RootMap !is null
         and App.CurrentPlayground !is null
-        and (App.Editor is null or allowEditor)
+        and (false
+            or App.Editor is null
+            or allowEditor
+        )
     ;
 }
 

@@ -1,11 +1,17 @@
 // c 2024-07-24
-// m 2025-07-12
+// m 2025-07-15
 
 void MedalWindow() {
     if (false
         or !S_MedalWindow
-        or (S_MedalWindowHideWithGame and !UI::IsGameUIVisible())
-        or (S_MedalWindowHideWithOP and !UI::IsOverlayShown())
+        or (true
+            and S_MedalWindowHideWithGame
+            and !UI::IsGameUIVisible()
+        )
+        or (true
+            and S_MedalWindowHideWithOP
+            and !UI::IsOverlayShown()
+        )
         or !InMap()
     ) {
         return;
@@ -28,9 +34,12 @@ void MedalWindow() {
         flags |= UI::WindowFlags::NoMove;
     }
 
-    if (UI::Begin(pluginTitle + "-medal", S_MedalWindow, flags)) {
+    if (UI::Begin(pluginTitle + "###warrior-medal", S_MedalWindow, flags)) {
         const uint warrior = map.custom > 0 ? map.custom : map.warrior;
-        const bool delta = S_MedalWindowDelta && map.pb != uint(-1);
+        const bool delta = true
+            and S_MedalWindowDelta
+            and map.pb != uint(-1)
+        ;
 
         int cols = 2;
         if (S_MedalWindowName) {

@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-07-12
+// m 2025-07-15
 
 [Setting hidden category="Colors"]       vec3 S_ColorFall                  = vec3(1.0f, 0.5f, 0.0f);
 [Setting hidden category="Colors"]       vec3 S_ColorSpring                = vec3(0.3f, 0.9f, 0.3f);
@@ -32,7 +32,7 @@
 /*[Setting hidden category="UI Medals"]*/bool S_UIMedalsAlwaysPlayground   = false;
 [Setting hidden category="UI Medals"]    bool S_UIMedalsClubCampaign       = true;
 [Setting hidden category="UI Medals"]    bool S_UIMedalsLiveCampaign       = true;
-[Setting hidden category="UI Medals"]    bool S_UIMedalsLiveTotd           = false;
+// [Setting hidden category="UI Medals"]    bool S_UIMedalsLiveTotd           = false;
 [Setting hidden category="UI Medals"]    bool S_UIMedalsSeasonalCampaign   = true;
 [Setting hidden category="UI Medals"]    bool S_UIMedalsSoloMenu           = true;
 [Setting hidden category="UI Medals"]    bool S_UIMedalStart               = true;
@@ -254,11 +254,6 @@ void Settings_MedalsInUI() {
         UI::Text("Debug");
         UI::PopFont();
 
-        // if (UI::Button("Reset to default##ui-debug")) {
-        //     pluginMeta.GetSetting("S_UIMedalsAlwaysMenu").Reset();
-        //     pluginMeta.GetSetting("S_UIMedalsAlwaysPlayground").Reset();
-        // }
-
         S_UIMedalsAlwaysMenu       = UI::Checkbox("Always show in menu",       S_UIMedalsAlwaysMenu);
         S_UIMedalsAlwaysPlayground = UI::Checkbox("Always show in playground", S_UIMedalsAlwaysPlayground);
     }
@@ -425,8 +420,9 @@ void HoverTooltipSetting(const string&in msg, const string&in color = "666") {
         return;
     }
 
-    UI::SetNextWindowSize(int(Math::Min(Draw::MeasureString(msg).x, 400.0f)), 0.0f);
+    // UI::SetNextWindowSize(int(Math::Min(Draw::MeasureString(msg).x, 400.0f)), 0.0f);
     UI::BeginTooltip();
-    UI::TextWrapped(Shadow() + msg);
+    // UI::TextWrapped(Shadow() + msg);
+    UI::Text(Shadow() + msg);
     UI::EndTooltip();
 }
