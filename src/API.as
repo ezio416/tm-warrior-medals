@@ -383,6 +383,8 @@ namespace API {
                 offset += 1000;
             }
 
+            trace("player has " + pbs.Length + " PBs");
+
             try {
                 Json::ToFile(IO::FromStorageFolder("pbs2.json"), pbs, true);
             } catch {
