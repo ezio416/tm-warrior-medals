@@ -361,6 +361,7 @@ void Tab_Other() {
                 selected = activeOtherCampaigns.Length - 1;
             }
             UI::PopStyleColor();
+            UI::SetItemTooltip(tostring(campaign.count) + " / " + campaign.mapsArr.Length);
         }
 
         const string[]@ clubs = uniqueClubs.GetKeys();
@@ -393,6 +394,7 @@ void Tab_Other() {
                     selected = activeOtherCampaigns.Length - 1;
                 }
                 UI::PopStyleColor();
+                UI::SetItemTooltip(tostring(campaign.count) + " / " + campaign.mapsArr.Length);
             }
         }
 
@@ -467,6 +469,7 @@ void Tab_Seasonal() {
                 selected = activeSeasonalCampaigns.Length - 1;
             }
             UI::PopStyleColor();
+            UI::SetItemTooltip(tostring(campaign.count) + " / " + campaign.mapsArr.Length);
 
             if (colored) {
                 UI::PopStyleColor(3);
@@ -546,6 +549,7 @@ void Tab_Totd() {
                 selected = activeTotdMonths.Length - 1;
             }
             UI::PopStyleColor();
+            UI::SetItemTooltip(tostring(campaign.count) + " / " + campaign.mapsArr.Length);
 
             if (colored) {
                 UI::PopStyleColor(3);
@@ -626,6 +630,7 @@ void Tab_Weekly() {
                 selected = activeWeeklyWeeks.Length - 1;
             }
             UI::PopStyleColor();
+            UI::SetItemTooltip(tostring(campaign.count) + " / " + campaign.mapsArr.Length);
 
             if (colored) {
                 UI::PopStyleColor(3);
