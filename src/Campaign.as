@@ -269,8 +269,13 @@ void SortCampaigns() {
         campaign.mapsArr.Sort(function(a, b) { return a.index < b.index; });
     }
 
-    if (campaignsArr.Length > 1) {
-        campaignsArr.Sort(function(a, b) { return a.index > b.index; });
+    switch (campaignsArr.Length) {
+        case 0:
+            return;
+        case 1:
+            break;
+        default:
+            campaignsArr.Sort(function(a, b) { return a.index > b.index; });
     }
 
     for (uint i = 0; i < campaignsArr.Length; i++) {
