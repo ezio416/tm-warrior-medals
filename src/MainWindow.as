@@ -19,7 +19,7 @@ void MainWindow() {
         UI::Image(icon32, vec2(scale * 32.0f));
 
         UI::SameLine();
-        UI::PushFont(fontHeader);
+        UI::PushFont(UI::Font::Default, 26.0f);
         UI::AlignTextToFramePadding();
         UI::Text(Shadow() + tostring(totalHave) + " / " + total);
 
@@ -124,7 +124,7 @@ bool Tab_SingleCampaign(Campaign@ campaign, const bool selected) {
         UI::TableSetupColumn("name", UI::TableColumnFlags::WidthStretch);
         UI::TableSetupColumn("count", UI::TableColumnFlags::WidthFixed);
 
-        UI::PushFont(fontHeader);
+        UI::PushFont(UI::Font::Default, 26.0f);
 
         UI::TableNextRow();
 
@@ -137,7 +137,7 @@ bool Tab_SingleCampaign(Campaign@ campaign, const bool selected) {
         ) {
             UI::PopFont();
             HoverTooltip("from the club \"" + WarriorMedals::OpenplanetFormatCodes(campaign.clubName) + "\\$Z\"");
-            UI::PushFont(fontHeader);
+            UI::PushFont(UI::Font::Default, 26.0f);
         }
 
         UI::TableNextColumn();
@@ -320,7 +320,7 @@ void Tab_Other() {
     UI::BeginTabBar("##tab-bar-totd");
 
     if (UI::BeginTabItem(Shadow() + Icons::List + " List")) {
-        UI::PushFont(fontHeader);
+        UI::PushFont(UI::Font::Default, 26.0f);
         UI::SeparatorText(Shadow() + "Official");
         UI::PopFont();
 
@@ -368,7 +368,7 @@ void Tab_Other() {
         for (uint i = 0; i < clubs.Length; i++) {
             const string clubName = clubs[i];
 
-            UI::PushFont(fontHeader);
+            UI::PushFont(UI::Font::Default, 26.0f);
             UI::SeparatorText(Shadow() + WarriorMedals::StripFormatCodes(clubName));
             UI::PopFont();
 
@@ -441,7 +441,7 @@ void Tab_Seasonal() {
             if (uint(lastYear) != campaign.year) {
                 lastYear = campaign.year;
 
-                UI::PushFont(fontHeader);
+                UI::PushFont(UI::Font::Default, 26.0f);
                 UI::SeparatorText(Shadow() + tostring(campaign.year + 2020));
                 UI::PopFont();
             } else {
@@ -521,7 +521,7 @@ void Tab_Totd() {
                 lastYear = campaign.year;
                 curMonthInYear = 0;
 
-                UI::PushFont(fontHeader);
+                UI::PushFont(UI::Font::Default, 26.0f);
                 UI::SeparatorText(Shadow() + tostring(campaign.year + 2020));
                 UI::PopFont();
             } else if (curMonthInYear % 3 > 0) {
@@ -603,7 +603,7 @@ void Tab_Weekly() {
                 lastYear = campaign.year;
                 curWeekInYear = 0;
 
-                UI::PushFont(fontHeader);
+                UI::PushFont(UI::Font::Default, 26.0f);
                 UI::SeparatorText(Shadow() + tostring(campaign.year + 2020));
                 UI::PopFont();
 
@@ -683,7 +683,7 @@ void TypeTotals(const WarriorMedals::CampaignType type) {
 
         UI::Image(icon32, vec2(UI::GetScale() * 32.0f));
         UI::SameLine();
-        UI::PushFont(fontHeader);
+        UI::PushFont(UI::Font::Default, 26.0f);
         UI::AlignTextToFramePadding();
         UI::Text(Shadow() + tostring(totalHave) + " / " + total);
         if (S_MainWindowPercentages) {

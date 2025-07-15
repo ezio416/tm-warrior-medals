@@ -45,7 +45,7 @@ void Settings_General() {
     const float scale = UI::GetScale();
     const float indent = scale * 15.0f;
 
-    UI::PushFont(fontHeader);
+    UI::PushFont(UI::Font::Default, 26.0f);
     UI::Text("Main Window");
     UI::PopFont();
 
@@ -113,7 +113,7 @@ void Settings_General() {
 
     UI::Separator();
 
-    UI::PushFont(fontHeader);
+    UI::PushFont(UI::Font::Default, 26.0f);
     UI::Text("Medal Window");
     UI::PopFont();
 
@@ -159,7 +159,7 @@ void Settings_General() {
 
     UI::Separator();
 
-    UI::PushFont(fontHeader);
+    UI::PushFont(UI::Font::Default, 26.0f);
     UI::Text("Colors");
     UI::PopFont();
 
@@ -192,7 +192,7 @@ void Settings_General() {
 
 [SettingsTab name="UI Medals" icon="ListAlt" order=1]
 void Settings_MedalsInUI() {
-    UI::PushFont(fontHeader);
+    UI::PushFont(UI::Font::Default, 26.0f);
     UI::Text("Toggle");
     UI::PopFont();
 
@@ -206,7 +206,7 @@ void Settings_MedalsInUI() {
     if (S_UIMedals) {
         UI::Separator();
 
-        UI::PushFont(fontHeader);
+        UI::PushFont(UI::Font::Default, 26.0f);
         UI::Text("Main Menu");
         UI::PopFont();
 
@@ -233,7 +233,7 @@ void Settings_MedalsInUI() {
 
         UI::Separator();
 
-        UI::PushFont(fontHeader);
+        UI::PushFont(UI::Font::Default, 26.0f);
         UI::Text("Playing");
         UI::PopFont();
 
@@ -254,7 +254,7 @@ void Settings_MedalsInUI() {
 
         UI::Separator();
 
-        UI::PushFont(fontHeader);
+        UI::PushFont(UI::Font::Default, 26.0f);
         UI::Text("Debug");
         UI::PopFont();
 

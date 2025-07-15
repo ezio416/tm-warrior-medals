@@ -10,8 +10,6 @@ dictionary          campaigns;
 Campaign@[]         campaignsArr;
 Campaign@[]         campaignsArrRev;
 const vec3          colorVec          = vec3(0.18f, 0.58f, 0.8f);
-UI::Font@           fontHeader;
-UI::Font@           fontSubHeader;
 const bool          hasPlayPermission = Permissions::PlayLocalMap();
 nvg::Texture@       iconUI;
 UI::Texture@        icon32;
@@ -58,9 +56,6 @@ void Main() {
     @iconUI = nvg::LoadTexture(file.Read(file.Size()));
 
     yield();
-
-    @fontSubHeader = UI::LoadFont("DroidSans.ttf", 20.0f);
-    @fontHeader    = UI::LoadFont("DroidSans.ttf", 26.0f);
 
     startnew(PBLoop);
 
