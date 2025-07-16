@@ -337,7 +337,7 @@ void Settings_Debug() {
 
         UI::Text("maps: " + uids.Length);
 
-        if (UI::BeginTable("##table-maps", 12, UI::TableFlags::RowBg | UI::TableFlags::ScrollY)) {
+        if (UI::BeginTable("##table-maps", 13, UI::TableFlags::RowBg | UI::TableFlags::ScrollY)) {
             UI::PushStyleColor(UI::Col::TableRowBgAlt, vec4(vec3(), 0.5f));
 
             UI::TableSetupScrollFreeze(0, 1);
@@ -346,6 +346,7 @@ void Settings_Debug() {
             UI::TableSetupColumn("wr",       UI::TableColumnFlags::WidthFixed, scale * 60.0f);
             UI::TableSetupColumn("wm",       UI::TableColumnFlags::WidthFixed, scale * 60.0f);
             UI::TableSetupColumn("at",       UI::TableColumnFlags::WidthFixed, scale * 60.0f);
+            UI::TableSetupColumn("gt",       UI::TableColumnFlags::WidthFixed, scale * 60.0f);
             UI::TableSetupColumn("pb",       UI::TableColumnFlags::WidthFixed, scale * 60.0f);
             UI::TableSetupColumn("date",     UI::TableColumnFlags::WidthFixed, scale * 70.0f);
             UI::TableSetupColumn("campaign", UI::TableColumnFlags::WidthFixed, scale * 100.0f);
@@ -376,6 +377,9 @@ void Settings_Debug() {
 
                     UI::TableNextColumn();
                     UI::Text(Time::Format(map.author));
+
+                    UI::TableNextColumn();
+                    UI::Text(Time::Format(map.gold));
 
                     UI::TableNextColumn();
                     UI::Text(map.pb != uint(-1) ? Time::Format(map.pb) : "");

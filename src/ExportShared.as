@@ -123,6 +123,10 @@ namespace WarriorMedals {
         string get_downloadUrl() { return _downloadUrl; }
         private void set_downloadUrl(const string&in d) { _downloadUrl = d; }
 
+        private uint _gold;
+        uint get_gold() { return _gold; }
+        private void set_gold(const uint g) { _gold = g; }
+
         bool get_hasWarrior() {
             return true
                 and pb != uint(-1)
@@ -182,6 +186,7 @@ namespace WarriorMedals {
         Map() { }
         Map(Json::Value@ map) {  // single map
             author        = uint(map["authorTime"]);
+            gold          = uint(map["goldTime"]);
             id            = string(map["mapId"]);
             name          = string(map["name"]).Trim();
             nameFormatted = OpenplanetFormatCodes(name);
@@ -256,6 +261,7 @@ namespace WarriorMedals {
         }
         Map(Json::Value@ map, const string&in type) {  // full list
             author        = uint(map["authorTime"]);
+            gold          = uint(map["goldTime"]);
             id            = string(map["mapId"]);
             name          = string(map["name"]).Trim();
             nameFormatted = OpenplanetFormatCodes(name);
