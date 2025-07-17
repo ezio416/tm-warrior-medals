@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2025-07-15
+// m 2025-07-17
 
 uint FrameConfirmQuit = 0;
 uint FrameSettings = 0;
@@ -35,24 +35,20 @@ void DrawOverUI() {
 
     auto App = cast<CTrackMania>(GetApp());
 
-    NGameLoadProgress_SMgr@ LoadProgress = App.LoadProgress;
-    if (true
-        and LoadProgress !is null
-        and LoadProgress.State != NGameLoadProgress::EState::Disabled
-    ) {
-        return;
-    }
-
-    auto Viewport = cast<CDx11Viewport>(App.Viewport);
     if (false
-        or Viewport is null
-        or Viewport.Overlays.Length == 0
+        or App.Editor !is null
+        or App.Viewport is null
+        or App.Viewport.Overlays.Length == 0
+        or (true
+            and App.LoadProgress !is null
+            and App.LoadProgress.State != NGameLoadProgress::EState::Disabled
+        )
     ) {
         return;
     }
 
-    for (int i = Viewport.Overlays.Length - 1; i >= 0; i--) {
-        CHmsZoneOverlay@ Overlay = Viewport.Overlays[i];
+    for (int i = App.Viewport.Overlays.Length - 1; i >= 0; i--) {
+        CHmsZoneOverlay@ Overlay = App.Viewport.Overlays[i];
         if (false
             or Overlay is null
             or Overlay.m_CorpusVisibles.Length == 0
