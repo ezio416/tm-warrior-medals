@@ -1,12 +1,12 @@
 // c 2024-07-24
-// m 2025-07-15
+// m 2025-07-18
 
 void MainWindow() {
     const float scale = UI::GetScale();
 
-    UI::PushStyleColor(UI::Col::Button,        vec4(colorVec * 0.8f, 1.0f));
-    UI::PushStyleColor(UI::Col::ButtonActive,  vec4(colorVec * 0.6f, 1.0f));
-    UI::PushStyleColor(UI::Col::ButtonHovered, vec4(colorVec,        1.0f));
+    UI::PushStyleColor(UI::Col::Button,        vec4(colorWarriorVec * 0.8f, 1.0f));
+    UI::PushStyleColor(UI::Col::ButtonActive,  vec4(colorWarriorVec * 0.6f, 1.0f));
+    UI::PushStyleColor(UI::Col::ButtonHovered, vec4(colorWarriorVec,        1.0f));
 
     if (UI::BeginTable("##table-main-header", 2, UI::TableFlags::SizingStretchProp)) {
         UI::TableSetupColumn("total",   UI::TableColumnFlags::WidthStretch);
@@ -16,7 +16,7 @@ void MainWindow() {
 
         UI::TableNextColumn();
 
-        UI::Image(icon32, vec2(scale * 32.0f));
+        UI::Image(iconWarrior32, vec2(scale * 32.0f));
 
         UI::SameLine();
         UI::PushFont(UI::Font::Default, 26.0f);
@@ -64,9 +64,9 @@ void MainWindow() {
         UI::EndTable();
     }
 
-    UI::PushStyleColor(UI::Col::Tab,        vec4(colorVec * 0.6f,  1.0f));
-    UI::PushStyleColor(UI::Col::TabActive,  vec4(colorVec * 0.85f, 1.0f));
-    UI::PushStyleColor(UI::Col::TabHovered, vec4(colorVec * 0.85f, 1.0f));
+    UI::PushStyleColor(UI::Col::Tab,        vec4(colorWarriorVec * 0.6f,  1.0f));
+    UI::PushStyleColor(UI::Col::TabActive,  vec4(colorWarriorVec * 0.85f, 1.0f));
+    UI::PushStyleColor(UI::Col::TabHovered, vec4(colorWarriorVec * 0.85f, 1.0f));
 
     UI::BeginTabBar("##tab-bar");
     Tab_Seasonal();
@@ -141,7 +141,7 @@ bool Tab_SingleCampaign(Campaign@ campaign, const bool selected) {
         }
 
         UI::TableNextColumn();
-        UI::Image(icon32, vec2(scale * 32.0f));
+        UI::Image(iconWarrior32, vec2(scale * 32.0f));
         UI::SameLine();
         UI::Text(Shadow() + tostring(campaign.count) + " / " + campaign.mapsArr.Length);
         if (S_MainWindowPercentages) {
@@ -681,7 +681,7 @@ void TypeTotals(const WarriorMedals::CampaignType type) {
                 break;
         }
 
-        UI::Image(icon32, vec2(UI::GetScale() * 32.0f));
+        UI::Image(iconWarrior32, vec2(UI::GetScale() * 32.0f));
         UI::SameLine();
         UI::PushFont(UI::Font::Default, 26.0f);
         UI::AlignTextToFramePadding();

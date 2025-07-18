@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-07-15
+// m 2025-07-18
 
 Campaign@[]         activeOtherCampaigns;
 Campaign@[]         activeSeasonalCampaigns;
@@ -9,11 +9,11 @@ Json::Value@        campaignIndices;
 dictionary          campaigns;
 Campaign@[]         campaignsArr;
 Campaign@[]         campaignsArrRev;
-const vec3          colorVec          = vec3(0.18f, 0.58f, 0.8f);
+const vec3          colorWarriorVec   = vec3(0.18f, 0.58f, 0.8f);
 const bool          hasPlayPermission = Permissions::PlayLocalMap();
-nvg::Texture@       iconUI;
-UI::Texture@        icon32;
-UI::Texture@        icon512;
+UI::Texture@        iconWarrior32;
+UI::Texture@        iconWarrior512;
+nvg::Texture@       iconWarriorNvg;
 WarriorMedals::Map@ latestTotd;
 bool                loading           = false;
 dictionary          maps;
@@ -53,7 +53,7 @@ void Main() {
     yield();
 
     IO::FileSource file("assets/warrior_512.png");
-    @iconUI = nvg::LoadTexture(file.Read(file.Size()));
+    @iconWarriorNvg = nvg::LoadTexture(file.Read(file.Size()));
 
     yield();
 
@@ -92,7 +92,7 @@ void OnSettingsChanged() {
 }
 
 void Render() {
-    if (icon32 is null) {
+    if (iconWarrior32 is null) {
         return;
     }
 

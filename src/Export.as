@@ -1,29 +1,29 @@
 // c 2024-07-17
-// m 2025-07-12
+// m 2025-07-18
 
 /*
 Exports from the Warrior Medals plugin.
 */
 namespace WarriorMedals {
     /*
-    Returns the plugin's main color as a string.
+    Returns the Warrior medal color as a string.
     */
-    import string GetColorStr() from "WarriorMedals";
+    import string GetColorWarriorStr() from "WarriorMedals";
 
     /*
-    Returns the plugin's main color as a vec3.
+    Returns the Warrior medal color as a vec3.
     */
-    import vec3 GetColorVec() from "WarriorMedals";
+    import vec3 GetColorWarriorVec() from "WarriorMedals";
 
     /*
     Returns the Warrior medal icon (32x32).
     */
-    import const UI::Texture@ GetIcon32() from "WarriorMedals";
+    import const UI::Texture@ GetIconWarrior32() from "WarriorMedals";
 
     /*
     Returns the Warrior medal icon (512x512).
     */
-    import const UI::Texture@ GetIcon512() from "WarriorMedals";
+    import const UI::Texture@ GetIconWarrior512() from "WarriorMedals";
 
     /*
     Returns all cached map data.
@@ -62,4 +62,31 @@ namespace WarriorMedals {
     Use this instead of the synchronous version if possible.
     */
     import uint GetWMTimeAsync(const string&in uid) from "WarriorMedals";
+
+    // DEPRECATED EXPORTS /////////////////////////////////////////////////////////////////////////////////////////////
+
+    /*
+    Returns the Warrior medal color as a string.
+    Deprecated.
+    */
+    import string GetColorStr() from "WarriorMedals";
+
+    /*
+    Returns the Warrior medal color as a vec3.
+    Deprecated.
+    */
+    import vec3 GetColorVec() from "WarriorMedals";
+
+    /*
+    Returns the Warrior medal icon (32x32).
+    Deprecated.
+    */
+    import const UI::Texture@ GetIcon32() from "WarriorMedals";
+
+    /*
+    Returns the Warrior medal icon (512x512).
+    Deprecated.
+    */
+    import const UI::Texture@ GetIcon512() from "WarriorMedals";
+
 }

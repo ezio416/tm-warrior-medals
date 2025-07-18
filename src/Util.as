@@ -1,5 +1,5 @@
 // c 2024-07-18
-// m 2025-07-15
+// m 2025-07-18
 
 void HoverTooltip(const string&in msg) {
     if (!UI::IsItemHovered(UI::HoveredFlags::AllowWhenDisabled)) {
@@ -11,16 +11,13 @@ void HoverTooltip(const string&in msg) {
     UI::EndTooltip();
 }
 
-bool InMap(bool allowEditor = false) {
+bool InMap() {
     auto App = cast<CTrackMania>(GetApp());
 
     return true
         and App.RootMap !is null
         and App.CurrentPlayground !is null
-        and (false
-            or App.Editor is null
-            or allowEditor
-        )
+        and App.Editor is null
     ;
 }
 

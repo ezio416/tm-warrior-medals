@@ -1,5 +1,5 @@
 // c 2024-07-24
-// m 2025-07-15
+// m 2025-07-18
 
 void MedalWindow() {
     if (false
@@ -54,7 +54,7 @@ void MedalWindow() {
 
             UI::TableNextColumn();
             if (S_MedalWindowIcon) {
-                UI::Image(icon32, vec2(scale * 16.0f));
+                UI::Image(iconWarrior32, vec2(scale * 16.0f));
             } else {
                 UI::Text(pluginColor + Icons::Circle);
             }

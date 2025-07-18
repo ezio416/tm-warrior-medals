@@ -1,9 +1,9 @@
 // c 2024-07-22
-// m 2025-07-17
+// m 2025-07-18
 
-uint FrameConfirmQuit = 0;
-uint FrameSettings = 0;
-const float stdRatio = 16.0f / 9.0f;
+const float stdRatio                = 16.0f / 9.0f;
+uint        valueOverlayConfirmQuit = 0;
+uint        valueOverlaySettings    = 0;
 
 enum PlaygroundPageType {
     Record,
@@ -15,7 +15,7 @@ enum PlaygroundPageType {
 void DrawOverUI() {
     if (false
         or !S_UIMedals
-        or iconUI is null
+        or iconWarriorNvg is null
         or (true
             and !S_UIMedalsSoloMenu
             and !S_UIMedalsSeasonalCampaign
@@ -61,12 +61,12 @@ void DrawOverUI() {
 
         if (false
             or (true
-                and FrameConfirmQuit > 0
-                and FrameConfirmQuit == Overlay.m_CorpusVisibles[0].Item.SceneMobil.Id.Value
+                and valueOverlayConfirmQuit > 0
+                and valueOverlayConfirmQuit == Overlay.m_CorpusVisibles[0].Item.SceneMobil.Id.Value
             )
             or (true
-                and FrameSettings > 0
-                and FrameSettings == Overlay.m_CorpusVisibles[0].Item.SceneMobil.Id.Value
+                and valueOverlaySettings > 0
+                and valueOverlaySettings == Overlay.m_CorpusVisibles[0].Item.SceneMobil.Id.Value
                 and Overlay.m_CorpusVisibles.Length > 300
                 and Overlay.m_CorpusVisibles[0].Item.IsVisible
             )
@@ -75,7 +75,7 @@ void DrawOverUI() {
         }
 
         if (Overlay.m_CorpusVisibles[0].Item.SceneMobil.IdName == "FrameConfirmQuit") {
-            FrameConfirmQuit = Overlay.m_CorpusVisibles[0].Item.SceneMobil.Id.Value;
+            valueOverlayConfirmQuit = Overlay.m_CorpusVisibles[0].Item.SceneMobil.Id.Value;
             return;
         }
 
@@ -87,7 +87,7 @@ void DrawOverUI() {
                 and Mobil.Childs[0] !is null
                 and Mobil.Childs[0].IdName == "FrameManialinkPageContainer"
             ) {
-                FrameSettings = Mobil.Id.Value;
+                valueOverlaySettings = Mobil.Id.Value;
             }
         }
     }
@@ -95,7 +95,7 @@ void DrawOverUI() {
     auto Network = cast<CTrackManiaNetwork>(App.Network);
     auto ServerInfo = cast<CTrackManiaNetworkServerInfo>(Network.ServerInfo);
 
-    if (InMap(S_UIMedalsAlwaysPlayground)) {
+    if (InMap()) {
         if (false
             or !UI::IsGameUIVisible()
             or (true
@@ -470,7 +470,7 @@ void DrawCampaign(CGameManialinkFrame@ Maps, const string&in uid, const bool clu
         const vec2 coords    = center + scale * (offset + rowOffset + colOffset);
 
         nvg::BeginPath();
-        nvg::FillPaint(nvg::TexturePattern(coords, size, 0.0f, iconUI, 1.0f));
+        nvg::FillPaint(nvg::TexturePattern(coords, size, 0.0f, iconWarriorNvg, 1.0f));
         nvg::Fill();
     }
 }
@@ -546,7 +546,7 @@ void _DrawWeekly(CGameManialinkPage@ Page, const string&in campaignName) {
         const vec2 coords = center + offset + scale * MedalStack.AbsolutePosition_V3;
 
         nvg::BeginPath();
-        nvg::FillPaint(nvg::TexturePattern(coords, size, 0.0f, iconUI, 1.0f));
+        nvg::FillPaint(nvg::TexturePattern(coords, size, 0.0f, iconWarriorNvg, 1.0f));
         nvg::Fill();
     }
 }
@@ -658,7 +658,7 @@ void DrawOverLiveCampaignPage(CGameManialinkPage@ Page) {
 //     const vec2  coords = center + offset + scale * MedalStack.AbsolutePosition_V3;
 
 //     nvg::BeginPath();
-//     nvg::FillPaint(nvg::TexturePattern(coords, size, 0.0f, iconUI, 1.0f));
+//     nvg::FillPaint(nvg::TexturePattern(coords, size, 0.0f, iconWarriorNvg, 1.0f));
 //     nvg::Fill();
 // }
 
@@ -766,7 +766,7 @@ void DrawOverPlaygroundPage(CGameManialinkPage@ Page, const PlaygroundPageType t
         )
     ) {
         nvg::BeginPath();
-        nvg::FillPaint(nvg::TexturePattern(coords, size, 0.0f, iconUI, 1.0f));
+        nvg::FillPaint(nvg::TexturePattern(coords, size, 0.0f, iconWarriorNvg, 1.0f));
         nvg::Fill();
     }
 
@@ -792,7 +792,7 @@ void DrawOverPlaygroundPage(CGameManialinkPage@ Page, const PlaygroundPageType t
     const vec2 quadMedalSize   = vec2(45.0f * hUnit);
 
     nvg::BeginPath();
-    nvg::FillPaint(nvg::TexturePattern(quadMedalCoords, quadMedalSize, 0.0f, iconUI, 1.0f));
+    nvg::FillPaint(nvg::TexturePattern(quadMedalCoords, quadMedalSize, 0.0f, iconWarriorNvg, 1.0f));
     nvg::Fill();
 }
 
@@ -814,7 +814,7 @@ void _DrawSoloMedal(CGameManialinkFrame@ MedalStack) {
     const vec2  coords = center + offset + scale * MedalStack.AbsolutePosition_V3;
 
     nvg::BeginPath();
-    nvg::FillPaint(nvg::TexturePattern(coords, size, 0.0f, iconUI, 1.0f));
+    nvg::FillPaint(nvg::TexturePattern(coords, size, 0.0f, iconWarriorNvg, 1.0f));
     nvg::Fill();
 }
 
@@ -971,7 +971,7 @@ void DrawOverTotdPage(CGameManialinkPage@ Page) {
         const vec2 coords    = center + scale * (offset + colOffset + rowOffset);
 
         nvg::BeginPath();
-        nvg::FillPaint(nvg::TexturePattern(coords, size, 0.0f, iconUI, 1.0f));
+        nvg::FillPaint(nvg::TexturePattern(coords, size, 0.0f, iconWarriorNvg, 1.0f));
         nvg::Fill();
     }
 }

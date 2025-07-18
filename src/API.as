@@ -1,5 +1,5 @@
 // c 2024-07-18
-// m 2025-07-15
+// m 2025-07-18
 
 namespace API {
     const string baseUrl    = "https://e416.dev/api2";
@@ -62,7 +62,7 @@ namespace API {
             case 426: {
                 const string msg = "Please update through the Plugin Manager at the top. Your plugin version will soon be unsupported!";
                 warn(msg);
-                UI::ShowNotification(pluginTitle, msg, vec4(colorVec * 0.5f, 1.0f), 10000);
+                UI::ShowNotification(pluginTitle, msg, vec4(colorWarriorVec * 0.5f, 1.0f), 10000);
                 break;
             }
 
