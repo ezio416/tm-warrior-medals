@@ -838,7 +838,7 @@ void _DrawSoloCampaign(CGameManialinkPage@ Page) {
     if (false
         or campaign is null
         or (true
-            and campaign.count < 25
+            and campaign.countWarrior < 25
             and !S_UIMedalsAlwaysMenu
         )
     ) {

@@ -4,9 +4,13 @@
 void MainWindow() {
     const float scale = UI::GetScale();
 
-    UI::PushStyleColor(UI::Col::Button,        vec4(colorWarriorVec * 0.8f, 1.0f));
-    UI::PushStyleColor(UI::Col::ButtonActive,  vec4(colorWarriorVec * 0.6f, 1.0f));
-    UI::PushStyleColor(UI::Col::ButtonHovered, vec4(colorWarriorVec,        1.0f));
+    switch (selectedMedal) {
+        case Medal::Warrior:
+            UI::PushStyleColor(UI::Col::Button,        vec4(colorWarriorVec * 0.8f, 1.0f));
+            UI::PushStyleColor(UI::Col::ButtonActive,  vec4(colorWarriorVec * 0.6f, 1.0f));
+            UI::PushStyleColor(UI::Col::ButtonHovered, vec4(colorWarriorVec,        1.0f));
+            break;
+    }
 
     if (UI::BeginTable("##table-main-header", 2, UI::TableFlags::SizingStretchProp)) {
         UI::TableSetupColumn("total",   UI::TableColumnFlags::WidthStretch);
@@ -16,16 +20,21 @@ void MainWindow() {
 
         UI::TableNextColumn();
 
-        UI::Image(iconWarrior32, vec2(scale * 32.0f));
+        switch (selectedMedal) {
+            case Medal::Warrior:
+                UI::Image(iconWarrior32, vec2(scale * 32.0f));
 
-        UI::SameLine();
-        UI::PushFont(UI::Font::Default, 26.0f);
-        UI::AlignTextToFramePadding();
-        UI::Text(Shadow() + tostring(totalHave) + " / " + total);
+                UI::SameLine();
+                UI::PushFont(UI::Font::Default, 26.0f);
+                UI::AlignTextToFramePadding();
+                UI::Text(Shadow() + tostring(totalWarriorHave) + " / " + total);
 
-        if (S_MainWindowPercentages) {
-            UI::SameLine();
-            UI::Text(Shadow() + "\\$888" + Text::Format("%.1f", float(totalHave * 100) / Math::Max(1, total)) + "%");
+                if (S_MainWindowPercentages) {
+                    UI::SameLine();
+                    UI::Text(Shadow() + "\\$888" + Text::Format("%.1f", float(totalWarriorHave * 100) / Math::Max(1, total)) + "%");
+                }
+
+                break;
         }
 
         if (false
@@ -64,9 +73,13 @@ void MainWindow() {
         UI::EndTable();
     }
 
-    UI::PushStyleColor(UI::Col::Tab,        vec4(colorWarriorVec * 0.6f,  1.0f));
-    UI::PushStyleColor(UI::Col::TabActive,  vec4(colorWarriorVec * 0.85f, 1.0f));
-    UI::PushStyleColor(UI::Col::TabHovered, vec4(colorWarriorVec * 0.85f, 1.0f));
+    switch (selectedMedal) {
+        case Medal::Warrior:
+            UI::PushStyleColor(UI::Col::Tab,        vec4(colorWarriorVec * 0.6f,  1.0f));
+            UI::PushStyleColor(UI::Col::TabActive,  vec4(colorWarriorVec * 0.85f, 1.0f));
+            UI::PushStyleColor(UI::Col::TabHovered, vec4(colorWarriorVec * 0.85f, 1.0f));
+            break;
+    }
 
     UI::BeginTabBar("##tab-bar");
     Tab_Seasonal();
@@ -141,12 +154,19 @@ bool Tab_SingleCampaign(Campaign@ campaign, const bool selected) {
         }
 
         UI::TableNextColumn();
-        UI::Image(iconWarrior32, vec2(scale * 32.0f));
-        UI::SameLine();
-        UI::Text(Shadow() + tostring(campaign.count) + " / " + campaign.mapsArr.Length);
-        if (S_MainWindowPercentages) {
-            UI::SameLine();
-            UI::Text(Shadow() + "\\$888" + Text::Format("%.1f", float(campaign.count * 100) / Math::Max(1, campaign.mapsArr.Length)) + "%");
+        switch (selectedMedal) {
+            case Medal::Warrior:
+                UI::Image(iconWarrior32, vec2(scale * 32.0f));
+
+                UI::SameLine();
+                UI::Text(Shadow() + tostring(campaign.countWarrior) + " / " + campaign.mapsArr.Length);
+
+                if (S_MainWindowPercentages) {
+                    UI::SameLine();
+                    UI::Text(Shadow() + "\\$888" + Text::Format("%.1f", float(campaign.countWarrior * 100) / Math::Max(1, campaign.mapsArr.Length)) + "%");
+                }
+
+                break;
         }
 
         UI::PopFont();
@@ -233,7 +253,11 @@ bool Tab_SingleCampaign(Campaign@ campaign, const bool selected) {
 
         UI::TableSetupScrollFreeze(0, 1);
         UI::TableSetupColumn("Name",    UI::TableColumnFlags::WidthStretch);
-        UI::TableSetupColumn("Warrior", UI::TableColumnFlags::WidthFixed, scale * 75.0f);
+        switch (selectedMedal) {
+            case Medal::Warrior:
+                UI::TableSetupColumn("Warrior", UI::TableColumnFlags::WidthFixed, scale * 75.0f);
+                break;
+        }
         UI::TableSetupColumn("PB",      UI::TableColumnFlags::WidthFixed, scale * 75.0f);
         UI::TableSetupColumn("Delta",   UI::TableColumnFlags::WidthFixed, scale * 75.0f);
         if (hasPlayPermission) {
@@ -270,7 +294,14 @@ bool Tab_SingleCampaign(Campaign@ campaign, const bool selected) {
             UI::Text(Shadow() + (map.pb != uint(-1) ? Time::Format(map.pb) : ""));
 
             UI::TableNextColumn();
-            UI::Text(Shadow() + (map.pb != uint(-1) ? (map.pb <= map.warrior ? "\\$77F\u2212" : "\\$F77+") + Time::Format(uint(Math::Abs(map.pb - map.warrior))) : ""));
+            switch (selectedMedal) {
+                case Medal::Warrior:
+                    UI::Text(
+                        Shadow() + (map.pb != uint(-1) ? (map.pb <= map.warrior ? "\\$77F\u2212" : "\\$F77+")
+                        + Time::Format(uint(Math::Abs(map.pb - map.warrior))) : "")
+                    );
+                    break;
+            }
 
             if (hasPlayPermission) {
                 UI::TableNextColumn();
@@ -280,7 +311,7 @@ bool Tab_SingleCampaign(Campaign@ campaign, const bool selected) {
                 );
                 UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
                 if (UI::Button(Shadow() + Icons::Play + "##" + map.uid)) {
-                    startnew(PlayMapAsync, @map);
+                    startnew(PlayMapAsync, map);
                 }
                 UI::PopStyleColor();
                 UI::EndDisabled();
@@ -358,7 +389,11 @@ void Tab_Other() {
                 selected = activeOtherCampaigns.Length - 1;
             }
             UI::PopStyleColor();
-            UI::SetItemTooltip(tostring(campaign.count) + " / " + campaign.mapsArr.Length);
+            switch (selectedMedal) {
+                case Medal::Warrior:
+                    UI::SetItemTooltip(tostring(campaign.countWarrior) + " / " + campaign.mapsArr.Length);
+                    break;
+            }
         }
 
         const string[]@ clubs = uniqueClubs.GetKeys();
@@ -391,7 +426,11 @@ void Tab_Other() {
                     selected = activeOtherCampaigns.Length - 1;
                 }
                 UI::PopStyleColor();
-                UI::SetItemTooltip(tostring(campaign.count) + " / " + campaign.mapsArr.Length);
+                switch (selectedMedal) {
+                    case Medal::Warrior:
+                        UI::SetItemTooltip(tostring(campaign.countWarrior) + " / " + campaign.mapsArr.Length);
+                        break;
+                }
             }
         }
 
@@ -466,7 +505,11 @@ void Tab_Seasonal() {
                 selected = activeSeasonalCampaigns.Length - 1;
             }
             UI::PopStyleColor();
-            UI::SetItemTooltip(tostring(campaign.count) + " / " + campaign.mapsArr.Length);
+            switch (selectedMedal) {
+                case Medal::Warrior:
+                    UI::SetItemTooltip(tostring(campaign.countWarrior) + " / " + campaign.mapsArr.Length);
+                    break;
+            }
 
             if (colored) {
                 UI::PopStyleColor(3);
@@ -546,7 +589,11 @@ void Tab_Totd() {
                 selected = activeTotdMonths.Length - 1;
             }
             UI::PopStyleColor();
-            UI::SetItemTooltip(tostring(campaign.count) + " / " + campaign.mapsArr.Length);
+            switch (selectedMedal) {
+                case Medal::Warrior:
+                    UI::SetItemTooltip(tostring(campaign.countWarrior) + " / " + campaign.mapsArr.Length);
+                    break;
+            }
 
             if (colored) {
                 UI::PopStyleColor(3);
@@ -627,7 +674,11 @@ void Tab_Weekly() {
                 selected = activeWeeklyWeeks.Length - 1;
             }
             UI::PopStyleColor();
-            UI::SetItemTooltip(tostring(campaign.count) + " / " + campaign.mapsArr.Length);
+            switch (selectedMedal) {
+                case Medal::Warrior:
+                    UI::SetItemTooltip(tostring(campaign.countWarrior) + " / " + campaign.mapsArr.Length);
+                    break;
+            }
 
             if (colored) {
                 UI::PopStyleColor(3);
@@ -658,35 +709,58 @@ void TypeTotals(const WarriorMedals::CampaignType type) {
 
         switch (type) {
             case WarriorMedals::CampaignType::Other:
-                total = totalOther;
-                totalHave = totalOtherHave;
+                switch (selectedMedal) {
+                    case Medal::Warrior:
+                        total = totalWarriorOther;
+                        totalHave = totalWarriorOtherHave;
+                        break;
+                }
                 break;
 
             case WarriorMedals::CampaignType::Seasonal:
-                total = totalSeasonal;
-                totalHave = totalSeasonalHave;
+                switch (selectedMedal) {
+                    case Medal::Warrior:
+                        total = totalWarriorSeasonal;
+                        totalHave = totalWarriorSeasonalHave;
+                        break;
+                }
                 break;
 
             case WarriorMedals::CampaignType::TrackOfTheDay:
-                total = totalTotd;
-                totalHave = totalTotdHave;
+                switch (selectedMedal) {
+                    case Medal::Warrior:
+                        total = totalWarriorTotd;
+                        totalHave = totalWarriorTotdHave;
+                        break;
+                }
                 break;
 
             case WarriorMedals::CampaignType::Weekly:
-                total = totalWeekly;
-                totalHave = totalWeeklyHave;
+                switch (selectedMedal) {
+                    case Medal::Warrior:
+                        total = totalWarriorWeekly;
+                        totalHave = totalWarriorWeeklyHave;
+                        break;
+                }
                 break;
         }
 
-        UI::Image(iconWarrior32, vec2(UI::GetScale() * 32.0f));
+        switch (selectedMedal) {
+            case Medal::Warrior:
+                UI::Image(iconWarrior32, vec2(UI::GetScale() * 32.0f));
+                break;
+        }
+
         UI::SameLine();
         UI::PushFont(UI::Font::Default, 26.0f);
         UI::AlignTextToFramePadding();
         UI::Text(Shadow() + tostring(totalHave) + " / " + total);
+
         if (S_MainWindowPercentages) {
             UI::SameLine();
             UI::Text(Shadow() + "\\$888" + Text::Format("%.1f", float(totalHave * 100) / Math::Max(1, total)) + "%");
         }
+
         UI::PopFont();
     }
 }

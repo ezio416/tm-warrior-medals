@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2025-07-15
+// m 2025-07-18
 
 class Campaign {
     int                         clubId     = -1;
@@ -21,7 +21,7 @@ class Campaign {
     uint                        week;
     uint                        year;
 
-    uint get_count() {
+    uint get_countWarrior() {
         uint _count = 0;
 
         for (uint i = 0; i < mapsArr.Length; i++) {
