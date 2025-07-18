@@ -337,7 +337,7 @@ void Settings_Debug() {
 
         UI::Text("maps: " + uids.Length);
 
-        if (UI::BeginTable("##table-maps", 13, UI::TableFlags::RowBg | UI::TableFlags::ScrollY)) {
+        if (UI::BeginTable("##table-maps", 12, UI::TableFlags::RowBg | UI::TableFlags::ScrollY)) {
             UI::PushStyleColor(UI::Col::TableRowBgAlt, vec4(vec3(), 0.5f));
 
             UI::TableSetupScrollFreeze(0, 1);
@@ -352,7 +352,6 @@ void Settings_Debug() {
             UI::TableSetupColumn("campaign", UI::TableColumnFlags::WidthFixed, scale * 100.0f);
             UI::TableSetupColumn("index",    UI::TableColumnFlags::WidthFixed, scale * 40.0f);
             UI::TableSetupColumn("id",       UI::TableColumnFlags::WidthFixed, scale * 280.0f);
-            UI::TableSetupColumn("custom",   UI::TableColumnFlags::WidthFixed, scale * 60.0f);
             UI::TableSetupColumn("reason");
             UI::TableHeadersRow();
 
@@ -395,11 +394,6 @@ void Settings_Debug() {
 
                     UI::TableNextColumn();
                     UI::Text(map.id);
-
-                    UI::TableNextColumn();
-                    if (map.custom > 0) {
-                        UI::Text(Time::Format(map.custom));
-                    }
 
                     UI::TableNextColumn();
                     UI::Text(map.reason);

@@ -248,8 +248,6 @@ bool Tab_SingleCampaign(Campaign@ campaign, const bool selected) {
                 continue;
             }
 
-            const uint warrior = map.custom > 0 ? map.custom : map.warrior;
-
             UI::TableNextRow();
 
             UI::TableNextColumn();
@@ -258,22 +256,21 @@ bool Tab_SingleCampaign(Campaign@ campaign, const bool selected) {
             if (map.campaignType == WarriorMedals::CampaignType::TrackOfTheDay) {
                 HoverTooltip(map.date);
             }
-            if (map.custom > 0) {
+            if (map.reason.Length > 0) {
                 UI::SameLine();
                 HoverTooltipSetting(
-                    "custom time (was " + Time::Format(map.warrior) + " based on WR of "
-                    + Time::Format(map.worldRecord) + ")\n\"" + map.reason + "\""
+                    "modified, reason: '" + map.reason + "'"
                 );
             }
 
             UI::TableNextColumn();
-            UI::Text(Shadow() + Time::Format(warrior));
+            UI::Text(Shadow() + Time::Format(map.warrior));
 
             UI::TableNextColumn();
             UI::Text(Shadow() + (map.pb != uint(-1) ? Time::Format(map.pb) : ""));
 
             UI::TableNextColumn();
-            UI::Text(Shadow() + (map.pb != uint(-1) ? (map.pb <= warrior ? "\\$77F\u2212" : "\\$F77+") + Time::Format(uint(Math::Abs(map.pb - warrior))) : ""));
+            UI::Text(Shadow() + (map.pb != uint(-1) ? (map.pb <= map.warrior ? "\\$77F\u2212" : "\\$F77+") + Time::Format(uint(Math::Abs(map.pb - map.warrior))) : ""));
 
             if (hasPlayPermission) {
                 UI::TableNextColumn();

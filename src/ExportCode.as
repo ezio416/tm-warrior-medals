@@ -100,11 +100,7 @@ namespace WarriorMedals {
         }
 
         auto map = cast<Map>(maps[uid]);
-        if (map is null) {
-            return 0;
-        }
-
-        return map.custom > 0 ? map.custom : map.warrior;
+        return map !is null ? map.warrior : 0;
     }
 
     /*
@@ -159,11 +155,7 @@ namespace WarriorMedals {
         }
 
         auto map = cast<Map>(maps[uid]);
-        if (map is null) {
-            return 0;
-        }
-
-        return map.custom > 0 ? map.custom : map.warrior;
+        return map !is null ? map.warrior : 0;
     }
 
     // DEPRECATED EXPORTS /////////////////////////////////////////////////////////////////////////////////////////////

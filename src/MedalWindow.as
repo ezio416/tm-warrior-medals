@@ -35,7 +35,6 @@ void MedalWindow() {
     }
 
     if (UI::Begin(pluginTitle + "###warrior-medal", S_MedalWindow, flags)) {
-        const uint warrior = map.custom > 0 ? map.custom : map.warrior;
         const bool delta = true
             and S_MedalWindowDelta
             and map.pb != uint(-1)
@@ -65,11 +64,11 @@ void MedalWindow() {
             }
 
             UI::TableNextColumn();
-            UI::Text(Time::Format(warrior));
+            UI::Text(Time::Format(map.warrior));
 
             if (delta) {
                 UI::TableNextColumn();
-                UI::Text((map.pb <= warrior ? "\\$77F\u2212" : "\\$F77+") + Time::Format(uint(Math::Abs(map.pb - warrior))));
+                UI::Text((map.pb <= map.warrior ? "\\$77F\u2212" : "\\$F77+") + Time::Format(uint(Math::Abs(map.pb - map.warrior))));
             }
 
             UI::EndTable();

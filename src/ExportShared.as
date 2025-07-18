@@ -111,10 +111,6 @@ namespace WarriorMedals {
         string get_clubName() { return _clubName; }
         private void set_clubName(const string&in c) { _clubName = c; }
 
-        private uint _custom = 0;
-        uint get_custom() { return _custom; }
-        private void set_custom(const uint c) { _custom = c; }
-
         private string _date;
         string get_date() { return _date; }
         private void set_date(const string&in d) { _date = d; }
@@ -130,7 +126,7 @@ namespace WarriorMedals {
         bool get_hasWarrior() {
             return true
                 and pb != uint(-1)
-                and pb <= (custom > 0 ? custom : warrior)
+                and pb <= warrior
             ;
         }
 
@@ -232,11 +228,6 @@ namespace WarriorMedals {
                 }
             }
 
-            Json::Value@ custom = map["custom"];
-            if (CheckJsonType(custom, Json::Type::Number, "custom", false)) {
-                this.custom = uint(custom);
-            }
-
             if (map.HasKey("date")) {
                 campaignType = CampaignType::TrackOfTheDay;
 
@@ -269,11 +260,6 @@ namespace WarriorMedals {
             uid           = string(map["mapUid"]);
             warrior       = uint(map["warriorTime"]);
             worldRecord   = uint(map["worldRecord"]);
-
-            Json::Value@ custom = map["custom"];
-            if (CheckJsonType(custom, Json::Type::Number, "custom", false)) {
-                this.custom = uint(custom);
-            }
 
             Json::Value@ reason = map["reason"];
             if (CheckJsonType(reason, Json::Type::String, "reason", false)) {
