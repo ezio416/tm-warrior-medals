@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2025-07-18
+// m 2025-07-19
 
 const float stdRatio                = 16.0f / 9.0f;
 uint        valueOverlayConfirmQuit = 0;
@@ -756,6 +756,9 @@ void DrawOverPlaygroundPage(CGameManialinkPage@ Page, const PlaygroundPageType t
     CGameManialinkFrame@ MenuContent;
     if (end) {
         @MenuContent = cast<CGameManialinkFrame>(Page.GetFirstChild("frame-menu-content"));
+        if (MenuContent is null) {  // must be in PlayMap mode?
+            @MenuContent = cast<CGameManialinkFrame>(Page.GetFirstChild("frame-auto-hide"));
+        }
     }
 
     if (false
