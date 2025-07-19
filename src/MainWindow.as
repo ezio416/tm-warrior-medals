@@ -1,5 +1,5 @@
 // c 2024-07-24
-// m 2025-07-18
+// m 2025-07-19
 
 void MainWindow() {
     const float scale = UI::GetScale();
@@ -220,7 +220,20 @@ bool Tab_SingleCampaign(Campaign@ campaign, const bool selected) {
                     if (totd) {
                         OpenBrowserURL("https://trackmania.io/#/totd/" + (campaign.year + 2020) + "-" + campaign.month);
                     } else {
-                        const string clubId = campaign.type == WarriorMedals::CampaignType::Seasonal ? "seasonal" : tostring(campaign.clubId);
+                        string clubId;
+                        switch (campaign.type) {
+                            case WarriorMedals::CampaignType::Seasonal:
+                                clubId = "seasonal";
+                                break;
+
+                            case WarriorMedals::CampaignType::Weekly:
+                                clubId = "weekly";
+                                break;
+
+                            default:
+                                clubId = tostring(campaign.clubId);
+                        }
+
                         OpenBrowserURL("https://trackmania.io/#/campaigns/" + clubId + "/" + campaign.id);
                     }
                 }

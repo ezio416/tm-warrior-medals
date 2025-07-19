@@ -1,5 +1,5 @@
 // c 2024-07-21
-// m 2025-07-15
+// m 2025-07-19
 
 /*
 Exports from the Warrior Medals plugin.
@@ -242,7 +242,12 @@ namespace WarriorMedals {
 
             Json::Value@ reason = map["reason"];
             if (CheckJsonType(reason, Json::Type::String, "reason", false)) {
-                this.reason = reason;
+                this.reason = string(reason);
+            }
+
+            Json::Value@ week = map["week"];
+            if (CheckJsonType(week, Json::Type::Number, "week", false)) {
+                this.week = int(week);
             }
 
             if (campaignType == CampaignType::Seasonal) {
@@ -263,7 +268,12 @@ namespace WarriorMedals {
 
             Json::Value@ reason = map["reason"];
             if (CheckJsonType(reason, Json::Type::String, "reason", false)) {
-                this.reason = reason;
+                this.reason = string(reason);
+            }
+
+            Json::Value@ week = map["week"];
+            if (CheckJsonType(week, Json::Type::Number, "week", false)) {
+                this.week = int(week);
             }
 
             if (type == "Seasonal") {
@@ -274,9 +284,9 @@ namespace WarriorMedals {
 
             } else if (type == "Weekly") {
                 campaignType = CampaignType::Weekly;
+                campaignId = int(map["campaignId"]);
                 number = int(map["number"]);
-                week = (number - 1) / 5 + 1;
-                campaignName = "Week " + week;
+                campaignName = "Week " + this.week;
                 index = int8((number - 1) % 5);
 
             } else if (type == "Totd") {
