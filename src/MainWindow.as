@@ -19,21 +19,9 @@ void MainWindow() {
         UI::TableNextRow();
 
         UI::TableNextColumn();
-
         switch (selectedMedal) {
             case Medal::Warrior:
-                UI::Image(iconWarrior32, vec2(scale * 32.0f));
-
-                UI::SameLine();
-                UI::PushFont(UI::Font::Default, 26.0f);
-                UI::AlignTextToFramePadding();
-                UI::Text(Shadow() + tostring(totalWarriorHave) + " / " + total);
-
-                if (S_MainWindowPercentages) {
-                    UI::SameLine();
-                    UI::Text(Shadow() + "\\$888" + Text::Format("%.1f", float(totalWarriorHave * 100) / Math::Max(1, total)) + "%");
-                }
-
+                IconAndTotals(totalWarriorHave, total);
                 break;
         }
 
@@ -41,11 +29,12 @@ void MainWindow() {
             or API::requesting
             or API::Nadeo::allPbsNew
         ) {
+            UI::PushFont(UI::Font::Default, 26.0f);
             UI::SameLine();
             UI::Text(Shadow() + "\\$888Loading...");
+            UI::PopFont();
         }
 
-        UI::PopFont();
         UI::TableNextColumn();
 
         UI::BeginDisabled(feedbackShown);
@@ -148,26 +137,13 @@ bool Tab_SingleCampaign(Campaign@ campaign, const bool selected) {
             and campaign.clubName.Length > 0
             and campaign.clubName != "None"
         ) {
-            UI::PopFont();
+            UI::PushFont(UI::Font::Default, 16.0f);
             HoverTooltip("from the club \"" + WarriorMedals::OpenplanetFormatCodes(campaign.clubName) + "\\$Z\"");
-            UI::PushFont(UI::Font::Default, 26.0f);
+            UI::PopFont();
         }
 
         UI::TableNextColumn();
-        switch (selectedMedal) {
-            case Medal::Warrior:
-                UI::Image(iconWarrior32, vec2(scale * 32.0f));
-
-                UI::SameLine();
-                UI::Text(Shadow() + tostring(campaign.countWarrior) + " / " + campaign.mapsArr.Length);
-
-                if (S_MainWindowPercentages) {
-                    UI::SameLine();
-                    UI::Text(Shadow() + "\\$888" + Text::Format("%.1f", float(campaign.countWarrior * 100) / Math::Max(1, campaign.mapsArr.Length)) + "%");
-                }
-
-                break;
-        }
+        IconAndTotals(campaign.countWarrior, campaign.mapsArr.Length);
 
         UI::PopFont();
 
@@ -758,22 +734,52 @@ void TypeTotals(const WarriorMedals::CampaignType type) {
                 break;
         }
 
+        IconAndTotals(totalHave, total);
+    }
+}
+
+void IconAndTotals(const uint totalHave, const uint total) {
+    switch (selectedMedal) {
+        case Medal::Warrior:
+            UI::Image(iconWarrior32, vec2(UI::GetScale() * 32.0f));
+            break;
+    }
+
+    UI::SameLine();
+    UI::PushFont(UI::Font::Default, 26.0f);
+    UI::AlignTextToFramePadding();
+
+    const bool colorText = true
+        and totalHave > 0
+        and totalHave == total
+    ;
+
+    if (colorText) {
         switch (selectedMedal) {
             case Medal::Warrior:
-                UI::Image(iconWarrior32, vec2(UI::GetScale() * 32.0f));
+                UI::PushStyleColor(UI::Col::Text, vec4(colorWarriorVec, 1.0f));
                 break;
         }
-
-        UI::SameLine();
-        UI::PushFont(UI::Font::Default, 26.0f);
-        UI::AlignTextToFramePadding();
-        UI::Text(Shadow() + tostring(totalHave) + " / " + total);
-
-        if (S_MainWindowPercentages) {
-            UI::SameLine();
-            UI::Text(Shadow() + "\\$888" + Text::Format("%.1f", float(totalHave * 100) / Math::Max(1, total)) + "%");
-        }
-
-        UI::PopFont();
     }
+    UI::Text(Shadow() + totalHave + " / " + total);
+    if (colorText) {
+        UI::PopStyleColor();
+    }
+
+    if (S_MainWindowPercentages) {
+        UI::SameLine();
+        if (colorText) {
+            switch (selectedMedal) {
+                case Medal::Warrior:
+                    UI::PushStyleColor(UI::Col::Text, vec4(colorWarriorVec, 0.4f));
+                    break;
+            }
+        } else {
+            UI::PushStyleColor(UI::Col::Text, vec4(0.5f));
+        }
+        UI::Text(Shadow() + Text::Format("%.1f", float(totalHave * 100) / Math::Max(1, total)) + "%");
+        UI::PopStyleColor();
+    }
+
+    UI::PopFont();
 }
