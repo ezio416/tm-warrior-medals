@@ -2,8 +2,6 @@
 // m 2025-07-19
 
 void MainWindow() {
-    const float scale = UI::GetScale();
-
     switch (selectedMedal) {
         case Medal::Warrior:
             UI::PushStyleColor(UI::Col::Button,        vec4(colorWarriorVec * 0.8f, 1.0f));
