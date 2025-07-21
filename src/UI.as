@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2025-07-19
+// m 2025-07-21
 
 const float stdRatio                = 16.0f / 9.0f;
 uint        valueOverlayConfirmQuit = 0;
@@ -144,12 +144,15 @@ void DrawOverUI() {
         CGameManialinkPage@ Pause;
         CGameManialinkPage@ End;
 
-        for (uint i = 0; i < CMAP.UILayers.Length; i++) {
-            const bool pauseDisplayed = true
-                and S_UIMedalPause
-                and Network.PlaygroundClientScriptAPI.IsInGameMenuDisplayed
-            ;
+        const bool pauseDisplayed = true
+            and S_UIMedalPause
+            and Network.PlaygroundClientScriptAPI.IsInGameMenuDisplayed
+        ;
 
+        int start, end;
+        string pageName;
+
+        for (uint i = 0; i < CMAP.UILayers.Length; i++) {
             if (true
                 and !(true
                     and Record is null
@@ -187,15 +190,16 @@ void DrawOverUI() {
                 continue;
             }
 
-            const int start = Layer.ManialinkPageUtf8.IndexOf("<");
-            const int end = Layer.ManialinkPageUtf8.IndexOf(">");
+            start = Layer.ManialinkPageUtf8.IndexOf("<");
+            end = Layer.ManialinkPageUtf8.IndexOf(">");
             if (false
                 or start == -1
                 or end == -1
+                or end <= start + 1
             ) {
                 continue;
             }
-            const string pageName = Layer.ManialinkPageUtf8.SubStr(start, end);
+            pageName = Layer.ManialinkPageUtf8.SubStr(start + 1, end - start - 1);
 
             if (true
                 and pauseDisplayed
@@ -283,6 +287,9 @@ void DrawOverUI() {
     // CGameManialinkPage@ LiveTotd;
     CGameManialinkPage@ Totd;
 
+    int start, end;
+    string pageName;
+
     for (uint i = 0; i < Title.UILayers.Length; i++) {
         if (true
             and !(true
@@ -320,17 +327,18 @@ void DrawOverUI() {
             continue;
         }
 
-        const int start = Layer.ManialinkPageUtf8.IndexOf("<");
-        const int end = Layer.ManialinkPageUtf8.IndexOf(">");
+        start = Layer.ManialinkPageUtf8.IndexOf("<");
+        end = Layer.ManialinkPageUtf8.IndexOf(">");
         if (false
             or start == -1
             or end == -1
+                or end <= start + 1
         ) {
             continue;
         }
-        const string pageName = Layer.ManialinkPageUtf8.SubStr(start, end);
+        pageName = Layer.ManialinkPageUtf8.SubStr(start + 1, end - start - 1);
 
-        if (pageName.Contains("Overlay_ReportSystem")) {  // 2024-12-12_15_15 index 8
+        if (pageName.Contains("Overlay_ReportSystem")) {  // 2025-07-04_14_15 index 7
             auto Frame = cast<CGameManialinkFrame>(Layer.LocalPage.GetFirstChild("frame-report-system"));
             if (true
                 and Frame !is null
