@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2025-07-21
+// m 2025-07-26
 
 const float stdRatio                = 16.0f / 9.0f;
 uint        valueOverlayConfirmQuit = 0;
@@ -20,7 +20,7 @@ void DrawOverUI() {
             and !S_UIMedalsSoloMenu
             and !S_UIMedalsSeasonalCampaign
             and !S_UIMedalsLiveCampaign
-            // and !S_UIMedalsLiveTotd
+            and !S_UIMedalsLiveTotd
             and !S_UIMedalsTotd
             and !S_UIMedalsClubCampaign
             and !S_UIMedalsWeekly
@@ -284,7 +284,7 @@ void DrawOverUI() {
     CGameManialinkPage@ Solo;
     CGameManialinkPage@ Campaign;
     CGameManialinkPage@ LiveCampaign;
-    // CGameManialinkPage@ LiveTotd;
+    CGameManialinkPage@ LiveTotd;
     CGameManialinkPage@ Totd;
 
     int start, end;
@@ -308,10 +308,10 @@ void DrawOverUI() {
                 and Totd is null
                 and S_UIMedalsTotd
             )
-            // and !(true
-            //     and LiveTotd is null
-            //     and S_UIMedalsLiveTotd
-            // )
+            and !(true
+                and LiveTotd is null
+                and S_UIMedalsLiveTotd
+            )
         ) {
             break;
         }
@@ -357,14 +357,14 @@ void DrawOverUI() {
             continue;
         }
 
-        // if (true
-        //     and S_UIMedalsLiveTotd
-        //     and LiveTotd is null
-        //     and pageName.Contains("Page_TOTDChannelDisplay")  // 2025-07-04_14_15 index 25
-        // ) {
-        //     @LiveTotd = Layer.LocalPage;
-        //     continue;
-        // }
+        if (true
+            and S_UIMedalsLiveTotd
+            and LiveTotd is null
+            and pageName.Contains("Page_TOTDChannelDisplay")  // 2025-07-04_14_15 index 25
+        ) {
+            @LiveTotd = Layer.LocalPage;
+            continue;
+        }
 
         if (true
             and (false
@@ -406,7 +406,7 @@ void DrawOverUI() {
     }
     DrawOverCampaignPage(Campaign);
     DrawOverLiveCampaignPage(LiveCampaign);
-    // DrawOverLiveTotdPage(LiveTotd);
+    DrawOverLiveTotdPage(LiveTotd);
     DrawOverTotdPage(Totd);
 }
 
@@ -616,59 +616,83 @@ void DrawOverLiveCampaignPage(CGameManialinkPage@ Page) {
     DrawCampaign(cast<CGameManialinkFrame>(Page.GetFirstChild("frame-maps")), CampaignUid(campaignName), live:true);
 }
 
-// void DrawOverLiveTotdPage(CGameManialinkPage@ Page) {  // would require moving the medal stack, figure out later?
-//     if (Page is null) {
-//         return;
-//     }
+void DrawOverLiveTotdPage(CGameManialinkPage@ Page) {  // should shift the medal stack left, figure out later?
+    if (false
+        or Page is null
+        or previousTotd is null
+        or (true
+            and !previousTotd.hasWarrior
+            and !S_UIMedalsAlwaysMenu
+        )
+    ) {
+        return;
+    }
 
-//     auto PrevDay = cast<CGameManialinkFrame>(Page.GetFirstChild("frame-previous-day"));
-//     if (false
-//         or PrevDay is null
-//         or !PrevDay.Visible
-//     ) {
-//         return;
-//     }
+    auto PrevDay = cast<CGameManialinkFrame>(Page.GetFirstChild("frame-previous-day"));
+    if (false
+        or PrevDay is null
+        or !PrevDay.Visible
+    ) {
+        return;
+    }
 
-//     auto DayLabel = cast<CGameManialinkLabel>(PrevDay.GetFirstChild("label-day"));
-//     if (DayLabel is null) {
-//         return;
-//     }
+    auto MedalStack = cast<CGameManialinkFrame>(PrevDay.GetFirstChild("frame-medal-stack"));
+    if (false
+        or MedalStack is null
+        or !MedalStack.Visible
+    ) {
+        return;
+    }
 
-//     const string date = string(DayLabel.Value).SubStr(19).Replace("%1\u0091", "");
-//     UI::Text(date);
+    auto DayLabel = cast<CGameManialinkLabel>(PrevDay.GetFirstChild("label-day"));
+    if (DayLabel is null) {
+        return;
+    }
 
-//     uint month = 0;
+    const string date = string(DayLabel.Value).SubStr(19).Replace("%1\u0091", "");
 
-//     const uint day = Text::ParseUInt(date.SubStr(date.Length - 2));
-//     UI::Text(tostring(day));
+    string[]@ previousParts = previousTotd.date.Split("-");
+    if (false
+        or previousParts.Length < 3
+        or Text::ParseUInt(date.SubStr(date.Length - 2)) != Text::ParseUInt(previousParts[2])
+    ) {
+        return;
+    }
 
-//     auto MedalStack = cast<CGameManialinkFrame>(PrevDay.GetFirstChild("frame-medal-stack"));
-//     if (false
-//         or MedalStack is null
-//         or !MedalStack.Visible
-//     ) {
-//         return;
-//     }
+    string previousMonth;
+    switch (Text::ParseUInt(previousParts[1])) {
+        case 1:  previousMonth = "Jan"; break;
+        case 2:  previousMonth = "Feb"; break;
+        case 3:  previousMonth = "Mar"; break;
+        case 4:  previousMonth = "Apr"; break;
+        case 5:  previousMonth = "May"; break;
+        case 6:  previousMonth = "Jun"; break;
+        case 7:  previousMonth = "Jul"; break;
+        case 8:  previousMonth = "Aug"; break;
+        case 9:  previousMonth = "Sep"; break;
+        case 10: previousMonth = "Oct"; break;
+        case 11: previousMonth = "Nov"; break;
+        case 12: previousMonth = "Dev"; break;
+        default: return;
+    }
 
-//     UI::Text("medal stack");
+    if (date.SubStr(0, 3) != previousMonth) {
+        return;
+    }
 
-//     if (latestTotd !is null) {
-//         UI::Text(latestTotd.date);
-//     }
+    const float w      = Math::Max(1, Draw::GetWidth());
+    const float h      = Math::Max(1, Draw::GetHeight());
+    const vec2  center = vec2(w * 0.5f, h * 0.5f);
+    const float unit   = (w / h < stdRatio) ? w / 320.0f : h / 180.0f;
+    const vec2  scale  = vec2(unit, -unit);
+    const vec2  size   = vec2(unit * 19.0f);
+    const vec2  offset = vec2(size.x * 0.013f, -size.y * 0.5f);
+    const vec2  coords = center + offset + scale * MedalStack.AbsolutePosition_V3;
 
-//     const float w      = Math::Max(1, Draw::GetWidth());
-//     const float h      = Math::Max(1, Draw::GetHeight());
-//     const vec2  center = vec2(w * 0.5f, h * 0.5f);
-//     const float unit   = (w / h < stdRatio) ? w / 320.0f : h / 180.0f;
-//     const vec2  scale  = vec2(unit, -unit);
-//     const vec2  size   = vec2(unit * 19.0f);
-//     const vec2  offset = vec2(size.x * 0.1f, -size.y * 0.5f);
-//     const vec2  coords = center + offset + scale * MedalStack.AbsolutePosition_V3;
-
-//     nvg::BeginPath();
-//     nvg::FillPaint(nvg::TexturePattern(coords, size, 0.0f, iconWarriorNvg, 1.0f));
-//     nvg::Fill();
-// }
+    nvg::BeginPath();
+    nvg::FillPaint(nvg::TexturePattern(coords, size, 0.0f, iconWarriorNvg, 1.0f));
+    nvg::Fill();
+}
 
 const string[] pgFrames = {
     "frame-help",

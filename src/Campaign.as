@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2025-07-18
+// m 2025-07-26
 
 class Campaign {
     int                         clubId     = -1;
@@ -278,17 +278,49 @@ void SortCampaigns() {
             campaignsArr.Sort(function(a, b) { return a.index > b.index; });
     }
 
+    uint latestTotdCampaignIndex = uint(-1);
+
     for (uint i = 0; i < campaignsArr.Length; i++) {
         Campaign@ campaign = campaignsArr[i];
         if (false
             or campaign is null
             or campaign.type != WarriorMedals::CampaignType::TrackOfTheDay
+            or campaign.mapsArr.Length == 0
         ) {
             continue;
         }
 
+        if (campaign.mapsArr.Length > 1) {
+            @previousTotd = campaign.mapsArr[campaign.mapsArr.Length - 2];
+        }
+
         @latestTotd = campaign.mapsArr[campaign.mapsArr.Length - 1];
+        latestTotdCampaignIndex = i;
         break;
+    }
+
+    if (true
+        and previousTotd is null  // latest must be first of the month
+        and latestTotdCampaignIndex != uint(-1)
+        and latestTotdCampaignIndex > 0
+    ) {
+        for (uint i = latestTotdCampaignIndex + 1; i < campaignsArr.Length; i++) {
+            Campaign@ campaign = campaignsArr[i];
+            if (false
+                or campaign is null
+                or campaign.type != WarriorMedals::CampaignType::TrackOfTheDay
+                or campaign.mapsArr.Length == 0
+            ) {
+                continue;
+            }
+
+            @previousTotd = campaign.mapsArr[campaign.mapsArr.Length - 1];
+            break;
+        }
+    }
+
+    if (previousTotd is null) {
+        warn("couldn't find a previous TOTD");
     }
 
     if (latestTotd is null) {

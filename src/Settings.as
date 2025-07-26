@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-07-15
+// m 2025-07-26
 
 [Setting hidden category="Colors"]       vec3 S_ColorFall                  = vec3(1.0f, 0.5f, 0.0f);
 [Setting hidden category="Colors"]       vec3 S_ColorSpring                = vec3(0.3f, 0.9f, 0.3f);
@@ -33,7 +33,7 @@
 /*[Setting hidden category="UI Medals"]*/bool S_UIMedalsAlwaysPlayground   = false;
 [Setting hidden category="UI Medals"]    bool S_UIMedalsClubCampaign       = true;
 [Setting hidden category="UI Medals"]    bool S_UIMedalsLiveCampaign       = true;
-// [Setting hidden category="UI Medals"]    bool S_UIMedalsLiveTotd           = false;
+[Setting hidden category="UI Medals"]    bool S_UIMedalsLiveTotd           = false;
 [Setting hidden category="UI Medals"]    bool S_UIMedalsSeasonalCampaign   = true;
 [Setting hidden category="UI Medals"]    bool S_UIMedalsSoloMenu           = true;
 [Setting hidden category="UI Medals"]    bool S_UIMedalStart               = true;
@@ -216,7 +216,7 @@ void Settings_MedalsInUI() {
             pluginMeta.GetSetting("S_UIMedalsLiveCampaign").Reset();
             pluginMeta.GetSetting("S_UIMedalsClubCampaign").Reset();
             pluginMeta.GetSetting("S_UIMedalsTotd").Reset();
-            // pluginMeta.GetSetting("S_UIMedalsLiveTotd").Reset();
+            pluginMeta.GetSetting("S_UIMedalsLiveTotd").Reset();
             pluginMeta.GetSetting("S_UIMedalsWeekly").Reset();
         }
 
@@ -226,7 +226,8 @@ void Settings_MedalsInUI() {
         S_UIMedalsLiveCampaign     = UI::Checkbox("Seasonal campaign (live)", S_UIMedalsLiveCampaign);
         HoverTooltipSetting("In the arcade");
         S_UIMedalsTotd             = UI::Checkbox("Track of the Day",         S_UIMedalsTotd);
-        // S_UIMedalsLiveTotd         = UI::Checkbox("Track of the Day (live)",  S_UIMedalsLiveTotd);
+        S_UIMedalsLiveTotd         = UI::Checkbox("Track of the Day (live)",  S_UIMedalsLiveTotd);
+        HoverTooltipSetting("Runs off the edge of the background tile a little bit, should be fixed in the future");
         S_UIMedalsClubCampaign     = UI::Checkbox("Club campaign",            S_UIMedalsClubCampaign);
         HoverTooltipSetting("May be inaccurate if a club or campaign's name is changed");
         S_UIMedalsWeekly           = UI::Checkbox("Weekly Shorts",            S_UIMedalsWeekly);
@@ -403,6 +404,13 @@ void Settings_Debug() {
             UI::PopStyleColor();
             UI::EndTable();
         }
+
+        UI::EndTabItem();
+    }
+
+    if (UI::BeginTabItem("Other")) {
+        UI::Text("previous totd: " + (previousTotd !is null ? previousTotd.date : "null"));
+        UI::Text("latest totd: " + (latestTotd !is null ? latestTotd.date : "null"));
 
         UI::EndTabItem();
     }
