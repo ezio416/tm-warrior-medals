@@ -898,6 +898,10 @@ void _DrawSoloTotd(CGameManialinkPage@ Page) {
         return;
     }
 
+    // UI::Text("date: " + string(Date.Value));
+    // UI::Text("latest: " + latestTotd.date);
+
+    // doesn't match latest totd after midnight - the tile says the current day even if totd for today isn't available yet :yek:
     try {
         if (
             Text::ParseUInt(string(Date.Value).Split(" ")[1].Split(",")[0])
