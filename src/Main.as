@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-08-03
+// m 2025-08-10
 
 Campaign@[]         activeOtherCampaigns;
 Campaign@[]         activeSeasonalCampaigns;
@@ -59,6 +59,7 @@ void Main() {
     yield();
 
     startnew(PBLoop);
+    startnew(WaitForNextRequestAsync);
 
 #if DEPENDENCY_ULTIMATEMEDALSEXTENDED
     trace("registering UME medal");
