@@ -1,7 +1,7 @@
 // c 2024-07-24
 // m 2025-08-10
 
-void MainWindow() {
+void MainWindow(const bool detached = false) {
     switch (selectedMedal) {
         case Medal::Warrior:
             UI::PushStyleColor(UI::Col::Button,        vec4(colorWarriorVec * 0.8f, 1.0f));
@@ -69,10 +69,10 @@ void MainWindow() {
     }
 
     UI::BeginTabBar("##tab-bar");
-    Tab_Seasonal();
-    Tab_Weekly();
-    Tab_Totd();
-    Tab_Other();
+    Tab_Seasonal(detached);
+    Tab_Weekly(detached);
+    Tab_Totd(detached);
+    Tab_Other(detached);
     UI::EndTabBar();
 
     UI::PopStyleColor(6);
@@ -98,7 +98,7 @@ void MainWindowDetached() {
         S_MainWindowDetached,
         S_MainWindowAutoResize ? UI::WindowFlags::AlwaysAutoResize : UI::WindowFlags::None
     )) {
-        MainWindow();
+        MainWindow(true);
     }
 
     UI::End();
@@ -322,7 +322,7 @@ bool Tab_SingleCampaign(Campaign@ campaign, const bool selected) {
     return open;
 }
 
-void Tab_Other() {
+void Tab_Other(const bool detached = false) {
     if (!UI::BeginTabItem(Shadow() + Icons::QuestionCircle + " Other###tab-other")) {
         return;
     }
@@ -335,31 +335,71 @@ void Tab_Other() {
     UI::BeginTabBar("##tab-bar-totd");
 
     if (UI::BeginTabItem(Shadow() + Icons::List + " List")) {
-        if (UI::BeginChild("##child-list-other")) {
+        if (!detached) {
+            UI::BeginChild("##child-list-other");
+        }
+
+        UI::PushFont(UI::Font::Default, 26.0f);
+        UI::SeparatorText(Shadow() + "Official");
+        UI::PopFont();
+
+        uint index = 0;
+
+        dictionary uniqueClubs;
+        Campaign@[] unofficialCampaigns;
+
+        float unofficialCampaignMaxLength = 0.0f;
+
+        for (uint i = 0; i < campaignsArr.Length; i++) {
+            Campaign@ campaign = campaignsArr[i];
+            if (false
+                or campaign is null
+                or campaign.type != WarriorMedals::CampaignType::Other
+            ) {
+                continue;
+            }
+
+            if (!campaign.official) {
+                uniqueClubs.Set(campaign.clubName, 0);
+                unofficialCampaigns.InsertLast(campaign);
+                unofficialCampaignMaxLength = Math::Max(unofficialCampaignMaxLength, Draw::MeasureString(campaign.nameStripped).x);
+                continue;
+            }
+
+            if (index++ % 3 > 0) {
+                UI::SameLine();
+            }
+
+            UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
+            if (UI::Button(Shadow() + campaign.nameStripped + "###button-" + campaign.uid, vec2(scale * 120.0f, scale * 25.0f))) {
+                const int index2 = activeOtherCampaigns.FindByRef(campaign);
+                if (index2 > -1) {
+                    activeOtherCampaigns.RemoveAt(index2);
+                }
+                activeOtherCampaigns.InsertLast(campaign);
+                selected = activeOtherCampaigns.Length - 1;
+            }
+            UI::PopStyleColor();
+            switch (selectedMedal) {
+                case Medal::Warrior:
+                    UI::SetItemTooltip(tostring(campaign.countWarrior) + " / " + campaign.mapsArr.Length);
+                    break;
+            }
+        }
+
+        const string[]@ clubs = uniqueClubs.GetKeys();
+        for (uint i = 0; i < clubs.Length; i++) {
+            const string clubName = clubs[i];
+
             UI::PushFont(UI::Font::Default, 26.0f);
-            UI::SeparatorText(Shadow() + "Official");
+            UI::SeparatorText(Shadow() + WarriorMedals::StripFormatCodes(clubName));
             UI::PopFont();
 
-            uint index = 0;
+            index = 0;
 
-            dictionary uniqueClubs;
-            Campaign@[] unofficialCampaigns;
-
-            float unofficialCampaignMaxLength = 0.0f;
-
-            for (uint i = 0; i < campaignsArr.Length; i++) {
-                Campaign@ campaign = campaignsArr[i];
-                if (false
-                    or campaign is null
-                    or campaign.type != WarriorMedals::CampaignType::Other
-                ) {
-                    continue;
-                }
-
-                if (!campaign.official) {
-                    uniqueClubs.Set(campaign.clubName, 0);
-                    unofficialCampaigns.InsertLast(campaign);
-                    unofficialCampaignMaxLength = Math::Max(unofficialCampaignMaxLength, Draw::MeasureString(campaign.nameStripped).x);
+            for (uint j = 0; j < unofficialCampaigns.Length; j++) {  // inefficient but whatever
+                Campaign@ campaign = unofficialCampaigns[j];
+                if (campaign.clubName != clubName) {
                     continue;
                 }
 
@@ -368,7 +408,7 @@ void Tab_Other() {
                 }
 
                 UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-                if (UI::Button(Shadow() + campaign.nameStripped + "###button-" + campaign.uid, vec2(scale * 120.0f, scale * 25.0f))) {
+                if (UI::Button(Shadow() + campaign.nameStripped + "###button-" + campaign.uid, vec2(unofficialCampaignMaxLength + scale * 15.0f, scale * 25.0f))) {
                     const int index2 = activeOtherCampaigns.FindByRef(campaign);
                     if (index2 > -1) {
                         activeOtherCampaigns.RemoveAt(index2);
@@ -383,46 +423,11 @@ void Tab_Other() {
                         break;
                 }
             }
-
-            const string[]@ clubs = uniqueClubs.GetKeys();
-            for (uint i = 0; i < clubs.Length; i++) {
-                const string clubName = clubs[i];
-
-                UI::PushFont(UI::Font::Default, 26.0f);
-                UI::SeparatorText(Shadow() + WarriorMedals::StripFormatCodes(clubName));
-                UI::PopFont();
-
-                index = 0;
-
-                for (uint j = 0; j < unofficialCampaigns.Length; j++) {  // inefficient but whatever
-                    Campaign@ campaign = unofficialCampaigns[j];
-                    if (campaign.clubName != clubName) {
-                        continue;
-                    }
-
-                    if (index++ % 3 > 0) {
-                        UI::SameLine();
-                    }
-
-                    UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-                    if (UI::Button(Shadow() + campaign.nameStripped + "###button-" + campaign.uid, vec2(unofficialCampaignMaxLength + scale * 15.0f, scale * 25.0f))) {
-                        const int index2 = activeOtherCampaigns.FindByRef(campaign);
-                        if (index2 > -1) {
-                            activeOtherCampaigns.RemoveAt(index2);
-                        }
-                        activeOtherCampaigns.InsertLast(campaign);
-                        selected = activeOtherCampaigns.Length - 1;
-                    }
-                    UI::PopStyleColor();
-                    switch (selectedMedal) {
-                        case Medal::Warrior:
-                            UI::SetItemTooltip(tostring(campaign.countWarrior) + " / " + campaign.mapsArr.Length);
-                            break;
-                    }
-                }
-            }
         }
-        UI::EndChild();
+
+        if (!detached) {
+            UI::EndChild();
+        }
 
         UI::EndTabItem();
     }
@@ -439,7 +444,7 @@ void Tab_Other() {
     UI::EndTabItem();
 }
 
-void Tab_Seasonal() {
+void Tab_Seasonal(const bool detached = false) {
     if (!UI::BeginTabItem(Shadow() + Icons::SnowflakeO + " Seasonal###tab-seasonal")) {
         return;
     }
@@ -452,62 +457,67 @@ void Tab_Seasonal() {
     UI::BeginTabBar("##tab-bar-seasonal");
 
     if (UI::BeginTabItem(Shadow() + Icons::List + " List")) {
-        if (UI::BeginChild("##child-list-seasonal")) {
-            int lastYear = -1;
+        if (!detached) {
+            UI::BeginChild("##child-list-seasonal");
+        }
 
-            Campaign@[]@ arr = S_MainWindowOldestFirst ? campaignsArrRev : campaignsArr;
-            for (uint i = 0; i < arr.Length; i++) {
-                Campaign@ campaign = arr[i];
-                if (false
-                    or campaign is null
-                    or campaign.type != WarriorMedals::CampaignType::Seasonal
-                ) {
-                    continue;
-                }
+        int lastYear = -1;
 
-                if (uint(lastYear) != campaign.year) {
-                    lastYear = campaign.year;
+        Campaign@[]@ arr = S_MainWindowOldestFirst ? campaignsArrRev : campaignsArr;
+        for (uint i = 0; i < arr.Length; i++) {
+            Campaign@ campaign = arr[i];
+            if (false
+                or campaign is null
+                or campaign.type != WarriorMedals::CampaignType::Seasonal
+            ) {
+                continue;
+            }
 
-                    UI::PushFont(UI::Font::Default, 26.0f);
-                    UI::SeparatorText(Shadow() + tostring(campaign.year + 2020));
-                    UI::PopFont();
-                } else {
-                    UI::SameLine();
-                }
+            if (uint(lastYear) != campaign.year) {
+                lastYear = campaign.year;
 
-                bool colored = false;
-                if (true
-                    and seasonColors.Length == 4
-                    and campaign.colorIndex < 4
-                ) {
-                    UI::PushStyleColor(UI::Col::Button,        vec4(seasonColors[campaign.colorIndex] * 0.9f, 1.0f));
-                    UI::PushStyleColor(UI::Col::ButtonActive,  vec4(seasonColors[campaign.colorIndex] * 0.6f, 1.0f));
-                    UI::PushStyleColor(UI::Col::ButtonHovered, vec4(seasonColors[campaign.colorIndex],        1.0f));
-                    colored = true;
-                }
+                UI::PushFont(UI::Font::Default, 26.0f);
+                UI::SeparatorText(Shadow() + tostring(campaign.year + 2020));
+                UI::PopFont();
+            } else {
+                UI::SameLine();
+            }
 
-                UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-                if (UI::Button(Shadow() + campaign.name.SubStr(0, campaign.name.Length - 5) + "##" + campaign.name, vec2(scale * 100.0f, scale * 25.0f))) {
-                    const int index = activeSeasonalCampaigns.FindByRef(campaign);
-                    if (index > -1) {
-                        activeSeasonalCampaigns.RemoveAt(index);
-                    }
-                    activeSeasonalCampaigns.InsertLast(campaign);
-                    selected = activeSeasonalCampaigns.Length - 1;
-                }
-                UI::PopStyleColor();
-                switch (selectedMedal) {
-                    case Medal::Warrior:
-                        UI::SetItemTooltip(tostring(campaign.countWarrior) + " / " + campaign.mapsArr.Length);
-                        break;
-                }
+            bool colored = false;
+            if (true
+                and seasonColors.Length == 4
+                and campaign.colorIndex < 4
+            ) {
+                UI::PushStyleColor(UI::Col::Button,        vec4(seasonColors[campaign.colorIndex] * 0.9f, 1.0f));
+                UI::PushStyleColor(UI::Col::ButtonActive,  vec4(seasonColors[campaign.colorIndex] * 0.6f, 1.0f));
+                UI::PushStyleColor(UI::Col::ButtonHovered, vec4(seasonColors[campaign.colorIndex],        1.0f));
+                colored = true;
+            }
 
-                if (colored) {
-                    UI::PopStyleColor(3);
+            UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
+            if (UI::Button(Shadow() + campaign.name.SubStr(0, campaign.name.Length - 5) + "##" + campaign.name, vec2(scale * 100.0f, scale * 25.0f))) {
+                const int index = activeSeasonalCampaigns.FindByRef(campaign);
+                if (index > -1) {
+                    activeSeasonalCampaigns.RemoveAt(index);
                 }
+                activeSeasonalCampaigns.InsertLast(campaign);
+                selected = activeSeasonalCampaigns.Length - 1;
+            }
+            UI::PopStyleColor();
+            switch (selectedMedal) {
+                case Medal::Warrior:
+                    UI::SetItemTooltip(tostring(campaign.countWarrior) + " / " + campaign.mapsArr.Length);
+                    break;
+            }
+
+            if (colored) {
+                UI::PopStyleColor(3);
             }
         }
-        UI::EndChild();
+
+        if (!detached) {
+            UI::EndChild();
+        }
 
         UI::EndTabItem();
     }
@@ -524,7 +534,7 @@ void Tab_Seasonal() {
     UI::EndTabItem();
 }
 
-void Tab_Totd() {
+void Tab_Totd(const bool detached = false) {
     if (!UI::BeginTabItem(Shadow() + Icons::Calendar + " Track of the Day###tab-totd")) {
         return;
     }
@@ -537,66 +547,71 @@ void Tab_Totd() {
     UI::BeginTabBar("##tab-bar-totd");
 
     if (UI::BeginTabItem(Shadow() + Icons::List + " List")) {
-        if (UI::BeginChild("##child-list-totd")) {
-            uint curMonthInYear = 0;
-            int  lastYear       = -1;
-
-            Campaign@[]@ arr = S_MainWindowOldestFirst ? campaignsArrRev : campaignsArr;
-            for (uint i = 0; i < arr.Length; i++) {
-                Campaign@ campaign = arr[i];
-                if (false
-                    or campaign is null
-                    or campaign.type != WarriorMedals::CampaignType::TrackOfTheDay
-                ) {
-                    continue;
-                }
-
-                if (uint(lastYear) != campaign.year) {
-                    lastYear = campaign.year;
-                    curMonthInYear = 0;
-
-                    UI::PushFont(UI::Font::Default, 26.0f);
-                    UI::SeparatorText(Shadow() + tostring(campaign.year + 2020));
-                    UI::PopFont();
-                } else if (curMonthInYear % 3 > 0) {
-                    UI::SameLine();
-                }
-
-                bool colored = false;
-                if (true
-                    and seasonColors.Length == 4
-                    and campaign.colorIndex < 4
-                ) {
-                    UI::PushStyleColor(UI::Col::Button,        vec4(seasonColors[campaign.colorIndex] * 0.9f, 1.0f));
-                    UI::PushStyleColor(UI::Col::ButtonActive,  vec4(seasonColors[campaign.colorIndex] * 0.6f, 1.0f));
-                    UI::PushStyleColor(UI::Col::ButtonHovered, vec4(seasonColors[campaign.colorIndex],        1.0f));
-                    colored = true;
-                }
-
-                UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-                if (UI::Button(Shadow() + campaign.name.SubStr(0, campaign.name.Length - 5) + "##" + campaign.name, vec2(scale * 137.0f, scale * 25.0f))) {
-                    const int index = activeTotdMonths.FindByRef(campaign);
-                    if (index > -1) {
-                        activeTotdMonths.RemoveAt(index);
-                    }
-                    activeTotdMonths.InsertLast(campaign);
-                    selected = activeTotdMonths.Length - 1;
-                }
-                UI::PopStyleColor();
-                switch (selectedMedal) {
-                    case Medal::Warrior:
-                        UI::SetItemTooltip(tostring(campaign.countWarrior) + " / " + campaign.mapsArr.Length);
-                        break;
-                }
-
-                if (colored) {
-                    UI::PopStyleColor(3);
-                }
-
-                curMonthInYear++;
-            }
+        if (!detached) {
+            UI::BeginChild("##child-list-totd");
         }
-        UI::EndChild();
+
+        uint curMonthInYear = 0;
+        int  lastYear       = -1;
+
+        Campaign@[]@ arr = S_MainWindowOldestFirst ? campaignsArrRev : campaignsArr;
+        for (uint i = 0; i < arr.Length; i++) {
+            Campaign@ campaign = arr[i];
+            if (false
+                or campaign is null
+                or campaign.type != WarriorMedals::CampaignType::TrackOfTheDay
+            ) {
+                continue;
+            }
+
+            if (uint(lastYear) != campaign.year) {
+                lastYear = campaign.year;
+                curMonthInYear = 0;
+
+                UI::PushFont(UI::Font::Default, 26.0f);
+                UI::SeparatorText(Shadow() + tostring(campaign.year + 2020));
+                UI::PopFont();
+            } else if (curMonthInYear % 3 > 0) {
+                UI::SameLine();
+            }
+
+            bool colored = false;
+            if (true
+                and seasonColors.Length == 4
+                and campaign.colorIndex < 4
+            ) {
+                UI::PushStyleColor(UI::Col::Button,        vec4(seasonColors[campaign.colorIndex] * 0.9f, 1.0f));
+                UI::PushStyleColor(UI::Col::ButtonActive,  vec4(seasonColors[campaign.colorIndex] * 0.6f, 1.0f));
+                UI::PushStyleColor(UI::Col::ButtonHovered, vec4(seasonColors[campaign.colorIndex],        1.0f));
+                colored = true;
+            }
+
+            UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
+            if (UI::Button(Shadow() + campaign.name.SubStr(0, campaign.name.Length - 5) + "##" + campaign.name, vec2(scale * 137.0f, scale * 25.0f))) {
+                const int index = activeTotdMonths.FindByRef(campaign);
+                if (index > -1) {
+                    activeTotdMonths.RemoveAt(index);
+                }
+                activeTotdMonths.InsertLast(campaign);
+                selected = activeTotdMonths.Length - 1;
+            }
+            UI::PopStyleColor();
+            switch (selectedMedal) {
+                case Medal::Warrior:
+                    UI::SetItemTooltip(tostring(campaign.countWarrior) + " / " + campaign.mapsArr.Length);
+                    break;
+            }
+
+            if (colored) {
+                UI::PopStyleColor(3);
+            }
+
+            curMonthInYear++;
+        }
+
+        if (!detached) {
+            UI::EndChild();
+        }
 
         UI::EndTabItem();
     }
@@ -613,7 +628,7 @@ void Tab_Totd() {
     UI::EndTabItem();
 }
 
-void Tab_Weekly() {
+void Tab_Weekly(const bool detached = false) {
     if (!UI::BeginTabItem(Shadow() + Icons::ClockO + " Weekly Shorts###tab-weekly")) {
         return;
     }
@@ -626,68 +641,73 @@ void Tab_Weekly() {
     UI::BeginTabBar("##tab-bar-weekly");
 
     if (UI::BeginTabItem(Shadow() + Icons::List + " List")) {
-        if (UI::BeginChild("##child-list-weekly")) {
-            uint curWeekInYear = 0;
-            int  lastYear      = -1;
-
-            Campaign@[]@ arr = S_MainWindowOldestFirst ? campaignsArrRev : campaignsArr;
-            for (uint i = 0; i < arr.Length; i++) {
-                Campaign@ campaign = arr[i];
-                if (false
-                    or campaign is null
-                    or campaign.type != WarriorMedals::CampaignType::Weekly
-                ) {
-                    continue;
-                }
-
-                if (uint(lastYear) != campaign.year) {
-                    lastYear = campaign.year;
-                    curWeekInYear = 0;
-
-                    UI::PushFont(UI::Font::Default, 26.0f);
-                    UI::SeparatorText(Shadow() + tostring(campaign.year + 2020));
-                    UI::PopFont();
-
-                } else if (curWeekInYear % 5 > 0) {
-                    UI::SameLine();
-                }
-
-                bool colored = false;
-                if (false
-                    or campaign.week < 5
-                    or campaign.week == 29
-                ) {
-                    const vec3 colorNadeo = vec3(1.0f, 0.75f, 0.1f);
-                    UI::PushStyleColor(UI::Col::Button,        vec4(colorNadeo * 0.9f, 1.0f));
-                    UI::PushStyleColor(UI::Col::ButtonActive,  vec4(colorNadeo * 0.6f, 1.0f));
-                    UI::PushStyleColor(UI::Col::ButtonHovered, vec4(colorNadeo,        1.0f));
-                    colored = true;
-                }
-
-                UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-                if (UI::Button(Shadow() + campaign.name, vec2(scale * 78.0f, scale * 25.0f))) {
-                    const int index = activeWeeklyWeeks.FindByRef(campaign);
-                    if (index > -1) {
-                        activeWeeklyWeeks.RemoveAt(index);
-                    }
-                    activeWeeklyWeeks.InsertLast(campaign);
-                    selected = activeWeeklyWeeks.Length - 1;
-                }
-                UI::PopStyleColor();
-                switch (selectedMedal) {
-                    case Medal::Warrior:
-                        UI::SetItemTooltip(tostring(campaign.countWarrior) + " / " + campaign.mapsArr.Length);
-                        break;
-                }
-
-                if (colored) {
-                    UI::PopStyleColor(3);
-                }
-
-                curWeekInYear++;
-            }
+        if (!detached) {
+            UI::BeginChild("##child-list-weekly");
         }
-        UI::EndChild();
+
+        uint curWeekInYear = 0;
+        int  lastYear      = -1;
+
+        Campaign@[]@ arr = S_MainWindowOldestFirst ? campaignsArrRev : campaignsArr;
+        for (uint i = 0; i < arr.Length; i++) {
+            Campaign@ campaign = arr[i];
+            if (false
+                or campaign is null
+                or campaign.type != WarriorMedals::CampaignType::Weekly
+            ) {
+                continue;
+            }
+
+            if (uint(lastYear) != campaign.year) {
+                lastYear = campaign.year;
+                curWeekInYear = 0;
+
+                UI::PushFont(UI::Font::Default, 26.0f);
+                UI::SeparatorText(Shadow() + tostring(campaign.year + 2020));
+                UI::PopFont();
+
+            } else if (curWeekInYear % 5 > 0) {
+                UI::SameLine();
+            }
+
+            bool colored = false;
+            if (false
+                or campaign.week < 5
+                or campaign.week == 29
+            ) {
+                const vec3 colorNadeo = vec3(1.0f, 0.75f, 0.1f);
+                UI::PushStyleColor(UI::Col::Button,        vec4(colorNadeo * 0.9f, 1.0f));
+                UI::PushStyleColor(UI::Col::ButtonActive,  vec4(colorNadeo * 0.6f, 1.0f));
+                UI::PushStyleColor(UI::Col::ButtonHovered, vec4(colorNadeo,        1.0f));
+                colored = true;
+            }
+
+            UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
+            if (UI::Button(Shadow() + campaign.name, vec2(scale * 78.0f, scale * 25.0f))) {
+                const int index = activeWeeklyWeeks.FindByRef(campaign);
+                if (index > -1) {
+                    activeWeeklyWeeks.RemoveAt(index);
+                }
+                activeWeeklyWeeks.InsertLast(campaign);
+                selected = activeWeeklyWeeks.Length - 1;
+            }
+            UI::PopStyleColor();
+            switch (selectedMedal) {
+                case Medal::Warrior:
+                    UI::SetItemTooltip(tostring(campaign.countWarrior) + " / " + campaign.mapsArr.Length);
+                    break;
+            }
+
+            if (colored) {
+                UI::PopStyleColor(3);
+            }
+
+            curWeekInYear++;
+        }
+
+        if (!detached) {
+            UI::EndChild();
+        }
 
         UI::EndTabItem();
     }
