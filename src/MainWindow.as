@@ -35,6 +35,14 @@ void MainWindow(const bool detached = false) {
 
         UI::TableNextColumn();
 
+        UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
+        if (UI::Button(Shadow() + Icons::Globe)) {
+            OpenBrowserURL("https://e416.dev/warrior-medals");
+        }
+        UI::PopStyleColor();
+        HoverTooltip("Open the Warrior Medals website");
+
+        UI::SameLine();
         UI::BeginDisabled(feedbackShown);
         UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
         if (UI::Button(Shadow() + Icons::Envelope)) {
