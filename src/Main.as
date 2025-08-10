@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-07-26
+// m 2025-08-03
 
 Campaign@[]         activeOtherCampaigns;
 Campaign@[]         activeSeasonalCampaigns;
@@ -18,6 +18,7 @@ WarriorMedals::Map@ latestTotd;
 bool                loading                  = false;
 dictionary          maps;
 dictionary          mapsById;
+int64               nextWarriorRequest       = 0;
 const string        pluginColor              = "\\$38C";
 const string        pluginIcon               = Icons::Circle;
 Meta::Plugin@       pluginMeta               = Meta::ExecutingPlugin();
@@ -205,4 +206,18 @@ void SetTotals() {
 
     trace("setting totals done after " + (Time::Now - start) + "ms");
     settingTotals = false;
+}
+
+void WaitForNextRequestAsync() {
+    while (true) {
+        sleep(60000);
+
+        if (true
+            and nextWarriorRequest > 0
+            and Time::Stamp - nextWarriorRequest > 300  // wait 5 minutes after new times drop
+        ) {
+            API::GetAllMapInfosAsync();
+            sleep(300000);
+        }
+    }
 }

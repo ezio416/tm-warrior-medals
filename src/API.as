@@ -1,5 +1,5 @@
 // c 2024-07-18
-// m 2025-07-18
+// m 2025-08-10
 
 namespace API {
     const string baseUrl    = "https://e416.dev/api2";
@@ -93,18 +93,40 @@ namespace API {
 
         yield();
 
+        bool gotNext = false;
+
         string[]@ types = data.GetKeys();
         for (uint i = 0; i < types.Length; i++) {
             Json::Value@ section = data.Get(types[i]);
-            if (!WarriorMedals::CheckJsonType(section, Json::Type::Array, "section-" + i)) {
-                error("getting all map infos failed after " + (Time::Now - start) + "ms");
-                return;
+
+            if (types[i] == "next") {  // future proofing, plan to change backend later
+                if (WarriorMedals::CheckJsonType(section, Json::Type::Number, "next")) {
+                    nextWarriorRequest = int64(section);
+                    gotNext = true;
+                }
+            } else {
+                if (!WarriorMedals::CheckJsonType(section, Json::Type::Array, "section-" + i)) {
+                    error("getting all map infos failed after " + (Time::Now - start) + "ms");
+                    return;
+                }
+
+                for (uint j = 0; j < section.Length; j++) {
+                    auto map = WarriorMedals::Map(section[j], types[i]);
+                    maps[map.uid] = @map;
+                    mapsById[map.id] = @map;
+                }
             }
 
-            for (uint j = 0; j < section.Length; j++) {
-                auto map = WarriorMedals::Map(section[j], types[i]);
-                maps[map.uid] = @map;
-                mapsById[map.id] = @map;
+            yield();
+        }
+
+        if (!gotNext) {
+            trace("didn't find next request time, getting now...");
+
+            try {
+                nextWarriorRequest = int64(GetEdevAsync("/tm/warrior/next").Json()[0]);
+            } catch {
+                error("getting next request time failed");
             }
         }
 
