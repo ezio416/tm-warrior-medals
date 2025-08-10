@@ -102,6 +102,7 @@ namespace API {
             if (types[i] == "next") {  // future proofing, plan to change backend later
                 if (WarriorMedals::CheckJsonType(section, Json::Type::Number, "next")) {
                     nextWarriorRequest = int64(section);
+                    trace("next request: " + Time::FormatString("%F %T", nextWarriorRequest));
                     gotNext = true;
                 }
             } else {
@@ -125,6 +126,7 @@ namespace API {
 
             try {
                 nextWarriorRequest = int64(GetEdevAsync("/tm/warrior/next").Json()[0]);
+                trace("next request: " + Time::FormatString("%F %T", nextWarriorRequest));
             } catch {
                 error("getting next request time failed");
             }
