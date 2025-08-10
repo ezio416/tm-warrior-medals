@@ -211,14 +211,16 @@ void SetTotals() {
 
 void WaitForNextRequestAsync() {
     while (true) {
-        sleep(60000);
+        sleep(1000);
 
         if (true
             and nextWarriorRequest > 0
-            and Time::Stamp - nextWarriorRequest > 300  // wait 5 minutes after new times drop
+            and Time::Stamp - nextWarriorRequest > 0
         ) {
-            API::GetAllMapInfosAsync();
+            trace("passed next request time, waiting to actually request...");
             sleep(300000);
+            trace("auto-requesting maps...");
+            API::GetAllMapInfosAsync();
         }
     }
 }
