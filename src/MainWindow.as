@@ -653,7 +653,10 @@ void Tab_Weekly() {
                 }
 
                 bool colored = false;
-                if (campaign.week < 5) {
+                if (false
+                    or campaign.week < 5
+                    or campaign.week == 29
+                ) {
                     const vec3 colorNadeo = vec3(1.0f, 0.75f, 0.1f);
                     UI::PushStyleColor(UI::Col::Button,        vec4(colorNadeo * 0.9f, 1.0f));
                     UI::PushStyleColor(UI::Col::ButtonActive,  vec4(colorNadeo * 0.6f, 1.0f));
