@@ -416,7 +416,7 @@ void Settings_Debug() {
         if (delta > 0) {
             next += "in " + Time::Format(delta * 1000, false);
         } else {
-            next += Time::Format(delta * 1000, false) + " ago";
+            next += Time::Format(delta * -1000, false) + " ago";
         }
         UI::Text(next + ")");
 
