@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2025-02-20
+// m 2025-07-26
 
 class Campaign {
     int                         clubId     = -1;
@@ -9,7 +9,7 @@ class Campaign {
     uint8                       colorIndex = uint8(-1);
     int                         id         = -1;
     int                         index      = -1;
-    dictionary@                 maps       = dictionary();
+    dictionary                  maps;
     WarriorMedals::Map@[]       mapsArr;
     uint                        month;
     string                      name;
@@ -21,13 +21,17 @@ class Campaign {
     uint                        week;
     uint                        year;
 
-    uint get_count() {
+    uint get_countWarrior() {
         uint _count = 0;
 
         for (uint i = 0; i < mapsArr.Length; i++) {
             WarriorMedals::Map@ map = mapsArr[i];
-            if (map is null || !map.hasWarrior)
+            if (false
+                or map is null
+                or !map.hasWarrior
+            ) {
                 continue;
+            }
 
             _count++;
         }
@@ -36,7 +40,10 @@ class Campaign {
     }
 
     bool get_official() {
-        return clubId == 0 || clubId == 150;  // 0 training/seasonal, 150 ubisoft nadeo
+        return false
+            or clubId == 0
+            or clubId == 150
+        ;  // 0 training/seasonal, 150 ubisoft nadeo
     }
 
     Campaign(WarriorMedals::Map@ map) {
@@ -52,17 +59,23 @@ class Campaign {
     }
 
     void AddMap(WarriorMedals::Map@ map) {
-        if (map is null || maps.Exists(map.uid))
+        if (false
+            or map is null
+            or maps.Exists(map.uid)
+        ) {
             return;
+        }
 
         maps[map.uid] = @map;
         mapsArr.InsertLast(@map);
 
-        if (type == WarriorMedals::CampaignType::Unknown)
+        if (type == WarriorMedals::CampaignType::Unknown) {
             type = map.campaignType;
+        }
 
-        if (index != -1)
+        if (index != -1) {
             return;
+        }
 
         year = Text::ParseUInt(map.campaignName.SubStr(map.campaignName.Length - 4)) - 2020;
 
@@ -117,31 +130,18 @@ class Campaign {
         }
     }
 
-    WarriorMedals::Map@ GetMap(const string &in uid) {
-        if (!maps.Exists(uid))
+    WarriorMedals::Map@ GetMap(const string&in uid) {
+        if (!maps.Exists(uid)) {
             return null;
+        }
 
-        return cast<WarriorMedals::Map@>(maps[uid]);
+        return cast<WarriorMedals::Map>(maps[uid]);
     }
 
-    // void GetPBs() {
-    //     const string[]@ uids = maps.GetKeys();
-
-    //     for (uint i = 0; i < uids.Length; i++) {
-    //         WarriorMedals::Map@ map = cast<WarriorMedals::Map@>(maps[uids[i]]);
-    //         if (map is null)
-    //             continue;
-
-    //         map.GetPB();
-    //         Files::AddPB(map);
-    //     }
-
-    //     Files::SavePBs();
-    // }
-
     void GetPBsAsync() {
-        while (requesting)
+        while (requesting) {
             yield();
+        }
 
         requesting = true;
 
@@ -158,7 +158,7 @@ class Campaign {
             body["maps"].Add(map);
         }
 
-        Net::HttpRequest@ req = API::Nadeo::PostLiveAsync("/api/token/leaderboard/group/map", body);
+        Net::HttpRequest@ req = API::Nadeo::PostLiveAsync("/api/token/leaderboard/group/map", Json::Write(body));
         // warn("setting clipboard");
         // IO::SetClipboard(req.String());
 
@@ -178,16 +178,16 @@ class Campaign {
 
         for (uint i = 0; i < data.Length; i++) {
             Json::Value@ map_api = data[i];
-            if (!WarriorMedals::CheckJsonType(map_api, Json::Type::Object, "map_api"))
+            if (!WarriorMedals::CheckJsonType(map_api, Json::Type::Object, "map_api")) {
                 continue;
+            }
 
             uid = JsonExt::GetString(map_api, "mapUid");
 
             WarriorMedals::Map@ map = GetMap(uid);
-            if (map !is null)
+            if (map !is null) {
                 map.SetPBFromAPI(map_api);
-
-            Files::AddPB(map);
+            }
         }
 
         requesting = false;
@@ -195,14 +195,17 @@ class Campaign {
         trace("got PBs for " + nameStripped + " after " + (Time::Now - start) + "ms");
 
         SetTotals();
-        Files::SavePBs();
     }
 
     void SetOtherCampaignIndex() {
         const string indexId = tostring(clubId) + "-" + id;
 
-        if (campaignIndices !is null && campaignIndices.HasKey(indexId))
+        if (true
+            and campaignIndices !is null
+            and campaignIndices.HasKey(indexId)
+        ) {
             index = int(campaignIndices[indexId]);
+        }
     }
 }
 
@@ -216,9 +219,10 @@ void BuildCampaigns() {
     const string[]@ uids = maps.GetKeys();
 
     for (uint i = 0; i < uids.Length; i++) {
-        WarriorMedals::Map@ map = cast<WarriorMedals::Map@>(maps[uids[i]]);
-        if (map is null)
+        auto map = cast<WarriorMedals::Map>(maps[uids[i]]);
+        if (map is null) {
             continue;
+        }
 
         Campaign@ campaign = GetCampaign(CampaignUid(map.campaignName, map.clubName));
         if (campaign !is null) {
@@ -237,16 +241,16 @@ void BuildCampaigns() {
     SortCampaigns();
 }
 
-string CampaignUid(const string &in name, const string &in club = "") {
+string CampaignUid(const string&in name, const string&in club = "") {
     const string ret = club + uidSeparator + name;
     return ret.ToLower();
 }
 
-Campaign@ GetCampaign(const string &in uid) {
+Campaign@ GetCampaign(const string&in uid) {
     if (!campaigns.Exists(uid))
         return null;
 
-    return cast<Campaign@>(campaigns[uid]);
+    return cast<Campaign>(campaigns[uid]);
 }
 
 void SortCampaigns() {
@@ -255,39 +259,83 @@ void SortCampaigns() {
 
     for (uint i = 0; i < campaignsArr.Length; i++) {
         Campaign@ campaign = campaignsArr[i];
-        if (campaign is null || campaign.mapsArr.Length < 2)
+        if (false
+            or campaign is null
+            or campaign.mapsArr.Length < 2
+        ) {
             continue;
+        }
 
         campaign.mapsArr.Sort(function(a, b) { return a.index < b.index; });
     }
 
-    if (campaignsArr.Length > 1)
-        campaignsArr.Sort(function(a, b) { return a.index > b.index; });
+    switch (campaignsArr.Length) {
+        case 0:
+            return;
+        case 1:
+            break;
+        default:
+            campaignsArr.Sort(function(a, b) { return a.index > b.index; });
+    }
 
-    if (!initWeekly && !API::Nadeo::allWeekly)
-        startnew(API::Nadeo::GetAllWeeklyPBsAsync);
+    uint latestTotdCampaignIndex = uint(-1);
 
     for (uint i = 0; i < campaignsArr.Length; i++) {
         Campaign@ campaign = campaignsArr[i];
-        if (campaign is null || campaign.type != WarriorMedals::CampaignType::TrackOfTheDay)
+        if (false
+            or campaign is null
+            or campaign.type != WarriorMedals::CampaignType::TrackOfTheDay
+            or campaign.mapsArr.Length == 0
+        ) {
             continue;
+        }
+
+        if (campaign.mapsArr.Length > 1) {
+            @previousTotd = campaign.mapsArr[campaign.mapsArr.Length - 2];
+        }
 
         @latestTotd = campaign.mapsArr[campaign.mapsArr.Length - 1];
+        latestTotdCampaignIndex = i;
         break;
     }
 
-    if (latestTotd is null)
+    if (true
+        and previousTotd is null  // latest must be first of the month
+        and latestTotdCampaignIndex != uint(-1)
+        and latestTotdCampaignIndex > 0
+    ) {
+        for (uint i = latestTotdCampaignIndex + 1; i < campaignsArr.Length; i++) {
+            Campaign@ campaign = campaignsArr[i];
+            if (false
+                or campaign is null
+                or campaign.type != WarriorMedals::CampaignType::TrackOfTheDay
+                or campaign.mapsArr.Length == 0
+            ) {
+                continue;
+            }
+
+            @previousTotd = campaign.mapsArr[campaign.mapsArr.Length - 1];
+            break;
+        }
+    }
+
+    if (previousTotd is null) {
+        warn("couldn't find a previous TOTD");
+    }
+
+    if (latestTotd is null) {
         warn("couldn't find a recent TOTD");
+    }
 
     campaignsArrRev = campaignsArr;
     campaignsArrRev.Reverse();
 
     trace("sorting campaigns and maps done after " + (Time::Now - start) + "ms");
 
-    @activeOtherCampaign    = null;
-    @activeSeasonalCampaign = null;
-    @activeTotdMonth        = null;
-    @activeWeeklyWeek       = null;
+    activeOtherCampaigns    = {};
+    activeSeasonalCampaigns = {};
+    activeTotdMonths        = {};
+    activeWeeklyWeeks       = {};
 
     SetTotals();
 }

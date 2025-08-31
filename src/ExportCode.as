@@ -1,46 +1,46 @@
 // c 2024-07-17
-// m 2025-03-31
+// m 2025-07-18
 
 /*
 Exports from the Warrior Medals plugin.
 */
 namespace WarriorMedals {
     /*
-    Returns the plugin's main color as a string.
+    Returns the Warrior medal color as a string.
     */
-    string GetColorStr() {
+    string GetColorWarriorStr() {
         return pluginColor;
     }
 
     /*
-    Returns the plugin's main color as a vec3.
+    Returns the Warrior medal color as a vec3.
     */
-    vec3 GetColorVec() {
-        return colorVec;
+    vec3 GetColorWarriorVec() {
+        return colorWarriorVec;
     }
 
     /*
     Returns the Warrior medal icon (32x32).
     */
-    const UI::Texture@ GetIcon32() {
-        if (icon32 is null) {
+    const UI::Texture@ GetIconWarrior32() {
+        if (iconWarrior32 is null) {
             IO::FileSource file("assets/warrior_32.png");
-            @icon32 = UI::LoadTexture(file.Read(file.Size()));
+            @iconWarrior32 = UI::LoadTexture(file.Read(file.Size()));
         }
 
-        return icon32;
+        return iconWarrior32;
     }
 
     /*
     Returns the Warrior medal icon (512x512).
     */
-    const UI::Texture@ GetIcon512() {
-        if (icon512 is null) {
+    const UI::Texture@ GetIconWarrior512() {
+        if (iconWarrior512 is null) {
             IO::FileSource file("assets/warrior_512.png");
-            @icon512 = UI::LoadTexture(file.Read(file.Size()));
+            @iconWarrior512 = UI::LoadTexture(file.Read(file.Size()));
         }
 
-        return icon512;
+        return iconWarrior512;
     }
 
     /*
@@ -58,15 +58,22 @@ namespace WarriorMedals {
     Only use this if you need a synchronous function.
     */
     uint GetWMTime() {
-        if (!pluginMeta.Enabled) {
-            warn("Warrior Medals is disabled");
+        if (false
+            or pluginMeta is null
+            or !pluginMeta.Enabled
+        ) {
+            // warn("Warrior Medals is disabled");
             return 0;
         }
 
-        CTrackMania@ App = cast<CTrackMania@>(GetApp());
+        auto App = cast<CTrackMania>(GetApp());
 
-        if (App.RootMap is null)
+        if (false
+            or App.RootMap is null
+            or App.Editor !is null
+        ) {
             return 0;
+        }
 
         return GetWMTime(App.RootMap.EdChallengeId);
     }
@@ -77,9 +84,13 @@ namespace WarriorMedals {
     This does not query the API for a time, so the plugin must already have it cached for this to return a time.
     Only use this if you need a synchronous function.
     */
-    uint GetWMTime(const string &in uid) {
-        if (!pluginMeta.Enabled) {
-            warn("Warrior Medals is disabled");
+    uint GetWMTime(const string&in uid) {
+        if (false
+            or pluginMeta is null
+            or !pluginMeta.Enabled
+            or GetApp().Editor !is null
+        ) {
+            // warn("Warrior Medals is disabled");
             return 0;
         }
 
@@ -88,11 +99,8 @@ namespace WarriorMedals {
             return 0;
         }
 
-        Map@ map = cast<Map@>(maps[uid]);
-        if (map is null)
-            return 0;
-
-        return map.custom > 0 ? map.custom : map.warrior;
+        auto map = cast<Map>(maps[uid]);
+        return map !is null ? map.warrior : 0;
     }
 
     /*
@@ -102,15 +110,22 @@ namespace WarriorMedals {
     Use this instead of the synchronous version if possible.
     */
     uint GetWMTimeAsync() {
-        if (!pluginMeta.Enabled) {
-            warn("Warrior Medals is disabled");
+        if (false
+            or pluginMeta is null
+            or !pluginMeta.Enabled
+        ) {
+            // warn("Warrior Medals is disabled");
             return 0;
         }
 
-        CTrackMania@ App = cast<CTrackMania@>(GetApp());
+        auto App = cast<CTrackMania>(GetApp());
 
-        if (App.RootMap is null)
+        if (false
+            or App.RootMap is null
+            or App.Editor !is null
+        ) {
             return 0;
+        }
 
         return GetWMTimeAsync(App.RootMap.EdChallengeId);
     }
@@ -121,22 +136,59 @@ namespace WarriorMedals {
     Queries the API for a medal time if the plugin does not have it cached.
     Use this instead of the synchronous version if possible.
     */
-    uint GetWMTimeAsync(const string &in uid) {
-        if (!pluginMeta.Enabled) {
-            warn("Warrior Medals is disabled");
+    uint GetWMTimeAsync(const string&in uid) {
+        if (false
+            or pluginMeta is null
+            or !pluginMeta.Enabled
+            or GetApp().Editor !is null
+        ) {
+            // warn("Warrior Medals is disabled");
             return 0;
         }
 
-        if (!maps.Exists(uid))
+        if (!maps.Exists(uid)) {
             API::GetMapInfoAsync(uid);
+        }
 
-        if (!maps.Exists(uid))
+        if (!maps.Exists(uid)) {
             return 0;
+        }
 
-        Map@ map = cast<Map@>(maps[uid]);
-        if (map is null)
-            return 0;
+        auto map = cast<Map>(maps[uid]);
+        return map !is null ? map.warrior : 0;
+    }
 
-        return map.custom > 0 ? map.custom : map.warrior;
+    // DEPRECATED EXPORTS /////////////////////////////////////////////////////////////////////////////////////////////
+
+    /*
+    Returns the Warrior medal color as a string.
+    Deprecated.
+    */
+    string GetColorStr() {
+        return GetColorWarriorStr();
+    }
+
+    /*
+    Returns the Warrior medal color as a vec3.
+    Deprecated.
+    */
+    vec3 GetColorVec() {
+        return GetColorWarriorVec();
+    }
+
+    /*
+    Returns the Warrior medal icon (32x32).
+    Deprecated.
+    */
+    const UI::Texture@ GetIcon32() {
+        return GetIconWarrior32();
+    }
+
+    /*
+    Returns the Warrior medal icon (512x512).
+    Deprecated.
+    */
+    const UI::Texture@ GetIcon512() {
+        return GetIconWarrior512();
     }
 }

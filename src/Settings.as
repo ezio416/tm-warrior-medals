@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-04-20
+// m 2025-08-14
 
 [Setting hidden category="Colors"]       vec3 S_ColorFall                  = vec3(1.0f, 0.5f, 0.0f);
 [Setting hidden category="Colors"]       vec3 S_ColorSpring                = vec3(0.3f, 0.9f, 0.3f);
@@ -16,6 +16,7 @@
 [Setting hidden category="Main Window"]  bool S_MainWindowPercentages      = true;
 [Setting hidden category="Main Window"]  bool S_MainWindowTextShadows      = true;
 [Setting hidden category="Main Window"]  bool S_MainWindowTmioLinks        = true;
+[Setting hidden category="Main Window"]  bool S_MainWindowTypeTotals       = true;
 
 [Setting hidden category="Medal Window"] bool S_MedalWindow                = true;
 [Setting hidden category="Medal Window"] bool S_MedalWindowDelta           = true;
@@ -39,46 +40,43 @@
 [Setting hidden category="UI Medals"]    bool S_UIMedalsTotd               = true;
 [Setting hidden category="UI Medals"]    bool S_UIMedalsWeekly             = true;
 
-[Setting hidden category="Init"]         bool getAllClicked                = false;
-[Setting hidden category="Init"]         bool initWeekly                   = false;  // set once after weekly PBs are retrieved
-
 [SettingsTab name="General" icon="Cogs"]
 void Settings_General() {
-    UI::PushFont(fontHeader);
+    const float scale = UI::GetScale();
+    const float indent = scale * 15.0f;
+
+    UI::PushFont(UI::Font::Default, 26.0f);
     UI::Text("Main Window");
     UI::PopFont();
 
     if (UI::Button("Reset to default##mainwindow")) {
         Meta::PluginSetting@[]@ settings = pluginMeta.GetSettings();
         for (uint i = 0; i < settings.Length; i++) {
-            if (settings[i].Category == "Main Window")
+            if (settings[i].Category == "Main Window") {
                 settings[i].Reset();
+            }
         }
     }
 
-    S_MainWindowDetached = UI::Checkbox(
-        "Show a detached main window",
-        S_MainWindowDetached
-    );
+    if ((S_MainWindowDetached = UI::Checkbox("Show a detached main window", S_MainWindowDetached))) {
+        UI::Indent(indent);
 
-    if (S_MainWindowDetached) {
-        UI::NewLine(); UI::SameLine();
         S_MainWindowHideWithGame = UI::Checkbox(
             "Show/hide with game UI##main",
             S_MainWindowHideWithGame
         );
 
-        UI::NewLine(); UI::SameLine();
         S_MainWindowHideWithOP = UI::Checkbox(
             "Show/hide with Openplanet UI##main",
             S_MainWindowHideWithOP
         );
 
-        UI::NewLine(); UI::SameLine();
         S_MainWindowAutoResize = UI::Checkbox(
             "Auto-resize",
             S_MainWindowAutoResize
         );
+
+        UI::Indent(-indent);
     }
 
     S_MainWindowTmioLinks = UI::Checkbox(
@@ -90,6 +88,12 @@ void Settings_General() {
         "Show PB refresh button on campaigns",
         S_MainWindowCampRefresh
     );
+
+    S_MainWindowTypeTotals = UI::Checkbox(
+        "Show totals per campaign type",
+        S_MainWindowTypeTotals
+    );
+    HoverTooltipSetting("Seasonal, Totd, etc.");
 
     S_MainWindowPercentages = UI::Checkbox(
         "Show percentages",
@@ -109,61 +113,62 @@ void Settings_General() {
 
     UI::Separator();
 
-    UI::PushFont(fontHeader);
+    UI::PushFont(UI::Font::Default, 26.0f);
     UI::Text("Medal Window");
     UI::PopFont();
 
     if (UI::Button("Reset to default##medalwindow")) {
         Meta::PluginSetting@[]@ settings = pluginMeta.GetSettings();
         for (uint i = 0; i < settings.Length; i++) {
-            if (settings[i].Category == "Medal Window")
+            if (settings[i].Category == "Medal Window") {
                 settings[i].Reset();
+            }
         }
     }
 
     if ((S_MedalWindow = UI::Checkbox("Show medal window when playing", S_MedalWindow))) {
-        UI::NewLine(); UI::SameLine();
+        UI::Indent(indent);
+
         S_MedalWindowHideWithGame = UI::Checkbox(
             "Show/hide with game UI##medal",
             S_MedalWindowHideWithGame
         );
 
-        UI::NewLine(); UI::SameLine();
         S_MedalWindowHideWithOP = UI::Checkbox(
             "Show/hide with Openplanet UI##medal",
             S_MedalWindowHideWithOP
         );
 
-        UI::NewLine(); UI::SameLine();
         S_MedalWindowIcon = UI::Checkbox(
             "Show real medal icon",
             S_MedalWindowIcon
         );
 
-        UI::NewLine(); UI::SameLine();
         S_MedalWindowName = UI::Checkbox(
             "Show medal name",
             S_MedalWindowName
         );
 
-        UI::NewLine(); UI::SameLine();
         S_MedalWindowDelta = UI::Checkbox(
             "Show PB delta",
             S_MedalWindowDelta
         );
+
+        UI::Indent(-indent);
     }
 
     UI::Separator();
 
-    UI::PushFont(fontHeader);
+    UI::PushFont(UI::Font::Default, 26.0f);
     UI::Text("Colors");
     UI::PopFont();
 
     if (UI::Button("Reset to default##colors")) {
         Meta::PluginSetting@[]@ settings = pluginMeta.GetSettings();
         for (uint i = 0; i < settings.Length; i++) {
-            if (settings[i].Category == "Colors")
+            if (settings[i].Category == "Colors") {
                 settings[i].Reset();
+            }
         }
     }
 
@@ -180,18 +185,20 @@ void Settings_General() {
         S_ColorFall
     };
 
-    if (newColors != seasonColors)
+    if (newColors != seasonColors) {
         OnSettingsChanged();
+    }
 }
 
 [SettingsTab name="UI Medals" icon="ListAlt" order=1]
 void Settings_MedalsInUI() {
-    UI::PushFont(fontHeader);
+    UI::PushFont(UI::Font::Default, 26.0f);
     UI::Text("Toggle");
     UI::PopFont();
 
-    if (UI::Button("Reset to default##mainui"))
+    if (UI::Button("Reset to default##mainui")) {
         pluginMeta.GetSetting("S_UIMedals").Reset();
+    }
 
     S_UIMedals = UI::Checkbox("Show medals in UI", S_UIMedals);
     HoverTooltipSetting("Showing Warrior medal icons in the UI can be laggy, but it's a nice touch to see them more easily in a vanilla-looking way");
@@ -199,7 +206,7 @@ void Settings_MedalsInUI() {
     if (S_UIMedals) {
         UI::Separator();
 
-        UI::PushFont(fontHeader);
+        UI::PushFont(UI::Font::Default, 26.0f);
         UI::Text("Main Menu");
         UI::PopFont();
 
@@ -209,7 +216,7 @@ void Settings_MedalsInUI() {
             pluginMeta.GetSetting("S_UIMedalsLiveCampaign").Reset();
             pluginMeta.GetSetting("S_UIMedalsClubCampaign").Reset();
             pluginMeta.GetSetting("S_UIMedalsTotd").Reset();
-            // pluginMeta.GetSetting("S_UIMedalsLiveTotd").Reset();
+            pluginMeta.GetSetting("S_UIMedalsLiveTotd").Reset();
             pluginMeta.GetSetting("S_UIMedalsWeekly").Reset();
         }
 
@@ -219,14 +226,15 @@ void Settings_MedalsInUI() {
         S_UIMedalsLiveCampaign     = UI::Checkbox("Seasonal campaign (live)", S_UIMedalsLiveCampaign);
         HoverTooltipSetting("In the arcade");
         S_UIMedalsTotd             = UI::Checkbox("Track of the Day",         S_UIMedalsTotd);
-        // S_UIMedalsLiveTotd         = UI::Checkbox("Track of the Day (live)",  S_UIMedalsLiveTotd);
+        S_UIMedalsLiveTotd         = UI::Checkbox("Track of the Day (live)",  S_UIMedalsLiveTotd);
+        HoverTooltipSetting("Runs off the edge of the background tile a little bit, should be fixed in the future");
         S_UIMedalsClubCampaign     = UI::Checkbox("Club campaign",            S_UIMedalsClubCampaign);
         HoverTooltipSetting("May be inaccurate if a club or campaign's name is changed");
         S_UIMedalsWeekly           = UI::Checkbox("Weekly Shorts",            S_UIMedalsWeekly);
 
         UI::Separator();
 
-        UI::PushFont(fontHeader);
+        UI::PushFont(UI::Font::Default, 26.0f);
         UI::Text("Playing");
         UI::PopFont();
 
@@ -247,14 +255,9 @@ void Settings_MedalsInUI() {
 
         UI::Separator();
 
-        UI::PushFont(fontHeader);
+        UI::PushFont(UI::Font::Default, 26.0f);
         UI::Text("Debug");
         UI::PopFont();
-
-        // if (UI::Button("Reset to default##ui-debug")) {
-        //     pluginMeta.GetSetting("S_UIMedalsAlwaysMenu").Reset();
-        //     pluginMeta.GetSetting("S_UIMedalsAlwaysPlayground").Reset();
-        // }
 
         S_UIMedalsAlwaysMenu       = UI::Checkbox("Always show in menu",       S_UIMedalsAlwaysMenu);
         S_UIMedalsAlwaysPlayground = UI::Checkbox("Always show in playground", S_UIMedalsAlwaysPlayground);
@@ -263,24 +266,7 @@ void Settings_MedalsInUI() {
 
 [SettingsTab name="Debug" icon="Bug" order=2]
 void Settings_Debug() {
-    if (API::Nadeo::requesting) {
-        UI::BeginDisabled(API::Nadeo::cancel);
-        if (UI::ButtonColored(Icons::Times + " Cancel", 0.0f))
-            API::Nadeo::cancel = true;
-        UI::EndDisabled();
-
-        HoverTooltipSetting(API::Nadeo::allCampaignsProgress);
-
-    } else {
-        if (UI::Button(Icons::CloudDownload + " Get All PBs"))
-            startnew(API::Nadeo::GetAllCampaignPBsAsync);
-
-        HoverTooltipSetting(
-            "This requests PBs from Nadeo. Please do not spam this. "
-            + "Unless I've made a mistake, you should only need to click it once ever,"
-            + " in which case it would be hidden from your main window now."
-        );
-    }
+    const float scale = UI::GetScale();
 
     UI::BeginTabBar("##tabs-debug");
 
@@ -290,7 +276,7 @@ void Settings_Debug() {
         UI::Text("campaigns: " + uids.Length);
 
         if (UI::BeginTable("##table-campaigns", 9, UI::TableFlags::RowBg | UI::TableFlags::ScrollY)) {
-            UI::PushStyleColor(UI::Col::TableRowBgAlt, vec4(0.0f, 0.0f, 0.0f, 0.5f));
+            UI::PushStyleColor(UI::Col::TableRowBgAlt, vec4(vec3(), 0.5f));
 
             UI::TableSetupScrollFreeze(0, 1);
             UI::TableSetupColumn("uid",      UI::TableColumnFlags::WidthFixed, scale * 350.0f);
@@ -307,7 +293,7 @@ void Settings_Debug() {
             UI::ListClipper clipper(uids.Length);
             while (clipper.Step()) {
                 for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++) {
-                    Campaign@ campaign = cast<Campaign@>(campaigns[uids[i]]);
+                    auto campaign = cast<Campaign>(campaigns[uids[i]]);
 
                     UI::TableNextRow();
 
@@ -352,8 +338,8 @@ void Settings_Debug() {
 
         UI::Text("maps: " + uids.Length);
 
-        if (UI::BeginTable("##table-maps", 11, UI::TableFlags::RowBg | UI::TableFlags::ScrollY)) {
-            UI::PushStyleColor(UI::Col::TableRowBgAlt, vec4(0.0f, 0.0f, 0.0f, 0.5f));
+        if (UI::BeginTable("##table-maps", 12, UI::TableFlags::RowBg | UI::TableFlags::ScrollY)) {
+            UI::PushStyleColor(UI::Col::TableRowBgAlt, vec4(vec3(), 0.5f));
 
             UI::TableSetupScrollFreeze(0, 1);
             UI::TableSetupColumn("uid",      UI::TableColumnFlags::WidthFixed, scale * 230.0f);
@@ -361,18 +347,19 @@ void Settings_Debug() {
             UI::TableSetupColumn("wr",       UI::TableColumnFlags::WidthFixed, scale * 60.0f);
             UI::TableSetupColumn("wm",       UI::TableColumnFlags::WidthFixed, scale * 60.0f);
             UI::TableSetupColumn("at",       UI::TableColumnFlags::WidthFixed, scale * 60.0f);
+            UI::TableSetupColumn("gt",       UI::TableColumnFlags::WidthFixed, scale * 60.0f);
             UI::TableSetupColumn("pb",       UI::TableColumnFlags::WidthFixed, scale * 60.0f);
             UI::TableSetupColumn("date",     UI::TableColumnFlags::WidthFixed, scale * 70.0f);
             UI::TableSetupColumn("campaign", UI::TableColumnFlags::WidthFixed, scale * 100.0f);
             UI::TableSetupColumn("index",    UI::TableColumnFlags::WidthFixed, scale * 40.0f);
-            UI::TableSetupColumn("custom",   UI::TableColumnFlags::WidthFixed, scale * 60.0f);
+            UI::TableSetupColumn("id",       UI::TableColumnFlags::WidthFixed, scale * 280.0f);
             UI::TableSetupColumn("reason");
             UI::TableHeadersRow();
 
             UI::ListClipper clipper(uids.Length);
             while (clipper.Step()) {
                 for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++) {
-                    WarriorMedals::Map@ map = cast<WarriorMedals::Map@>(maps[uids[i]]);
+                    auto map = cast<WarriorMedals::Map>(maps[uids[i]]);
 
                     UI::TableNextRow();
 
@@ -392,6 +379,9 @@ void Settings_Debug() {
                     UI::Text(Time::Format(map.author));
 
                     UI::TableNextColumn();
+                    UI::Text(Time::Format(map.gold));
+
+                    UI::TableNextColumn();
                     UI::Text(map.pb != uint(-1) ? Time::Format(map.pb) : "");
 
                     UI::TableNextColumn();
@@ -404,8 +394,7 @@ void Settings_Debug() {
                     UI::Text(tostring(map.index));
 
                     UI::TableNextColumn();
-                    if (map.custom > 0)
-                        UI::Text(Time::Format(map.custom));
+                    UI::Text(map.id);
 
                     UI::TableNextColumn();
                     UI::Text(map.reason);
@@ -419,6 +408,21 @@ void Settings_Debug() {
         UI::EndTabItem();
     }
 
+    if (UI::BeginTabItem("Other")) {
+        UI::Text("previous totd: " + (previousTotd !is null ? previousTotd.date : "null"));
+        UI::Text("latest totd: " + (latestTotd !is null ? latestTotd.date : "null"));
+        string next = "next request: " + Time::FormatString("%F %T", nextWarriorRequest) + " (";
+        const int64 delta = nextWarriorRequest - Time::Stamp;
+        if (delta > 0) {
+            next += "in " + Time::Format(delta * 1000, false);
+        } else {
+            next += Time::Format(delta * -1000, false) + " ago";
+        }
+        UI::Text(next + ")");
+
+        UI::EndTabItem();
+    }
+
     UI::EndTabBar();
 }
 
@@ -427,14 +431,16 @@ void Settings_MainWindow() {
     MainWindow();
 }
 
-void HoverTooltipSetting(const string &in msg, const string &in color = "666") {
+void HoverTooltipSetting(const string&in msg, const string&in color = "666") {
     UI::SameLine();
     UI::Text("\\$" + color + Icons::QuestionCircle);
-    if (!UI::IsItemHovered())
+    if (!UI::IsItemHovered()) {
         return;
+    }
 
-    UI::SetNextWindowSize(int(Math::Min(Draw::MeasureString(msg).x, 400.0f)), 0.0f);
+    // UI::SetNextWindowSize(int(Math::Min(Draw::MeasureString(msg).x, 400.0f)), 0.0f);
     UI::BeginTooltip();
-    UI::TextWrapped(Shadow() + msg);
+    // UI::TextWrapped(Shadow() + msg);
+    UI::Text(Shadow() + msg);
     UI::EndTooltip();
 }

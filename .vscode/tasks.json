@@ -1,0 +1,18 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "Openplanet Remote Build",
+            "pluginId": "WarriorMedals",
+            "openplanetPort": 30000,
+            "problemMatcher": [
+                "$Openplanet Remote Build Problem Matcher: Angelscript Compiler"
+            ],
+            "label": "Openplanet Remote Build: Load/Reload from User Folder",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}

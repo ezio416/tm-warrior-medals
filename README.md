@@ -11,8 +11,6 @@ This is of course inspired by the [Champion Medals](https://openplanet.dev/plugi
 
 Medals may be manually adjusted due to physics changes or for being more difficult than they should be. [Message me on Discord](https://discord.gg/uu9kUZGte6), [create a GitHub issue](https://github.com/ezio416/tm-warrior-medals/issues), or message me directly from the plugin if you feel like a Warrior medal does not make sense in some way. Do not ask for Warrior medals to be harder - grind for the Champion medal instead.
 
-There are currently no plans to add any other medals, though I'm not necessarily opposed to the idea. With enough user requests I may add another medal, but you must also suggest a good name for it, and the change will not happen quickly.
-
 This plugin does not collect any of your personal information. This is solely for your own personal use. Please feel free to look through the source code on [Github](https://github.com/ezio416/tm-warrior-medals) to verify this for yourself.
 
 This plugin, like all of mine, is licensed under [MIT](https://opensource.org/license/mit), which is one of the most lenient. You may also use Warrior medal data in whichever way you like without permission, though if you want to get it directly from my API, please at least discuss it with me first so we can work out a good solution for your needs.
@@ -84,12 +82,12 @@ Exports:
 -
 Please use this plugin as a dependency! While it's useful on its own, I would love to see integration in some more popular plugins. Include this in your `info.toml`: `optional_dependencies = [ "WarriorMedals" ]`
 
-`string GetColorStr()`\
-`vec3 GetColorVec()`\
+`string GetColorWarriorStr()`\
+`vec3 GetColorWarriorVec()`\
 Returns the plugin's main color as a string or a vec3.
 
-`const UI::Texture@ GetIcon32()`\
-`const UI::Texture@ GetIcon512()`\
+`const UI::Texture@ GetIconWarrior32()`\
+`const UI::Texture@ GetIconWarrior512()`\
 Returns the Warrior medal icon with a size of 32x32 or 512x512.
 
 `const dictionary@ GetMaps()`\

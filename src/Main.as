@@ -1,40 +1,47 @@
 // c 2024-07-17
-// m 2025-06-28
+// m 2025-08-10
 
-Campaign@           activeOtherCampaign;
-Campaign@           activeSeasonalCampaign;
-Campaign@           activeTotdMonth;
-Campaign@           activeWeeklyWeek;
+Campaign@[]         activeOtherCampaigns;
+Campaign@[]         activeSeasonalCampaigns;
+Campaign@[]         activeTotdMonths;
+Campaign@[]         activeWeeklyWeeks;
 Json::Value@        campaignIndices;
-dictionary@         campaigns         = dictionary();
+dictionary          campaigns;
 Campaign@[]         campaignsArr;
 Campaign@[]         campaignsArrRev;
-const vec3          colorVec          = vec3(0.2f, 0.8f, 1.0f);
-UI::Font@           fontHeader;
-UI::Font@           fontSubHeader;
-bool                hasPlayPermission = false;
-nvg::Texture@       iconUI;
-UI::Texture@        icon32;
-UI::Texture@        icon512;
+const vec3          colorWarriorVec          = vec3(0.18f, 0.58f, 0.8f);
+const bool          hasPlayPermission        = Permissions::PlayLocalMap();
+UI::Texture@        iconWarrior32;
+UI::Texture@        iconWarrior512;
+nvg::Texture@       iconWarriorNvg;
 WarriorMedals::Map@ latestTotd;
-bool                loading           = false;
-dictionary@         maps              = dictionary();
-const string        pluginColor       = "\\$3CF";
-const string        pluginIcon        = Icons::Circle;
-Meta::Plugin@       pluginMeta        = Meta::ExecutingPlugin();
-const string        pluginTitle       = pluginColor + pluginIcon + "\\$G " + pluginMeta.Name;
-const string        reqAgentStart     = "Openplanet / Net::HttpRequest / " + pluginMeta.ID + " " + pluginMeta.Version;
-const float         scale             = UI::GetScale();
+bool                loading                  = false;
+dictionary          maps;
+dictionary          mapsById;
+int64               nextWarriorRequest       = 0;
+const string        pluginColor              = "\\$38C";
+const string        pluginIcon               = Icons::Circle;
+Meta::Plugin@       pluginMeta               = Meta::ExecutingPlugin();
+const string        pluginTitle              = pluginColor + pluginIcon + "\\$G " + pluginMeta.Name;
+WarriorMedals::Map@ previousTotd;
+const string        reqAgentStart            = "Openplanet / Net::HttpRequest / " + pluginMeta.ID + " " + pluginMeta.Version;
 vec3[]              seasonColors;
-bool                settingTotals     = false;
-uint                total             = 0;
-uint                totalHave         = 0;
-const string        uidSeparator      = "|warrior-campaign|";
+Medal               selectedMedal            = Medal::Warrior;
+bool                settingTotals            = false;
+uint                total                    = 0;
+uint                totalWarriorHave         = 0;
+uint                totalWarriorOther        = 0;
+uint                totalWarriorOtherHave    = 0;
+uint                totalWarriorSeasonal     = 0;
+uint                totalWarriorSeasonalHave = 0;
+uint                totalWarriorTotd         = 0;
+uint                totalWarriorTotdHave     = 0;
+uint                totalWarriorWeekly       = 0;
+uint                totalWarriorWeeklyHave   = 0;
+const string        uidSeparator             = "|warrior-campaign|";
 
-void OnDestroyed() {
-#if DEPENDENCY_ULTIMATEMEDALSEXTENDED
-    UltimateMedalsExtended::RemoveMedal("Warrior");
-#endif
+enum Medal {
+    Warrior
 }
 
 void Main() {
@@ -43,24 +50,20 @@ void Main() {
     OnSettingsChanged();
     startnew(API::GetAllMapInfosAsync);
     WarriorMedals::GetIcon32();
-    hasPlayPermission = Permissions::PlayLocalMap();
 
     yield();
 
     IO::FileSource file("assets/warrior_512.png");
-    @iconUI = nvg::LoadTexture(file.Read(file.Size()));
+    @iconWarriorNvg = nvg::LoadTexture(file.Read(file.Size()));
 
     yield();
 
-    @fontSubHeader = UI::LoadFont("DroidSans.ttf", 20.0f);
-    @fontHeader    = UI::LoadFont("DroidSans.ttf", 26.0f);
-
     startnew(PBLoop);
+    startnew(WaitForNextRequestAsync);
 
 #if DEPENDENCY_ULTIMATEMEDALSEXTENDED
-    print("registering UME medal");
-    UME_Medal@ medal = UME_Medal();
-    UltimateMedalsExtended::AddMedal(medal);
+    trace("registering UME medal");
+    UltimateMedalsExtended::AddMedal(UME_Warrior());
 #endif
 
     bool inMap = InMap();
@@ -74,10 +77,17 @@ void Main() {
         if (wasInMap != inMap) {
             wasInMap = inMap;
 
-            if (inMap)
+            if (inMap) {
                 API::GetMapInfoAsync();
+            }
         }
     }
+}
+
+void OnDestroyed() {
+#if DEPENDENCY_ULTIMATEMEDALSEXTENDED
+    UltimateMedalsExtended::RemoveMedal("Warrior");
+#endif
 }
 
 void OnSettingsChanged() {
@@ -90,8 +100,9 @@ void OnSettingsChanged() {
 }
 
 void Render() {
-    if (icon32 is null)
+    if (iconWarrior32 is null) {
         return;
+    }
 
     MainWindowDetached();
     MedalWindow();
@@ -104,42 +115,49 @@ void RenderEarly() {
 
 void RenderMenu() {
     if (UI::BeginMenu(pluginTitle)) {
-        if (UI::MenuItem(pluginColor + Icons::WindowMaximize + "\\$G Detached main window", "", S_MainWindowDetached))
+        if (UI::MenuItem(pluginColor + Icons::WindowMaximize + "\\$G Detached main window", "", S_MainWindowDetached)) {
             S_MainWindowDetached = !S_MainWindowDetached;
+        }
 
-        if (UI::MenuItem(pluginColor + Icons::Circle + "\\$G Medal window", "", S_MedalWindow))
+        if (UI::MenuItem(pluginColor + Icons::Circle + "\\$G Medal window", "", S_MedalWindow)) {
             S_MedalWindow = !S_MedalWindow;
+        }
 
         UI::EndMenu();
     }
 }
 
 void PBLoop() {
+    auto App = cast<CTrackMania>(GetApp());
+
     while (true) {
         sleep(500);
 
-        CTrackMania@ App = cast<CTrackMania@>(GetApp());
-        if (App.RootMap is null || !maps.Exists(App.RootMap.EdChallengeId))
+        if (false
+            or App.RootMap is null
+            or App.Editor !is null
+            or !maps.Exists(App.RootMap.EdChallengeId)
+        ) {
             continue;
+        }
 
-        WarriorMedals::Map@ map = cast<WarriorMedals::Map@>(maps[App.RootMap.EdChallengeId]);
+        auto map = cast<WarriorMedals::Map>(maps[App.RootMap.EdChallengeId]);
         if (map !is null) {
             const uint prevPb = map.pb;
 
             map.GetPBAsync();
-            Files::AddPB(map);
 
             if (prevPb != map.pb) {
                 SetTotals();
-                Files::SavePB(map);
             }
         }
     }
 }
 
 void SetTotals() {
-    if (settingTotals)
+    if (settingTotals) {
         return;
+    }
 
     settingTotals = true;
 
@@ -147,14 +165,62 @@ void SetTotals() {
     trace("setting totals");
 
     total = maps.GetKeys().Length;
-    totalHave = 0;
+    totalWarriorHave         = 0;
+    totalWarriorOther        = 0;
+    totalWarriorOtherHave    = 0;
+    totalWarriorSeasonal     = 0;
+    totalWarriorSeasonalHave = 0;
+    totalWarriorTotd         = 0;
+    totalWarriorTotdHave     = 0;
+    totalWarriorWeekly       = 0;
+    totalWarriorWeeklyHave   = 0;
 
     for (uint i = 0; i < campaignsArr.Length; i++) {
         Campaign@ campaign = campaignsArr[i];
-        if (campaign !is null)
-            totalHave += campaign.count;
+        if (campaign !is null) {
+            const uint countWarrior = campaign.countWarrior;
+            totalWarriorHave += countWarrior;
+
+            switch (campaign.type) {
+                case WarriorMedals::CampaignType::Other:
+                    totalWarriorOther += campaign.mapsArr.Length;
+                    totalWarriorOtherHave += countWarrior;
+                    break;
+
+                case WarriorMedals::CampaignType::Seasonal:
+                    totalWarriorSeasonal += campaign.mapsArr.Length;
+                    totalWarriorSeasonalHave += countWarrior;
+                    break;
+
+                case WarriorMedals::CampaignType::TrackOfTheDay:
+                    totalWarriorTotd += campaign.mapsArr.Length;
+                    totalWarriorTotdHave += countWarrior;
+                    break;
+
+                case WarriorMedals::CampaignType::Weekly:
+                    totalWarriorWeekly += campaign.mapsArr.Length;
+                    totalWarriorWeeklyHave += countWarrior;
+                    break;
+            }
+        }
     }
 
     trace("setting totals done after " + (Time::Now - start) + "ms");
     settingTotals = false;
+}
+
+void WaitForNextRequestAsync() {
+    while (true) {
+        sleep(1000);
+
+        if (true
+            and nextWarriorRequest > 0
+            and Time::Stamp - nextWarriorRequest > 0
+        ) {
+            trace("passed next request time, waiting to actually request...");
+            sleep(300000);
+            trace("auto-requesting maps...");
+            API::GetAllMapInfosAsync();
+        }
+    }
 }
