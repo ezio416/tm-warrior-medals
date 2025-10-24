@@ -80,7 +80,7 @@ namespace API {
         }
     }
 
-    void GetAllMapInfosAsync() {
+    void GetAllMapInfosAsync(bool pbs) {
         startnew(TryGetCampaignIndicesAsync);
 
         const uint64 start = Time::Now;
@@ -143,7 +143,9 @@ namespace API {
 
         trace("got all map infos after " + (Time::Now - start) + "ms");
 
-        Nadeo::GetAllPbsNewAsync();
+        if (pbs) {
+            Nadeo::GetAllPbsNewAsync();
+        }
         BuildCampaigns();
     }
 
@@ -154,7 +156,7 @@ namespace API {
         Net::HttpRequest@ req = GetEdevAsync("/tm/warrior/campaign-indices");
 
         const int respCode = req.ResponseCode();
-        if (respCode != 200) {
+        if (respCode != ResponseCode::OK) {
             error("getting campaign indices failed after " + (Time::Now - start) + "ms: code: " + respCode + " | msg: " + req.String().Replace("\n", " "));
             return false;
         }

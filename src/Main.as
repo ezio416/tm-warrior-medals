@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-08-10
+// m 2025-10-23
 
 Campaign@[]         activeOtherCampaigns;
 Campaign@[]         activeSeasonalCampaigns;
@@ -48,7 +48,7 @@ void Main() {
     startnew(API::CheckVersionAsync);
 
     OnSettingsChanged();
-    startnew(API::GetAllMapInfosAsync);
+    startnew(API::GetAllMapInfosAsync, true);
     WarriorMedals::GetIcon32();
 
     yield();
@@ -220,7 +220,7 @@ void WaitForNextRequestAsync() {
             trace("passed next request time, waiting to actually request...");
             sleep(300000);
             trace("auto-requesting maps...");
-            API::GetAllMapInfosAsync();
+            API::GetAllMapInfosAsync(false);
         }
     }
 }
