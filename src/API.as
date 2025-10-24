@@ -1,11 +1,19 @@
 // c 2024-07-18
-// m 2025-08-10
+// m 2025-10-23
 
 namespace API {
     const string baseUrl    = "https://e416.dev/api2";
     string       checkingUid;
     dictionary   missing;
     bool         requesting = false;
+
+    enum ResponseCode {
+        OK              = 200,
+        NoContent       = 204,
+        Forbidden       = 403,
+        UpgradeRequired = 426,
+        TooManyRequests = 429
+    }
 
     string EdevAgent() {
         string executing;
@@ -52,14 +60,15 @@ namespace API {
 
         const int code = req.ResponseCode();
         switch (code) {
-            case 200:
+            case ResponseCode::OK:
+            case ResponseCode::NoContent:
                 break;
 
-            case 403:
+            case ResponseCode::Forbidden:
                 warn("You've been denied access to the plugin. If you believe this is an error, contact Ezio on Discord.");
                 break;
 
-            case 426: {
+            case ResponseCode::UpgradeRequired: {
                 const string msg = "Please update through the Plugin Manager at the top. Your plugin version will soon be unsupported!";
                 warn(msg);
                 UI::ShowNotification(pluginTitle, msg, vec4(colorWarriorVec * 0.5f, 1.0f), 10000);
@@ -80,7 +89,7 @@ namespace API {
         Net::HttpRequest@ req = GetEdevAsync("/tm/warrior/all");
 
         const int respCode = req.ResponseCode();
-        if (respCode != 200) {
+        if (respCode != ResponseCode::OK) {
             error("getting all map infos failed after " + (Time::Now - start) + "ms: code: " + respCode + " | msg: " + req.String().Replace("\n", " "));
             return;
         }
@@ -199,14 +208,14 @@ namespace API {
 
         const int respCode = req.ResponseCode();
         switch (respCode) {
-            case 200:
+            case ResponseCode::OK:
                 break;
 
-            case 403:
+            case ResponseCode::Forbidden:
                 warn("You've been denied access to the plugin. If you believe this is an error, contact Ezio on Discord.");
                 return;
 
-            case 429:
+            case ResponseCode::TooManyRequests:
                 error("getting map info for " + uid + " failed after " + (Time::Now - start) + "ms: too many requests");
                 checkingUid = "";
                 return;
@@ -295,15 +304,16 @@ namespace API {
 
         const int code = req.ResponseCode();
         switch (code) {
-            case 200:
+            case ResponseCode::OK:
+            case ResponseCode::NoContent:
                 print(Icons::InfoCircle + " sent: " + req.Body);
                 return true;
 
-            case 403:
+            case ResponseCode::Forbidden:
                 warn("You've been denied access to the plugin. If you believe this is an error, contact Ezio on Discord.");
                 return false;
 
-            case 429: {
+            case ResponseCode::TooManyRequests: {
                 const string msg = "You've sent enough feedback for today.";
                 warn(msg);
                 UI::ShowNotification(pluginTitle, msg, vec4(1.0f, 0.6f, 0.0f, 0.8f));
@@ -369,7 +379,7 @@ namespace API {
                 @req = GetCoreAsync("/v2/accounts/" + GetApp().LocalPlayerInfo.WebServicesUserId + "/mapRecords/?offset=" + offset);
 
                 const int respCode = req.ResponseCode();
-                if (respCode != 200) {
+                if (respCode != ResponseCode::OK) {
                     error("getting all PBs (offset " + offset + ") failed after " + (Time::Now - start) + "ms: code: " + respCode + " | msg: " + req.String().Replace("\n", " "));
                     continue;
                 }
