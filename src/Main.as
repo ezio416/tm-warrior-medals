@@ -218,7 +218,7 @@ void WaitForNextRequestAsync() {
             and Time::Stamp - nextWarriorRequest > 0
         ) {
             trace("passed next request time, waiting to actually request...");
-            sleep(300000);
+            sleep(Math::Rand(240000, 360001));  // 4-6 minutes
             trace("auto-requesting maps...");
             API::GetAllMapInfosAsync(false);
         }
