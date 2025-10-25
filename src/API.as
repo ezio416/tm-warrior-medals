@@ -1,5 +1,5 @@
 // c 2024-07-18
-// m 2025-10-23
+// m 2025-10-25
 
 namespace API {
     const string baseUrl    = "https://e416.dev/api2";
@@ -23,7 +23,8 @@ namespace API {
         }
 
         CSystemPlatformScript@ SysPlat = GetApp().SystemPlatform;
-        return reqAgentStart + executing + " / " + SysPlat.ExtraTool_Info.Replace("Openplanet ", "") + " / " + SysPlat.ExeVersion;
+        return "Openplanet / Net::HttpRequest / " + pluginMeta.ID + " " + pluginMeta.Version + executing
+            + " / " + SysPlat.ExtraTool_Info.Replace("Openplanet ", "") + " / " + SysPlat.ExeVersion;
     }
 
     Net::HttpRequest@ GetAsync(const string&in url, const bool start = true, const string&in agent = "") {

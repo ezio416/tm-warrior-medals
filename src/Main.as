@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-10-23
+// m 2025-10-25
 
 Campaign@[]         activeOtherCampaigns;
 Campaign@[]         activeSeasonalCampaigns;
@@ -24,7 +24,6 @@ const string        pluginIcon               = Icons::Circle;
 Meta::Plugin@       pluginMeta               = Meta::ExecutingPlugin();
 const string        pluginTitle              = pluginColor + pluginIcon + "\\$G " + pluginMeta.Name;
 WarriorMedals::Map@ previousTotd;
-const string        reqAgentStart            = "Openplanet / Net::HttpRequest / " + pluginMeta.ID + " " + pluginMeta.Version;
 vec3[]              seasonColors;
 Medal               selectedMedal            = Medal::Warrior;
 bool                settingTotals            = false;
