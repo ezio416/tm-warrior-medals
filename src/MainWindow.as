@@ -102,7 +102,7 @@ void MainWindowDetached() {
     }
 
     if (UI::Begin(
-        pluginTitle,
+        pluginTitle + "\\$666 v" + pluginMeta.Version + "###main-" + pluginMeta.ID,
         S_MainWindowDetached,
         S_MainWindowAutoResize ? UI::WindowFlags::AlwaysAutoResize : UI::WindowFlags::None
     )) {
