@@ -19,7 +19,7 @@ bool                loading                  = false;
 dictionary          maps;
 dictionary          mapsById;
 int64               nextWarriorRequest       = 0;
-Json::Value@        pbsById;
+Json::Value@        pbsById                  = Json::Value();
 const string        pluginColor              = "\\$38C";
 const string        pluginIcon               = Icons::Circle;
 Meta::Plugin@       pluginMeta               = Meta::ExecutingPlugin();
@@ -48,7 +48,7 @@ void Main() {
     startnew(API::CheckVersionAsync);
 
     OnSettingsChanged();
-    startnew(API::GetAllMapInfosAsync, true);
+    startnew(API::GetAllMapInfosAsync);
     WarriorMedals::GetIcon32();
 
     yield();
@@ -162,8 +162,13 @@ void ReadPBs() {
 
     try {
         @pbsById = Json::FromFile(IO::FromStorageFolder("pbs2.json"));
+        if (pbsById.GetType() != Json::Type::Object) {
+            @pbsById = Json::Value();
+            throw("bad json");
+        }
     } catch {
         error("error reading all PBs from file after " + (Time::Now - start) + "ms: " + getExceptionInfo());
+        return;
     }
 
     string[]@ ids = mapsById.GetKeys();
@@ -247,7 +252,7 @@ void WaitForNextRequestAsync() {
             trace("passed next request time, waiting to actually request...");
             sleep(Math::Rand(240000, 360001));  // 4-6 minutes
             trace("auto-requesting maps...");
-            API::GetAllMapInfosAsync(false);
+            API::GetAllMapInfosAsync();
         }
     }
 }

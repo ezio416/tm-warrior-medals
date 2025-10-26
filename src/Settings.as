@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-08-14
+// m 2025-10-26
 
 [Setting hidden category="Colors"]       vec3 S_ColorFall                  = vec3(1.0f, 0.5f, 0.0f);
 [Setting hidden category="Colors"]       vec3 S_ColorSpring                = vec3(0.3f, 0.9f, 0.3f);
@@ -410,7 +410,9 @@ void Settings_Debug() {
 
     if (UI::BeginTabItem("Other")) {
         UI::Text("previous totd: " + (previousTotd !is null ? previousTotd.date : "null"));
+
         UI::Text("latest totd: " + (latestTotd !is null ? latestTotd.date : "null"));
+
         string next = "next request: " + Time::FormatString("%F %T", nextWarriorRequest) + " (";
         const int64 delta = nextWarriorRequest - Time::Stamp;
         if (delta > 0) {
@@ -419,6 +421,9 @@ void Settings_Debug() {
             next += Time::Format(delta * -1000, false) + " ago";
         }
         UI::Text(next + ")");
+
+        UI::Text("last pb request: " + Time::FormatString("%F %T", API::Nadeo::lastPbRequest));
+        API::Nadeo::lastPbRequest = UI::InputInt("last pb request##input", API::Nadeo::lastPbRequest);
 
         UI::EndTabItem();
     }

@@ -81,7 +81,7 @@ namespace API {
         }
     }
 
-    void GetAllMapInfosAsync(bool pbs) {
+    void GetAllMapInfosAsync() {
         startnew(TryGetCampaignIndicesAsync);
 
         const uint64 start = Time::Now;
@@ -144,10 +144,16 @@ namespace API {
 
         trace("got all map infos after " + (Time::Now - start) + "ms");
 
-        if (pbs) {
+        ReadPBs();
+
+        if (false
+            or pbsById.GetType() == Json::Type::Null
+            or (true
+                and Nadeo::lastPbRequest > -1
+                and Time::Stamp - Nadeo::lastPbRequest > 86400 * 7
+            )
+        ) {
             Nadeo::GetAllPbsNewAsync();
-        } else {
-            ReadPBs();
         }
 
         BuildCampaigns();
@@ -370,6 +376,9 @@ namespace API {
         const uint64 minimumWait  = 1000;
         bool         requesting   = false;
 
+[Setting hidden]
+        int64 lastPbRequest       = -1;
+
         void GetAllPbsNewAsync() {
             allPbsNew = true;
             const uint64 start = Time::Now;
@@ -435,6 +444,7 @@ namespace API {
             trace("got all PBs (" + pbs.Length + ") after " + (Time::Now - start) + "ms");
 
             allPbsNew = false;
+            lastPbRequest = Time::Stamp;
         }
 
         Net::HttpRequest@ GetAsync(const string&in audience, const string&in url, const bool start = true) {

@@ -1,5 +1,5 @@
 // c 2024-07-24
-// m 2025-10-23
+// m 2025-10-26
 
 void MainWindow(const bool detached = false) {
     switch (selectedMedal) {
@@ -59,11 +59,11 @@ void MainWindow(const bool detached = false) {
         );
         UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
         if (UI::Button(Shadow() + Icons::Refresh)) {
-            startnew(API::GetAllMapInfosAsync, false);
+            startnew(API::GetAllMapInfosAsync);
         }
         UI::PopStyleColor();
         UI::EndDisabled();
-        HoverTooltip("Get maps and medals info");
+        HoverTooltip("Get info on maps and medals");
 
         UI::EndTable();
     }
