@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-10-25
+// m 2025-10-26
 
 Campaign@[]         activeOtherCampaigns;
 Campaign@[]         activeSeasonalCampaigns;
@@ -19,6 +19,7 @@ bool                loading                  = false;
 dictionary          maps;
 dictionary          mapsById;
 int64               nextWarriorRequest       = 0;
+Json::Value@        pbsById;
 const string        pluginColor              = "\\$38C";
 const string        pluginIcon               = Icons::Circle;
 Meta::Plugin@       pluginMeta               = Meta::ExecutingPlugin();
@@ -151,6 +152,33 @@ void PBLoop() {
             }
         }
     }
+}
+
+void ReadPBs() {
+    const uint64 start = Time::Now;
+    trace("reading PBs from file");
+
+    @pbsById = Json::Value();
+
+    try {
+        @pbsById = Json::FromFile(IO::FromStorageFolder("pbs2.json"));
+    } catch {
+        error("error reading all PBs from file after " + (Time::Now - start) + "ms: " + getExceptionInfo());
+    }
+
+    string[]@ ids = mapsById.GetKeys();
+    string id;
+    for (uint i = 0; i < ids.Length; i++) {
+        id = ids[i];
+        if (pbsById.HasKey(id)) {
+            auto map = cast<WarriorMedals::Map>(mapsById[id]);
+            if (map !is null) {
+                map.pb = uint(pbsById[id]);
+            }
+        }
+    }
+
+    trace("read all PBs (" + pbsById.Length + ") after " + (Time::Now - start) + "ms");
 }
 
 void SetTotals() {

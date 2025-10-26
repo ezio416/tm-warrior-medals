@@ -1,5 +1,5 @@
 // c 2024-07-18
-// m 2025-10-25
+// m 2025-10-26
 
 namespace API {
     const string baseUrl    = "https://e416.dev/api2";
@@ -146,7 +146,10 @@ namespace API {
 
         if (pbs) {
             Nadeo::GetAllPbsNewAsync();
+        } else {
+            ReadPBs();
         }
+
         BuildCampaigns();
     }
 
@@ -419,6 +422,9 @@ namespace API {
 
                 offset += 1000;
             }
+
+            @pbsById = Json::Value();
+            pbsById = pbs;
 
             try {
                 Json::ToFile(IO::FromStorageFolder("pbs2.json"), pbs, true);
