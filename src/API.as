@@ -514,13 +514,11 @@ namespace API {
         }
 
         void WaitAsync() {
-            uint64 now;
-
-            while ((now = Time::Now) - lastRequest < minimumWait) {
-                yield();
+            const uint64 now = Time::Now;
+            if (now - lastRequest < minimumWait) {
+                sleep(lastRequest + minimumWait - now);
             }
-
-            lastRequest = now;
+            lastRequest = Time::Now;
         }
     }
 }
