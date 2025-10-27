@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-10-26
+// m 2025-10-27
 
 [Setting hidden category="Colors"]       vec3 S_ColorFall                  = vec3(1.0f, 0.5f, 0.0f);
 [Setting hidden category="Colors"]       vec3 S_ColorSpring                = vec3(0.3f, 0.9f, 0.3f);
@@ -424,6 +424,13 @@ void Settings_Debug() {
 
         UI::Text("last pb request: " + Time::FormatString("%F %T", API::Nadeo::lastPbRequest));
         API::Nadeo::lastPbRequest = UI::InputInt("last pb request##input", API::Nadeo::lastPbRequest);
+
+        UI::Text("token expiry: " + (token.expiry > 0 ? Time::FormatString("%F %T", token.expiry) : "none"));
+        UI::BeginDisabled(!token.valid);
+        if (UI::Button("clear token")) {
+            token.Clear();
+        }
+        UI::EndDisabled();
 
         UI::EndTabItem();
     }

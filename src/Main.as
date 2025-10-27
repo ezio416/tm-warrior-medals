@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-10-26
+// m 2025-10-27
 
 Campaign@[]         activeOtherCampaigns;
 Campaign@[]         activeSeasonalCampaigns;
@@ -28,6 +28,7 @@ WarriorMedals::Map@ previousTotd;
 vec3[]              seasonColors;
 Medal               selectedMedal            = Medal::Warrior;
 bool                settingTotals            = false;
+Token               token;
 uint                total                    = 0;
 uint                totalWarriorHave         = 0;
 uint                totalWarriorOther        = 0;
@@ -45,16 +46,16 @@ enum Medal {
 }
 
 void Main() {
-    startnew(API::CheckVersionAsync);
-
-    OnSettingsChanged();
-    startnew(API::GetAllMapInfosAsync);
     WarriorMedals::GetIcon32();
+    IO::FileSource file("assets/warrior_512.png");
+    @iconWarriorNvg = nvg::LoadTexture(file.Read(file.Size()));
 
     yield();
 
-    IO::FileSource file("assets/warrior_512.png");
-    @iconWarriorNvg = nvg::LoadTexture(file.Read(file.Size()));
+    API::GetTokenAsync();
+
+    OnSettingsChanged();
+    startnew(API::GetAllMapInfosAsync);
 
     yield();
 

@@ -1,18 +1,24 @@
 // c 2024-07-18
-// m 2025-10-26
+// m 2025-10-27
 
 namespace API {
     const string baseUrl    = "https://e416.dev/api2";
     string       checkingUid;
     dictionary   missing;
     bool         requesting = false;
+[Setting hidden]
+    bool         banned     = false;
+[Setting hidden]
+    string       savedToken;
 
     enum ResponseCode {
         OK              = 200,
         NoContent       = 204,
+        Unauthorized    = 401,
         Forbidden       = 403,
         UpgradeRequired = 426,
-        TooManyRequests = 429
+        TooManyRequests = 429,
+        InternalServer  = 500
     }
 
     string EdevAgent() {
@@ -54,31 +60,6 @@ namespace API {
         }
 
         return GetAsync(baseUrl + endpoint, start, EdevAgent());
-    }
-
-    void CheckVersionAsync() {
-        Net::HttpRequest@ req = GetEdevAsync("/tm/warrior/plugin-version");
-
-        const int code = req.ResponseCode();
-        switch (code) {
-            case ResponseCode::OK:
-            case ResponseCode::NoContent:
-                break;
-
-            case ResponseCode::Forbidden:
-                warn("You've been denied access to the plugin. If you believe this is an error, contact Ezio on Discord.");
-                break;
-
-            case ResponseCode::UpgradeRequired: {
-                const string msg = "Please update through the Plugin Manager at the top. Your plugin version will soon be unsupported!";
-                warn(msg);
-                UI::ShowNotification(pluginTitle, msg, vec4(colorWarriorVec * 0.5f, 1.0f), 10000);
-                break;
-            }
-
-            default:
-                warn("something went wrong checking the plugin version: " + code + " " + req.String());
-        }
     }
 
     void GetAllMapInfosAsync() {
@@ -223,10 +204,6 @@ namespace API {
             case ResponseCode::OK:
                 break;
 
-            case ResponseCode::Forbidden:
-                warn("You've been denied access to the plugin. If you believe this is an error, contact Ezio on Discord.");
-                return;
-
             case ResponseCode::TooManyRequests:
                 error("getting map info for " + uid + " failed after " + (Time::Now - start) + "ms: too many requests");
                 checkingUid = "";
@@ -254,6 +231,117 @@ namespace API {
         }
 
         checkingUid = "";
+    }
+
+    void GetTokenAsync() {
+        if (token.getting) {
+            return;
+        }
+        token.getting = true;
+
+        if (savedToken.Length == 36) {
+            trace("using existing token...");
+
+            Net::HttpRequest@ req = GetEdevAsync("/tm/warrior/auth?token=" + savedToken);
+
+            const ResponseCode code = ResponseCode(req.ResponseCode());
+            switch (code) {
+                case ResponseCode::OK:
+                    token.getting = false;
+                    try {
+                        token.expiry = int64(req.Json()["expiry"]);
+                        trace("existing token valid");
+                        return;
+                    } catch { }
+
+                default:
+                    token.token = "";
+                    trace("existing token invalid");
+            }
+        }
+
+        trace("getting preliminary token...");
+
+        Auth::PluginAuthTask@ tokenTask = Auth::GetToken();
+        while (!tokenTask.Finished()) {
+            yield();
+        }
+
+        if (!tokenTask.IsSuccess()) {
+            error("error getting preliminary token: " + tokenTask.Error());
+            token.getting = false;
+            return;
+        }
+
+        token.token = tokenTask.Token();
+
+        trace("got preliminary token, getting main token...");
+
+        const uint64 start = Time::Now;
+        Json::Value@ body = Json::Object();
+        body["preToken"] = savedToken;
+        Net::HttpRequest@ req = PostEdevAsync("/tm/warrior/auth", Json::Write(body), false);
+        req.Start();
+        while (!req.Finished()) {
+            yield();
+
+            if (Time::Now - start > 10000) {
+                error("error getting main token: timed out");
+                req.Cancel();
+                requesting = false;
+                token.getting = false;
+                return;
+            }
+        }
+
+        requesting = false;
+
+        const ResponseCode code = ResponseCode(req.ResponseCode());
+        switch (code) {
+            case ResponseCode::OK:
+                break;
+
+            case ResponseCode::Forbidden:
+                error("You've been denied access to the plugin. If you believe this is an error, contact Ezio on Discord.");
+                token.getting = false;
+                banned = true;
+                return;
+
+            case ResponseCode::UpgradeRequired: {
+                const string msg = "Please update through the Plugin Manager at the top. Your current version ("
+                    + pluginMeta.Version + ") will soon be unsupported!";
+                warn(msg);
+                UI::ShowNotification(pluginTitle, msg, vec4(colorWarriorVec * 0.5f, 1.0f), 10000);
+                break;
+            }
+
+            default:
+                error(
+                    "error getting main token: " + tostring(code)
+                    + " | " + req.String().Replace("\n", "\\n")
+                );
+                token.getting = false;
+                return;
+        }
+
+        try {
+            Json::Value@ json = req.Json();
+            token.token = string(json["token"]);
+            token.expiry = int64(json["expiry"]);
+
+            if (token.valid) {
+                trace("got main token");
+            } else {
+                error("error getting main token: unknown");
+                token.Clear();
+            }
+
+        } catch {
+            warn("error parsing main token: " + getExceptionInfo());
+            token.Clear();
+        }
+
+        token.getting = false;
     }
 
     Net::HttpRequest@ PostAsync(const string&in url, const string&in body = "", const bool start = true, const string&in agent = "") {
