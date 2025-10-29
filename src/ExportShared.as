@@ -119,6 +119,10 @@ namespace WarriorMedals {
         string get_downloadUrl() { return _downloadUrl; }
         private void set_downloadUrl(const string&in d) { _downloadUrl = d; }
 
+        private Map@ _duplicate;
+        Map@ get_duplicate() const { return _duplicate; }
+        private void set_duplicate(Map@ d) { @_duplicate = d; }
+
         private uint _gold;
         uint get_gold() { return _gold; }
         private void set_gold(const uint g) { _gold = g; }
@@ -465,6 +469,16 @@ namespace WarriorMedals {
 
             while (!App.ManiaTitleControlScriptAPI.IsReady) {
                 yield();
+            }
+        }
+
+        void SetDuplicate(Map@ map) {
+            if (true
+                and map !is null
+                and duplicate is null
+            ) {
+                @duplicate = map;
+                map.SetDuplicate(this);
             }
         }
 

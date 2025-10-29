@@ -1,5 +1,5 @@
 // c 2024-07-18
-// m 2025-10-27
+// m 2025-10-29
 
 namespace API {
     const string baseUrl    = "https://e416.dev/api2";
@@ -104,8 +104,16 @@ namespace API {
 
                 for (uint j = 0; j < section.Length; j++) {
                     auto map = WarriorMedals::Map(section[j], types[i]);
-                    maps[map.uid] = @map;
-                    mapsById[map.id] = @map;
+                    if (maps.Exists(map.uid)) {
+                        auto existing = cast<WarriorMedals::Map>(maps[map.uid]);
+                        // warn("duplicate map: '" + map.nameStripped + "' in '" + Text::StripFormatCodes(map.campaignName)
+                        //     + "' and '" + Text::StripFormatCodes(existing.campaignName) + "'");
+                        existing.SetDuplicate(map);
+                        // print("duplicate: " + map.duplicate.nameStripped);
+                    } else {
+                        maps[map.uid] = @map;
+                        mapsById[map.id] = @map;
+                    }
                 }
             }
 

@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2025-07-26
+// m 2025-10-29
 
 class Campaign {
     int                         clubId     = -1;
@@ -222,6 +222,21 @@ void BuildCampaigns() {
         auto map = cast<WarriorMedals::Map>(maps[uids[i]]);
         if (map is null) {
             continue;
+        }
+
+        WarriorMedals::Map@ duplicate = map.duplicate;
+        if (duplicate !is null) {
+            // warn("adding duplicate to campaign: " + duplicate.nameStripped);
+
+            Campaign@ campaign = GetCampaign(CampaignUid(duplicate.campaignName, duplicate.clubName));
+            if (campaign !is null) {
+                campaign.AddMap(duplicate);
+            } else {
+                @campaign = Campaign(duplicate);
+                campaign.AddMap(duplicate);
+                campaigns[campaign.uid] = @campaign;
+                campaignsArr.InsertLast(@campaign);
+            }
         }
 
         Campaign@ campaign = GetCampaign(CampaignUid(map.campaignName, map.clubName));
