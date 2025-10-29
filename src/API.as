@@ -257,14 +257,20 @@ namespace API {
                 case ResponseCode::OK:
                     token.getting = false;
                     try {
-                        token.expiry = int64(req.Json()["expiry"]);
+                        Json::Value@ json = req.Json();
+                        token.expiry = int64(json["expiry"]);
+
+                        if (bool(json["outdated"])) {
+                            WarnOutdated();
+                        }
+
                         trace("existing token valid");
                         return;
                     } catch { }
 
                 default:
                     token.token = "";
-                    trace("existing token invalid");
+                    trace("existing token invalid (code " + tostring(code) + ")");
             }
         }
 
@@ -307,6 +313,7 @@ namespace API {
         const ResponseCode code = ResponseCode(req.ResponseCode());
         switch (code) {
             case ResponseCode::OK:
+                banned = false;
                 break;
 
             case ResponseCode::Forbidden:
@@ -315,20 +322,13 @@ namespace API {
                 banned = true;
                 return;
 
-            case ResponseCode::UpgradeRequired: {
-                const string msg = "Please update through the Plugin Manager at the top. Your current version ("
-                    + pluginMeta.Version + ") will soon be unsupported!";
-                warn(msg);
-                UI::ShowNotification(pluginTitle, msg, vec4(colorWarriorVec * 0.5f, 1.0f), 10000);
-                break;
-            }
-
             default:
                 error(
                     "error getting main token: " + tostring(code)
                     + " | " + req.String().Replace("\n", "\\n")
                 );
                 token.getting = false;
+                banned = false;
                 return;
         }
 
@@ -336,6 +336,10 @@ namespace API {
             Json::Value@ json = req.Json();
             token.token = string(json["token"]);
             token.expiry = int64(json["expiry"]);
+
+            if (bool(json["outdated"])) {
+                WarnOutdated();
+            }
 
             if (token.valid) {
                 trace("got main token");
@@ -416,10 +420,6 @@ namespace API {
             case ResponseCode::NoContent:
                 print(Icons::InfoCircle + " sent: " + req.Body);
                 return true;
-
-            case ResponseCode::Forbidden:
-                warn("You've been denied access to the plugin. If you believe this is an error, contact Ezio on Discord.");
-                return false;
 
             case ResponseCode::TooManyRequests: {
                 const string msg = "You've sent enough feedback for today.";

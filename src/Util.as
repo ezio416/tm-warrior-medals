@@ -1,5 +1,5 @@
 // c 2024-07-18
-// m 2025-07-18
+// m 2025-10-29
 
 void HoverTooltip(const string&in msg) {
     if (!UI::IsItemHovered(UI::HoveredFlags::AllowWhenDisabled)) {
@@ -46,4 +46,11 @@ void PlayMapAsync(ref@ m) {
 
 string Shadow() {
     return S_MainWindowTextShadows ? "\\$S" : "";
+}
+
+void WarnOutdated() {
+    const string msg = "Please update through the Plugin Manager at the top. Your current version ("
+        + pluginMeta.Version + ") will soon be unsupported!";
+    warn(msg);
+    UI::ShowNotification(pluginTitle, msg, vec4(colorWarriorVec * 0.5f, 1.0f), 10000);
 }
