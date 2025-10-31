@@ -1,5 +1,5 @@
 // c 2024-07-18
-// m 2025-10-29
+// m 2025-10-30
 
 namespace API {
     const string baseUrl    = "https://e416.dev/api2";
@@ -33,7 +33,7 @@ namespace API {
             + " / " + SysPlat.ExtraTool_Info.Replace("Openplanet ", "") + " / " + SysPlat.ExeVersion;
     }
 
-    Net::HttpRequest@ GetAsync(const string&in url, const bool start = true, const string&in agent = "") {
+    Net::HttpRequest@ GetAsync(const string&in url, const bool start = true, const string&in agent = "", const string&in auth = "") {
         requesting = true;
 
         Net::HttpRequest@ req = Net::HttpRequest();
@@ -41,6 +41,9 @@ namespace API {
         req.Url = url;
         if (agent.Length > 0) {
             req.Headers["User-Agent"] = agent;
+        }
+        if (auth.Length > 0) {
+            req.Headers["Authorization"] = "Bearer " + auth;
         }
 
         if (start) {
@@ -59,7 +62,7 @@ namespace API {
             yield();
         }
 
-        return GetAsync(baseUrl + endpoint, start, EdevAgent());
+        return GetAsync(baseUrl + endpoint, start, EdevAgent(), token.token);
     }
 
     void GetAllMapInfosAsync() {
@@ -247,10 +250,10 @@ namespace API {
         }
         token.getting = true;
 
-        if (savedToken.Length == 36) {
+        if (token.token.Length == 36) {
             trace("using existing token...");
 
-            Net::HttpRequest@ req = GetEdevAsync("/tm/warrior/auth?token=" + savedToken);
+            Net::HttpRequest@ req = GetEdevAsync("/tm/warrior/auth?token=" + token.token);
 
             const ResponseCode code = ResponseCode(req.ResponseCode());
             switch (code) {
@@ -264,17 +267,17 @@ namespace API {
                             WarnOutdated();
                         }
 
-                        trace("existing token valid");
+                        trace("existing token valid :)");
                         return;
                     } catch { }
 
                 default:
                     token.token = "";
-                    trace("existing token invalid (code " + tostring(code) + ")");
+                    trace("existing token invalid (" + tostring(code) + ")");
             }
         }
 
-        trace("getting preliminary token...");
+        trace("getting token 1...");
 
         Auth::PluginAuthTask@ tokenTask = Auth::GetToken();
         while (!tokenTask.Finished()) {
@@ -282,25 +285,25 @@ namespace API {
         }
 
         if (!tokenTask.IsSuccess()) {
-            error("error getting preliminary token: " + tokenTask.Error());
+            error("error getting token 1: " + tokenTask.Error());
             token.getting = false;
             return;
         }
 
         token.token = tokenTask.Token();
 
-        trace("got preliminary token, getting main token...");
+        trace("got token 1, getting token 2...");
 
         const uint64 start = Time::Now;
         Json::Value@ body = Json::Object();
-        body["preToken"] = savedToken;
+        body["preToken"] = token.token;
         Net::HttpRequest@ req = PostEdevAsync("/tm/warrior/auth", Json::Write(body), false);
         req.Start();
         while (!req.Finished()) {
             yield();
 
             if (Time::Now - start > 10000) {
-                error("error getting main token: timed out");
+                error("error getting token 2: timed out");
                 req.Cancel();
                 requesting = false;
                 token.getting = false;
@@ -324,7 +327,7 @@ namespace API {
 
             default:
                 error(
-                    "error getting main token: " + tostring(code)
+                    "error getting token 2: " + tostring(code)
                     + " | " + req.String().Replace("\n", "\\n")
                 );
                 token.getting = false;
@@ -342,21 +345,21 @@ namespace API {
             }
 
             if (token.valid) {
-                trace("got main token");
+                trace("got token 2");
             } else {
-                error("error getting main token: unknown");
+                error("error getting token 2: unknown");
                 token.Clear();
             }
 
         } catch {
-            warn("error parsing main token: " + getExceptionInfo());
+            error("error parsing token 2: " + getExceptionInfo());
             token.Clear();
         }
 
         token.getting = false;
     }
 
-    Net::HttpRequest@ PostAsync(const string&in url, const string&in body = "", const bool start = true, const string&in agent = "") {
+    Net::HttpRequest@ PostAsync(const string&in url, const string&in body = "", const bool start = true, const string&in agent = "", const string&in auth = "") {
         requesting = true;
 
         Net::HttpRequest@ req = Net::HttpRequest();
@@ -366,6 +369,9 @@ namespace API {
         req.Headers["Content-Type"] = "application/json";
         if (agent.Length > 0) {
             req.Headers["User-Agent"] = agent;
+        }
+        if (auth.Length > 0) {
+            req.Headers["Authorization"] = "Bearer " + auth;
         }
 
         if (start) {
@@ -384,7 +390,7 @@ namespace API {
             yield();
         }
 
-        return PostAsync(baseUrl + endpoint, body, start, EdevAgent());
+        return PostAsync(baseUrl + endpoint, body, start, EdevAgent(), token.token);
     }
 
     bool SendFeedbackAsync(const string&in subject, const string&in message, const bool anonymous = false) {
@@ -430,7 +436,7 @@ namespace API {
             }
 
             default:
-                warn(Icons::ExclamationTriangle + " failed (" + code + "), can't send: " + Json::Write(body));
+                error("sending feedback failed (" + code + "): " + Json::Write(body));
                 warn(req.String());
                 UI::ShowNotification(pluginTitle, "Something went wrong, check the log!", vec4(1.0f, 0.3f, 0.0f, 0.8f));
                 return false;
