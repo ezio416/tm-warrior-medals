@@ -63,14 +63,6 @@ void MessagesWindow() {
                 }
 
                 if (UI::TreeNode((message.read ? "" : "* ") + message.subject + "\\$888 #" + message.id + "###message-tree" + message.id, UI::TreeNodeFlags::Framed)) {
-                    if (message.notice) {
-                        UI::BeginDisabled();
-                        UI::Button(Icons::Star);
-                        UI::SetTooltip("message is a notice");
-                        UI::EndDisabled();
-                        UI::SameLine();
-                    }
-
                     if (message.read) {
                         if (UI::Button(Icons::EnvelopeO + "##" + i)) {
                             message.Unread();
@@ -88,6 +80,14 @@ void MessagesWindow() {
                         message.Hide();
                     }
                     UI::SetTooltip("hide");
+
+                    if (message.notice) {
+                        UI::SameLine();
+                        UI::BeginDisabled();
+                        UI::Button(Icons::ExclamationCircle);
+                        UI::SetTooltip("message is a notice");
+                        UI::EndDisabled();
+                    }
 
                     UI::TextWrapped(message.message);
                     UI::TextDisabled(Time::FormatString("%F %T", message.timestamp));
