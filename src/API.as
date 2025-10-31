@@ -1,5 +1,5 @@
 // c 2024-07-18
-// m 2025-10-30
+// m 2025-10-31
 
 namespace API {
     const string baseUrl    = "https://e416.dev/api2";
@@ -275,6 +275,15 @@ namespace API {
 
                     if (messages.Length > 1) {
                         messages.Sort(function(a, b) { return a.id > b.id; });
+                    }
+
+                    for (int i = messages.Length - 1; i >= 0; i--) {
+                        if (true
+                            and messages[i].notice
+                            and messages[i].unread
+                        ) {
+                            messages[i].Notify();
+                        }
                     }
 
                 } catch {

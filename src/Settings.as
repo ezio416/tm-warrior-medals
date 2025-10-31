@@ -408,53 +408,8 @@ void Settings_Debug() {
         UI::EndTabItem();
     }
 
-    if (UI::BeginTabItem("Other")) {
-        UI::Text("previous totd: " + (previousTotd !is null ? previousTotd.date : "null"));
-
-        UI::Text("latest totd: " + (latestTotd !is null ? latestTotd.date : "null"));
-
-        string next = "next request: " + Time::FormatString("%F %T", nextWarriorRequest) + " (";
-        int64 delta = nextWarriorRequest - Time::Stamp;
-        if (delta > 0) {
-            next += "in " + Time::Format(delta * 1000, false);
-        } else {
-            next += Time::Format(delta * -1000, false) + " ago";
-        }
-        UI::Text(next + ")");
-
-        UI::Text("last pb request: " + Time::FormatString("%F %T", API::Nadeo::lastPbRequest));
-        API::Nadeo::lastPbRequest = UI::InputInt("last pb request##input", API::Nadeo::lastPbRequest);
-
-        UI::Text("token length: " + token.token.Length);
-
-        UI::Text("token valid: " + tostring(token.valid));
-
-        string expiry = "token expiry: ";
-        if (token.expiry > 0) {
-            expiry += Time::FormatString("%F %T", token.expiry) + " (";
-            delta = token.expiry - Time::Stamp;
-            if (delta > 0) {
-                expiry += "in " + Time::Format(delta * 1000, false);
-            } else {
-                expiry += Time::Format(delta * -1000, false) + " ago";
-            }
-            expiry += ")";
-        } else {
-            expiry += "none";
-        }
-        UI::Text(expiry);
-
-        if (UI::Button(Icons::Refresh + " check token")) {
-            startnew(API::GetTokenAsync);
-        }
-
-        UI::BeginDisabled(!token.valid);
-        if (UI::Button(Icons::TrashO + " clear token")) {
-            token.Clear();
-        }
-        UI::EndDisabled();
-
-        if (UI::Button(Icons::PaperPlane + " send example message")) {
+    if (UI::BeginTabItem("Messages")) {
+        if (UI::Button(Icons::PaperPlane + " send example")) {
             Json::Value@ json = Json::Object();
             json["message"] = "test message";
             json["subject"] = "test subject";
@@ -472,6 +427,15 @@ void Settings_Debug() {
             UI::Text("hiddenMessages: ["  + hidden + "]");
             UI::Text("unhiddenMessages: " + unhiddenMessages);
 
+            UI::BeginDisabled(hiddenMessages.Length == 0);
+            if (UI::Button(Icons::TrashO + " clear hidden")) {
+                hiddenMessages = {};
+                for (uint i = 0; i < messages.Length; i++) {
+                    messages[i].Show();
+                }
+            }
+            UI::EndDisabled();
+
             UI::Separator();
 
             for (uint i = 0; i < messages.Length; i++) {
@@ -487,6 +451,8 @@ void Settings_Debug() {
                         message.Show();
                     }
                     UI::SetTooltip("show");
+
+                    UI::Separator();
                 }
             }
 
@@ -504,8 +470,81 @@ void Settings_Debug() {
             UI::Text("readMessages: ["    + read + "]");
             UI::Text("unreadMessages: "   + unreadMessages);
 
+            UI::BeginDisabled(readMessages.Length == 0);
+            if (UI::Button(Icons::TrashO + " clear read")) {
+                readMessages = {};
+                for (uint i = 0; i < messages.Length; i++) {
+                    messages[i].Unread();
+                }
+            }
+            UI::EndDisabled();
+
             UI::TreePop();
         }
+
+        UI::EndTabItem();
+    }
+
+    if (UI::BeginTabItem("PBs")) {
+        if (UI::Button(Icons::Download + " Get All PBs")) {
+            startnew(API::Nadeo::GetAllPbsNewAsync);
+        }
+        UI::SetTooltip("you should never need to use this");
+
+        UI::TextWrapped(Json::Write(pbsById, true));
+
+        UI::EndTabItem();
+    }
+
+    if (UI::BeginTabItem("Token")) {
+        UI::Text("length: " + token.token.Length);
+
+        UI::Text("valid: " + tostring(token.valid));
+
+        string expiry = "expiry: ";
+        if (token.expiry > 0) {
+            expiry += Time::FormatString("%F %T", token.expiry) + " (";
+            const int64 delta = token.expiry - Time::Stamp;
+            if (delta > 0) {
+                expiry += "in " + Time::Format(delta * 1000, false);
+            } else {
+                expiry += Time::Format(delta * -1000, false) + " ago";
+            }
+            expiry += ")";
+        } else {
+            expiry += "none";
+        }
+        UI::Text(expiry);
+
+        if (UI::Button(Icons::Refresh + " check")) {
+            startnew(API::GetTokenAsync);
+        }
+
+        UI::BeginDisabled(!token.valid);
+        if (UI::Button(Icons::TrashO + " clear")) {
+            token.Clear();
+        }
+        UI::EndDisabled();
+
+        UI::EndTabItem();
+    }
+
+    if (UI::BeginTabItem("Other")) {
+        UI::Text("previous totd: " + (previousTotd !is null ? previousTotd.date : "null"));
+
+        UI::Text("latest totd: " + (latestTotd !is null ? latestTotd.date : "null"));
+
+        string next = "next request: " + Time::FormatString("%F %T", nextWarriorRequest) + " (";
+        const int64 delta = nextWarriorRequest - Time::Stamp;
+        if (delta > 0) {
+            next += "in " + Time::Format(delta * 1000, false);
+        } else {
+            next += Time::Format(delta * -1000, false) + " ago";
+        }
+        UI::Text(next + ")");
+
+        UI::Text("last pb request: " + Time::FormatString("%F %T", API::Nadeo::lastPbRequest));
+        API::Nadeo::lastPbRequest = UI::InputInt("last pb request##input", API::Nadeo::lastPbRequest);
 
         UI::EndTabItem();
     }

@@ -16,7 +16,7 @@ void MessagesWindow() {
 
     const float scale = UI::GetScale();
 
-    UI::SetNextWindowSize(300, 250, UI::Cond::FirstUseEver);
+    UI::SetNextWindowSize(400, 250, UI::Cond::FirstUseEver);
     if (UI::Begin(
         pluginTitle + "\\$666 v" + pluginMeta.Version + "\\$38C Messages###warrior-medals-messages",
         showMessages,
@@ -54,45 +54,49 @@ void MessagesWindow() {
 
             UI::Separator();
 
+            UI::BeginChild("##child-inbox");
+
             for (uint i = 0; i < messages.Length; i++) {
                 Message@ message = messages[i];
                 if (message.hidden) {
                     continue;
                 }
 
-                UI::BeginGroup();
-
-                UI::PushFont(UI::Font::DefaultBold);
-                UI::Text((message.read ? "" : "* ") + message.subject);
-                UI::PopFont();
-
-                UI::Text(message.message);
-
-                UI::TextDisabled(Time::FormatString("%F %T", message.timestamp));
-
-                UI::EndGroup();
-
-                UI::SameLine();
-                if (message.read) {
-                    if (UI::Button(Icons::EnvelopeO + "##" + i)) {
-                        message.Unread();
+                if (UI::TreeNode((message.read ? "" : "* ") + message.subject + "\\$888 #" + message.id + "###message-tree" + message.id, UI::TreeNodeFlags::Framed)) {
+                    if (message.notice) {
+                        UI::BeginDisabled();
+                        UI::Button(Icons::Star);
+                        UI::SetTooltip("message is a notice");
+                        UI::EndDisabled();
+                        UI::SameLine();
                     }
-                    UI::SetTooltip("mark as unread");
-                } else {
-                    if (UI::Button(Icons::EnvelopeOpenO + "##" + i)) {
-                        message.Read();
+
+                    if (message.read) {
+                        if (UI::Button(Icons::EnvelopeO + "##" + i)) {
+                            message.Unread();
+                        }
+                        UI::SetTooltip("mark as unread");
+                    } else {
+                        if (UI::Button(Icons::EnvelopeOpenO + "##" + i)) {
+                            message.Read();
+                        }
+                        UI::SetTooltip("mark as read");
                     }
-                    UI::SetTooltip("mark as read");
-                }
 
-                UI::SameLine();
-                if (UI::Button(Icons::EyeSlash + "##" + i)) {
-                    message.Hide();
-                }
-                UI::SetTooltip("hide");
+                    UI::SameLine();
+                    if (UI::Button(Icons::EyeSlash + "##" + i)) {
+                        message.Hide();
+                    }
+                    UI::SetTooltip("hide");
 
-                UI::Separator();
+                    UI::TextWrapped(message.message);
+                    UI::TextDisabled(Time::FormatString("%F %T", message.timestamp));
+
+                    UI::TreePop();
+                }
             }
+
+            UI::EndChild();
 
             UI::EndTabItem();
         }
@@ -103,6 +107,10 @@ void MessagesWindow() {
         ;
 
         if (UI::BeginTabItem(Icons::Pencil + " Compose", dirty ? UI::TabItemFlags::UnsavedDocument : UI::TabItemFlags::None)) {
+            UI::TextWrapped("Messages are \\$FA0NOT \\$Gencrypted. Never send sensitive information!");
+
+            UI::Separator();
+
             UI::AlignTextToFramePadding();
             UI::Text("subject");
             UI::SameLine();

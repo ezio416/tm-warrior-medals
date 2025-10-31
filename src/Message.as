@@ -6,6 +6,7 @@ class Message {
     int    id        = -1;
     string mapUid;
     string message;
+    bool   notice    = false;
     bool   read      = false;
     string subject;
     int64  timestamp = 0;
@@ -16,6 +17,14 @@ class Message {
             or subject.Length > 1000
             or message.Length > 10000
         ;
+    }
+
+    bool get_shown() {
+        return !hidden;
+    }
+
+    bool get_unread() {
+        return !read;
     }
 
     Message() { }
@@ -38,6 +47,14 @@ class Message {
             this.timestamp = int64(timestamp);
         } else {
             this.timestamp = Time::Stamp;
+        }
+
+        Json::Value@ type = message["type"];
+        if (type.GetType() == Json::Type::String) {
+            this.type = string(type);
+            if (this.type == "notice") {
+                notice = true;
+            }
         }
     }
 
@@ -65,6 +82,11 @@ class Message {
             Json::ToFile(IO::FromStorageFolder("hidden.json"), hidden);
         }
 
+        return Read();
+    }
+
+    Message@ Notify() {
+        UI::ShowNotification(pluginTitle + ' - "' + subject + '"', message, 30000);
         return Read();
     }
 
@@ -96,7 +118,7 @@ class Message {
     }
 
     Message@ Show() {
-        if (!hidden) {
+        if (shown) {
             return this;
         }
 
@@ -135,7 +157,7 @@ class Message {
     }
 
     Message@ Unread() {
-        if (!read) {
+        if (unread) {
             return this;
         }
 
