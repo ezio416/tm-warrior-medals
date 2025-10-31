@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-10-30
+// m 2025-10-31
 
 [Setting hidden category="Colors"]       vec3 S_ColorFall                  = vec3(1.0f, 0.5f, 0.0f);
 [Setting hidden category="Colors"]       vec3 S_ColorSpring                = vec3(0.3f, 0.9f, 0.3f);
@@ -425,7 +425,7 @@ void Settings_Debug() {
         UI::Text("last pb request: " + Time::FormatString("%F %T", API::Nadeo::lastPbRequest));
         API::Nadeo::lastPbRequest = UI::InputInt("last pb request##input", API::Nadeo::lastPbRequest);
 
-        UI::Text("token: " + token.token);
+        UI::Text("token length: " + token.token.Length);
 
         UI::Text("token valid: " + tostring(token.valid));
 
@@ -454,15 +454,57 @@ void Settings_Debug() {
         }
         UI::EndDisabled();
 
-        if (UI::Button("get messages")) {
-            startnew(API::GetMessagesAsync);
-        }
-
-        if (UI::Button("send example message")) {
+        if (UI::Button(Icons::PaperPlane + " send example message")) {
             Json::Value@ json = Json::Object();
             json["message"] = "test message";
             json["subject"] = "test subject";
             Message(json).Send();
+        }
+
+        if (UI::TreeNode("hidden", UI::TreeNodeFlags::Framed)) {
+            string hidden;
+            for (uint i = 0; i < hiddenMessages.Length; i++) {
+                hidden += tostring(hiddenMessages[i]);
+                if (i < hiddenMessages.Length - 1) {
+                    hidden += ",";
+                }
+            }
+            UI::Text("hiddenMessages: ["  + hidden + "]");
+            UI::Text("unhiddenMessages: " + unhiddenMessages);
+
+            UI::Separator();
+
+            for (uint i = 0; i < messages.Length; i++) {
+                Message@ message = messages[i];
+                if (message.hidden) {
+                    UI::BeginGroup();
+                    UI::Text(message.subject);
+                    UI::Text(message.message);
+                    UI::Text(tostring(message.timestamp));
+                    UI::EndGroup();
+                    UI::SameLine();
+                    if (UI::Button(Icons::Eye + "##" + i)) {
+                        message.Show();
+                    }
+                    UI::SetTooltip("show");
+                }
+            }
+
+            UI::TreePop();
+        }
+
+        if (UI::TreeNode("read", UI::TreeNodeFlags::Framed)) {
+            string read;
+            for (uint i = 0; i < readMessages.Length; i++) {
+                read += tostring(readMessages[i]);
+                if (i < readMessages.Length - 1) {
+                    read += ",";
+                }
+            }
+            UI::Text("readMessages: ["    + read + "]");
+            UI::Text("unreadMessages: "   + unreadMessages);
+
+            UI::TreePop();
         }
 
         UI::EndTabItem();

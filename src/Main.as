@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-10-30
+// m 2025-10-31
 
 Campaign@[]         activeOtherCampaigns;
 Campaign@[]         activeSeasonalCampaigns;
@@ -11,6 +11,7 @@ Campaign@[]         campaignsArr;
 Campaign@[]         campaignsArrRev;
 const vec3          colorWarriorVec          = vec3(0.18f, 0.58f, 0.8f);
 const bool          hasPlayPermission        = Permissions::PlayLocalMap();
+int[]               hiddenMessages;
 UI::Texture@        iconWarrior32;
 UI::Texture@        iconWarrior512;
 nvg::Texture@       iconWarriorNvg;
@@ -26,6 +27,7 @@ const string        pluginIcon               = Icons::Circle;
 Meta::Plugin@       pluginMeta               = Meta::ExecutingPlugin();
 const string        pluginTitle              = pluginColor + pluginIcon + "\\$G " + pluginMeta.Name;
 WarriorMedals::Map@ previousTotd;
+int[]               readMessages;
 vec3[]              seasonColors;
 Medal               selectedMedal            = Medal::Warrior;
 bool                settingTotals            = false;
@@ -41,6 +43,8 @@ uint                totalWarriorTotdHave     = 0;
 uint                totalWarriorWeekly       = 0;
 uint                totalWarriorWeeklyHave   = 0;
 const string        uidSeparator             = "|warrior-campaign|";
+uint                unhiddenMessages         = 0;
+uint                unreadMessages           = 0;
 
 enum Medal {
     Warrior
@@ -50,6 +54,9 @@ void Main() {
     if (API::savedToken.Length > 0) {
         token.token = API::savedToken;
     }
+
+    ReadMessageFile("hidden");
+    ReadMessageFile("read");
 
     WarriorMedals::GetIcon32();
     IO::FileSource file("assets/warrior_512.png");
@@ -71,6 +78,8 @@ void Main() {
     trace("registering UME medal");
     UltimateMedalsExtended::AddMedal(UME_Warrior());
 #endif
+
+    API::GetMessagesAsync();
 
     bool inMap = InMap();
     bool wasInMap = false;
@@ -118,7 +127,7 @@ void Render() {
 
     MainWindowDetached();
     MedalWindow();
-    FeedbackWindow();
+    MessagesWindow();
 }
 
 void RenderEarly() {
@@ -161,6 +170,27 @@ void PBLoop() {
 
             if (prevPb != map.pb) {
                 SetTotals();
+            }
+        }
+    }
+}
+
+void ReadMessageFile(const string&in name) {
+    const string path = IO::FromStorageFolder(name + ".json");
+    trace("reading " + path);
+    Json::Value@ file = Json::FromFile(path);
+    if (file.GetType() == Json::Type::Array) {
+        if (name == "hidden") {
+            hiddenMessages = {};
+        } else if (name == "read") {
+            readMessages = {};
+        }
+
+        for (uint i = 0; i < file.Length; i++) {
+            if (name == "hidden") {
+                hiddenMessages.InsertLast(int(file[i]));
+            } else if (name == "read") {
+                readMessages.InsertLast(int(file[i]));
             }
         }
     }

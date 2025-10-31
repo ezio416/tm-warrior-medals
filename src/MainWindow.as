@@ -1,5 +1,5 @@
 // c 2024-07-24
-// m 2025-10-26
+// m 2025-10-31
 
 void MainWindow(const bool detached = false) {
     switch (selectedMedal) {
@@ -43,14 +43,14 @@ void MainWindow(const bool detached = false) {
         HoverTooltip("Open the Warrior Medals website");
 
         UI::SameLine();
-        UI::BeginDisabled(feedbackShown);
+        UI::BeginDisabled(showMessages);
         UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-        if (UI::Button(Shadow() + Icons::Envelope)) {
-            feedbackShown = true;
+        if (UI::Button(Shadow() + Icons::Envelope + (unreadMessages > 0 ? " (" + unreadMessages + ")" : ""))) {
+            showMessages = true;
         }
         UI::PopStyleColor();
         UI::EndDisabled();
-        HoverTooltip("Send feedback to the plugin author (Ezio)");
+        HoverTooltip("Open messages");
 
         UI::SameLine();
         UI::BeginDisabled(false

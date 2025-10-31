@@ -248,18 +248,35 @@ namespace API {
         Net::HttpRequest@ req = GetEdevAsync("/tm/warrior/message");
 
         const ResponseCode code = ResponseCode(req.ResponseCode());
-        print("messages: " + req.String());
+        // print("messages: " + req.String());
         switch (code) {
             case ResponseCode::OK:
                 messages = {};
                 try {
                     Json::Value@ json = req.Json();
+                    unhiddenMessages = json.Length;
+                    unreadMessages = json.Length;
+
                     for (uint i = 0; i < json.Length; i++) {
-                        messages.InsertLast(Message(json[i]));
+                        auto message = Message(json[i]);
+
+                        if (hiddenMessages.Find(message.id) > -1) {
+                            message.hidden = true;
+                            unhiddenMessages--;
+                        }
+
+                        if (readMessages.Find(message.id) > -1) {
+                            message.read = true;
+                            unreadMessages--;
+                        }
+
+                        messages.InsertLast(@message);
                     }
+
                 } catch {
                     error("error parsing messages: " + getExceptionInfo());
                 }
+
                 break;
 
             default:
@@ -416,73 +433,33 @@ namespace API {
         return PostAsync(baseUrl + endpoint, body, start, EdevAgent(), token.token);
     }
 
-    bool SendFeedbackAsync(const string&in subject, const string&in message, const bool anonymous = false) {
-        if (false
-            or subject.Length > 1000
-            or message.Length > 10000
-        ) {
-            warn("shorten your subject or message.");
-            return false;
-        }
-
-        Json::Value@ body = Json::Object();
-        body["subject"] = subject;
-        body["message"] = message;
-
-        if (InMap()) {
-            body["mapUid"] = GetApp().RootMap.EdChallengeId;
-        }
-
-        auto App = cast<CTrackMania>(GetApp());
-        if (true
-            and !anonymous
-            and App.LocalPlayerInfo !is null
-        ) {
-            body["accountId"] = App.LocalPlayerInfo.WebServicesUserId;
-        }
-
-        Net::HttpRequest@ req = PostEdevAsync("/tm/warrior/feedback", Json::Write(body));
-
-        const int code = req.ResponseCode();
-        switch (code) {
-            case ResponseCode::OK:
-            case ResponseCode::NoContent:
-                print(Icons::InfoCircle + " sent: " + req.Body);
-                return true;
-
-            case ResponseCode::TooManyRequests: {
-                const string msg = "You've sent enough feedback for today.";
-                warn(msg);
-                UI::ShowNotification(pluginTitle, msg, vec4(1.0f, 0.6f, 0.0f, 0.8f));
-                feedbackLocked = true;
-                return false;
-            }
-
-            default:
-                error("sending feedback failed (" + code + "): " + Json::Write(body));
-                warn(req.String());
-                UI::ShowNotification(pluginTitle, "Something went wrong, check the log!", vec4(1.0f, 0.3f, 0.0f, 0.8f));
-                return false;
-        }
-    }
-
     void SendMessageAsync(Message@ message) {
         if (message is null) {
             warn("null message");
             return;
         }
 
-        Net::HttpRequest@ req = PostEdevAsync("/tm/warrior/message", tostring(message));
+        if (message.big) {
+            warn("shorten your subject or message");
+            return;
+        }
+
+        Net::HttpRequest@ req = PostEdevAsync("/tm/warrior/message", tostring(message.GetMap()));
 
         const ResponseCode code = ResponseCode(req.ResponseCode());
         switch (code) {
             case ResponseCode::OK:
             case ResponseCode::NoContent:
-                trace("sent message");
+                trace("sent message: " + newSubject + " | " + newMessage);
+                // todo notification
+                newMessage = "";
+                newSubject = "";
                 break;
 
             default:
                 error("failed to send message (" + tostring(code) + "): " + req.String());
+                warn(req.String());
+                UI::ShowNotification(pluginTitle, "Something went wrong, check the log!", vec4(1.0f, 0.3f, 0.0f, 0.8f));
         }
     }
 

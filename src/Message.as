@@ -1,13 +1,24 @@
 // c 2025-10-30
-// m 2025-10-30
+// m 2025-10-31
 
 class Message {
+    bool   hidden    = false;
     int    id        = -1;
+    string mapUid;
     string message;
+    bool   read      = false;
     string subject;
     int64  timestamp = 0;
     string type;
 
+    bool get_big() {
+        return false
+            or subject.Length > 1000
+            or message.Length > 10000
+        ;
+    }
+
+    Message() { }
     Message(Json::Value@ message) {
         this.message = string(message["message"]);
         this.subject = string(message["subject"]);
@@ -15,6 +26,11 @@ class Message {
         Json::Value@ id = message["id"];
         if (id.GetType() == Json::Type::Number) {
             this.id = int(id);
+        }
+
+        Json::Value@ mapUid = message["mapUid"];
+        if (mapUid.GetType() == Json::Type::String) {
+            this.mapUid = string(mapUid);
         }
 
         Json::Value@ timestamp = message["timestamp"];
@@ -25,20 +41,119 @@ class Message {
         }
     }
 
+    Message@ GetMap() {
+        mapUid = InMap() ? GetApp().RootMap.EdChallengeId : "";
+        return this;
+    }
+
+    Message@ Hide() {
+        if (hidden) {
+            return this;
+        }
+
+        hidden = true;
+        unhiddenMessages--;
+
+        if (hiddenMessages.Find(id) == -1) {
+            hiddenMessages.InsertLast(id);
+
+            Json::Value@ hidden = Json::Array();
+            for (uint i = 0; i < hiddenMessages.Length; i++) {
+                hidden.Add(Json::Value(hiddenMessages[i]));
+            }
+            trace("writing hidden.json");
+            Json::ToFile(IO::FromStorageFolder("hidden.json"), hidden);
+        }
+
+        return Read();
+    }
+
+    Message@ Read() {
+        if (read) {
+            return this;
+        }
+
+        read = true;
+        unreadMessages--;
+
+        if (readMessages.Find(id) == -1) {
+            readMessages.InsertLast(id);
+
+            Json::Value@ read = Json::Array();
+            for (uint i = 0; i < readMessages.Length; i++) {
+                read.Add(Json::Value(readMessages[i]));
+            }
+            trace("writing read.json");
+            Json::ToFile(IO::FromStorageFolder("read.json"), read);
+        }
+
+        return this;
+    }
+
+    Message@ Send() {
+        startnew(API::SendMessageAsync, this);
+        return this;
+    }
+
+    Message@ Show() {
+        if (!hidden) {
+            return this;
+        }
+
+        hidden = false;
+        unhiddenMessages++;
+
+        const int index = hiddenMessages.Find(id);
+        if (index > -1) {
+            hiddenMessages.RemoveAt(index);
+
+            Json::Value@ hidden = Json::Array();
+            for (uint i = 0; i < hiddenMessages.Length; i++) {
+                hidden.Add(Json::Value(hiddenMessages[i]));
+            }
+            trace("writing hidden.json");
+            Json::ToFile(IO::FromStorageFolder("hidden.json"), hidden);
+        }
+
+        return this;
+    }
+
     Json::Value@ ToJson() {
         Json::Value json = Json::Object();
-        json["id"] = id;
-        json["message"] = message;
-        json["subject"] = subject;
+        json["hidden"]    = hidden;
+        json["id"]        = id;
+        json["mapUid"]    = mapUid;
+        json["message"]   = message;
+        json["read"]      = read;
+        json["subject"]   = subject;
         json["timestamp"] = timestamp;
         return json;
     }
 
-    void Send() {
-        startnew(API::SendMessageAsync, this);
-    }
-
     string ToString() {
         return Json::Write(ToJson());
+    }
+
+    Message@ Unread() {
+        if (!read) {
+            return this;
+        }
+
+        read = false;
+        unreadMessages++;
+
+        const int index = readMessages.Find(id);
+        if (index > -1) {
+            readMessages.RemoveAt(index);
+
+            Json::Value@ read = Json::Array();
+            for (uint i = 0; i < readMessages.Length; i++) {
+                read.Add(Json::Value(readMessages[i]));
+            }
+            trace("writing read.json");
+            Json::ToFile(IO::FromStorageFolder("read.json"), read);
+        }
+
+        return this;
     }
 }
