@@ -87,18 +87,16 @@ namespace API {
 
         yield();
 
-        bool gotNext = false;
-
         string[]@ types = data.GetKeys();
         for (uint i = 0; i < types.Length; i++) {
             Json::Value@ section = data.Get(types[i]);
 
-            if (types[i] == "next") {  // future proofing, plan to change backend later
+            if (types[i] == "next") {
                 if (WarriorMedals::CheckJsonType(section, Json::Type::Number, "next")) {
                     nextWarriorRequest = int64(section);
                     trace("next request: " + Time::FormatString("%F %T", nextWarriorRequest));
-                    gotNext = true;
                 }
+
             } else {
                 if (!WarriorMedals::CheckJsonType(section, Json::Type::Array, "section-" + i)) {
                     error("getting all map infos failed after " + (Time::Now - start) + "ms");
@@ -109,10 +107,7 @@ namespace API {
                     auto map = WarriorMedals::Map(section[j], types[i]);
                     if (maps.Exists(map.uid)) {
                         auto existing = cast<WarriorMedals::Map>(maps[map.uid]);
-                        // warn("duplicate map: '" + map.nameStripped + "' in '" + Text::StripFormatCodes(map.campaignName)
-                        //     + "' and '" + Text::StripFormatCodes(existing.campaignName) + "'");
                         existing.SetDuplicate(map);
-                        // print("duplicate: " + map.duplicate.nameStripped);
                     } else {
                         maps[map.uid] = @map;
                         mapsById[map.id] = @map;
@@ -121,17 +116,6 @@ namespace API {
             }
 
             yield();
-        }
-
-        if (!gotNext) {
-            trace("didn't find next request time, getting now...");
-
-            try {
-                nextWarriorRequest = int64(GetEdevAsync("/tm/warrior/next").Json()[0]);
-                trace("next request: " + Time::FormatString("%F %T", nextWarriorRequest));
-            } catch {
-                error("getting next request time failed");
-            }
         }
 
         trace("got all map infos after " + (Time::Now - start) + "ms");
@@ -248,7 +232,6 @@ namespace API {
         Net::HttpRequest@ req = GetEdevAsync("/tm/warrior/message");
 
         const ResponseCode code = ResponseCode(req.ResponseCode());
-        // print("messages: " + req.String());
         switch (code) {
             case ResponseCode::OK:
                 messages = {};
