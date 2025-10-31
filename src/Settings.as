@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-10-27
+// m 2025-10-30
 
 [Setting hidden category="Colors"]       vec3 S_ColorFall                  = vec3(1.0f, 0.5f, 0.0f);
 [Setting hidden category="Colors"]       vec3 S_ColorSpring                = vec3(0.3f, 0.9f, 0.3f);
@@ -414,7 +414,7 @@ void Settings_Debug() {
         UI::Text("latest totd: " + (latestTotd !is null ? latestTotd.date : "null"));
 
         string next = "next request: " + Time::FormatString("%F %T", nextWarriorRequest) + " (";
-        const int64 delta = nextWarriorRequest - Time::Stamp;
+        int64 delta = nextWarriorRequest - Time::Stamp;
         if (delta > 0) {
             next += "in " + Time::Format(delta * 1000, false);
         } else {
@@ -425,9 +425,31 @@ void Settings_Debug() {
         UI::Text("last pb request: " + Time::FormatString("%F %T", API::Nadeo::lastPbRequest));
         API::Nadeo::lastPbRequest = UI::InputInt("last pb request##input", API::Nadeo::lastPbRequest);
 
-        UI::Text("token expiry: " + (token.expiry > 0 ? Time::FormatString("%F %T", token.expiry) : "none"));
+        UI::Text("token: " + token.token);
+
+        UI::Text("token valid: " + tostring(token.valid));
+
+        string expiry = "token expiry: ";
+        if (token.expiry > 0) {
+            expiry += Time::FormatString("%F %T", token.expiry) + " (";
+            delta = token.expiry - Time::Stamp;
+            if (delta > 0) {
+                expiry += "in " + Time::Format(delta * 1000, false);
+            } else {
+                expiry += Time::Format(delta * -1000, false) + " ago";
+            }
+            expiry += ")";
+        } else {
+            expiry += "none";
+        }
+        UI::Text(expiry);
+
+        if (UI::Button(Icons::Refresh + " check token")) {
+            startnew(API::GetTokenAsync);
+        }
+
         UI::BeginDisabled(!token.valid);
-        if (UI::Button("clear token")) {
+        if (UI::Button(Icons::TrashO + " clear token")) {
             token.Clear();
         }
         UI::EndDisabled();
