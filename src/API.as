@@ -244,6 +244,29 @@ namespace API {
         checkingUid = "";
     }
 
+    void GetMessagesAsync() {
+        Net::HttpRequest@ req = GetEdevAsync("/tm/warrior/message");
+
+        const ResponseCode code = ResponseCode(req.ResponseCode());
+        print("messages: " + req.String());
+        switch (code) {
+            case ResponseCode::OK:
+                messages = {};
+                try {
+                    Json::Value@ json = req.Json();
+                    for (uint i = 0; i < json.Length; i++) {
+                        messages.InsertLast(Message(json[i]));
+                    }
+                } catch {
+                    error("error parsing messages: " + getExceptionInfo());
+                }
+                break;
+
+            default:
+                error("error getting messages (" + tostring(code) + "): " + req.String());
+        }
+    }
+
     void GetTokenAsync() {
         if (token.getting) {
             return;
@@ -441,6 +464,30 @@ namespace API {
                 UI::ShowNotification(pluginTitle, "Something went wrong, check the log!", vec4(1.0f, 0.3f, 0.0f, 0.8f));
                 return false;
         }
+    }
+
+    void SendMessageAsync(Message@ message) {
+        if (message is null) {
+            warn("null message");
+            return;
+        }
+
+        Net::HttpRequest@ req = PostEdevAsync("/tm/warrior/message", tostring(message));
+
+        const ResponseCode code = ResponseCode(req.ResponseCode());
+        switch (code) {
+            case ResponseCode::OK:
+            case ResponseCode::NoContent:
+                trace("sent message");
+                break;
+
+            default:
+                error("failed to send message (" + tostring(code) + "): " + req.String());
+        }
+    }
+
+    void SendMessageAsync(ref@ m) {
+        SendMessageAsync(cast<Message>(m));
     }
 
     void TryGetCampaignIndicesAsync() {

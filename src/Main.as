@@ -18,6 +18,7 @@ WarriorMedals::Map@ latestTotd;
 bool                loading                  = false;
 dictionary          maps;
 dictionary          mapsById;
+Message@[]          messages;
 int64               nextWarriorRequest       = 0;
 Json::Value@        pbsById                  = Json::Value();
 const string        pluginColor              = "\\$38C";

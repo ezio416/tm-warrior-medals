@@ -454,6 +454,17 @@ void Settings_Debug() {
         }
         UI::EndDisabled();
 
+        if (UI::Button("get messages")) {
+            startnew(API::GetMessagesAsync);
+        }
+
+        if (UI::Button("send example message")) {
+            Json::Value@ json = Json::Object();
+            json["message"] = "test message";
+            json["subject"] = "test subject";
+            Message(json).Send();
+        }
+
         UI::EndTabItem();
     }
 
