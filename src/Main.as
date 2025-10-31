@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-10-27
+// m 2025-10-30
 
 Campaign@[]         activeOtherCampaigns;
 Campaign@[]         activeSeasonalCampaigns;
@@ -46,6 +46,10 @@ enum Medal {
 }
 
 void Main() {
+    if (API::savedToken.Length > 0) {
+        token.token = API::savedToken;
+    }
+
     WarriorMedals::GetIcon32();
     IO::FileSource file("assets/warrior_512.png");
     @iconWarriorNvg = nvg::LoadTexture(file.Read(file.Size()));
@@ -89,6 +93,12 @@ void OnDestroyed() {
 #if DEPENDENCY_ULTIMATEMEDALSEXTENDED
     UltimateMedalsExtended::RemoveMedal("Warrior");
 #endif
+}
+
+void OnEnabled() {
+    if (API::savedToken.Length > 0) {
+        token.token = API::savedToken;
+    }
 }
 
 void OnSettingsChanged() {
