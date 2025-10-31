@@ -273,6 +273,10 @@ namespace API {
                         messages.InsertLast(@message);
                     }
 
+                    if (messages.Length > 1) {
+                        messages.Sort(function(a, b) { return a.id > b.id; });
+                    }
+
                 } catch {
                     error("error parsing messages: " + getExceptionInfo());
                 }
