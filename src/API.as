@@ -1,8 +1,8 @@
 // c 2024-07-18
-// m 2025-10-31
+// m 2025-11-01
 
 namespace API {
-    const string baseUrl    = "https://e416.dev/api2";
+    const string baseUrl    = "https://e416.dev/api3";
     string       checkingUid;
     dictionary   missing;
     bool         requesting = false;
