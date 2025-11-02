@@ -299,7 +299,7 @@ namespace API {
         if (token.valid) {
             trace("using existing token...");
 
-            Net::HttpRequest@ req = GetEdevAsync("/tm/warrior/auth?token=" + token.token);
+            Net::HttpRequest@ req = GetEdevAsync("/tm/warrior/auth");
 
             const ResponseCode code = ResponseCode(req.ResponseCode());
             switch (code) {
@@ -341,9 +341,7 @@ namespace API {
         trace("got token 1, getting token 2...");
 
         const uint64 start = Time::Now;
-        Json::Value@ body = Json::Object();
-        body["preToken"] = token.token;
-        Net::HttpRequest@ req = PostEdevAsync("/tm/warrior/auth", Json::Write(body), false);
+        Net::HttpRequest@ req = PostEdevAsync("/tm/warrior/auth", "", false);
         req.Start();
         while (!req.Finished()) {
             yield();
