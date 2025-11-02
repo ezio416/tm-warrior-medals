@@ -1,5 +1,5 @@
 // c 2025-10-23
-// m 2025-10-27
+// m 2025-11-02
 
 class Token {
     int64            expiry  = 0;
@@ -44,5 +44,16 @@ class Token {
         json["token"] = _token;
         json["expiry"] = expiry;
         return json;
+    }
+
+    void WatchAsync() {
+        while (true) {
+            sleep(1000);
+
+            if (expired) {
+                startnew(API::GetTokenAsync);
+                return;
+            }
+        }
     }
 }

@@ -296,7 +296,7 @@ namespace API {
         }
         token.getting = true;
 
-        if (token.token.Length == 36) {
+        if (token.valid) {
             trace("using existing token...");
 
             Net::HttpRequest@ req = GetEdevAsync("/tm/warrior/auth?token=" + token.token);
@@ -403,6 +403,7 @@ namespace API {
         }
 
         token.getting = false;
+        startnew(CoroutineFunc(token.WatchAsync));
     }
 
     Net::HttpRequest@ PostAsync(const string&in url, const string&in body = "", const bool start = true, const string&in agent = "", const string&in auth = "") {
@@ -457,7 +458,7 @@ namespace API {
             case ResponseCode::OK:
             case ResponseCode::NoContent:
                 trace("sent message: " + newSubject + " | " + newMessage);
-                // todo notification
+                UI::ShowNotification(pluginTitle + " - sent message", newSubject + " | " + newMessage);
                 newMessage = "";
                 newSubject = "";
                 break;
