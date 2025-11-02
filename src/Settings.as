@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-10-31
+// m 2025-11-02
 
 [Setting hidden category="Colors"]       vec3 S_ColorFall                  = vec3(1.0f, 0.5f, 0.0f);
 [Setting hidden category="Colors"]       vec3 S_ColorSpring                = vec3(0.3f, 0.9f, 0.3f);
@@ -409,12 +409,12 @@ void Settings_Debug() {
     }
 
     if (UI::BeginTabItem("Messages")) {
-        if (UI::Button(Icons::PaperPlane + " send example")) {
-            Json::Value@ json = Json::Object();
-            json["message"] = "test message";
-            json["subject"] = "test subject";
-            Message(json).Send();
-        }
+        // if (UI::Button(Icons::PaperPlane + " send example")) {
+        //     Json::Value@ json = Json::Object();
+        //     json["message"] = "test message";
+        //     json["subject"] = "test subject";
+        //     Message(json).Send();
+        // }
 
         if (UI::TreeNode("hidden", UI::TreeNodeFlags::Framed)) {
             string hidden;
@@ -520,11 +520,11 @@ void Settings_Debug() {
             startnew(API::GetTokenAsync);
         }
 
-        UI::BeginDisabled(!token.valid);
-        if (UI::Button(Icons::TrashO + " clear")) {
-            token.Clear();
-        }
-        UI::EndDisabled();
+        // UI::BeginDisabled(!token.valid);
+        // if (UI::Button(Icons::TrashO + " clear")) {
+        //     token.Clear();
+        // }
+        // UI::EndDisabled();
 
         UI::EndTabItem();
     }
@@ -544,7 +544,7 @@ void Settings_Debug() {
         UI::Text(next + ")");
 
         UI::Text("last pb request: " + Time::FormatString("%F %T", API::Nadeo::lastPbRequest));
-        API::Nadeo::lastPbRequest = UI::InputInt("last pb request##input", API::Nadeo::lastPbRequest);
+        // API::Nadeo::lastPbRequest = UI::InputInt("last pb request##input", API::Nadeo::lastPbRequest);
 
         UI::EndTabItem();
     }
