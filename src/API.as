@@ -66,8 +66,6 @@ namespace API {
     }
 
     void GetAllMapInfosAsync() {
-        startnew(TryGetCampaignIndicesAsync);
-
         const uint64 start = Time::Now;
         trace("getting all map infos");
 
@@ -128,6 +126,20 @@ namespace API {
             or Time::Stamp - Nadeo::lastPbRequest > 86400 * 7
         ) {
             Nadeo::GetAllPbsNewAsync();
+        }
+
+        GetCampaignIndicesAsync();
+
+        for (uint i = 0; i < campaignsArr.Length; i++) {
+            Campaign@ campaign = campaignsArr[i];
+            if (false
+                or campaign is null
+                or campaign.type != WarriorMedals::CampaignType::Other
+            ) {
+                continue;
+            }
+
+            campaign.SetOtherCampaignIndex();
         }
 
         BuildCampaigns();
@@ -459,30 +471,6 @@ namespace API {
 
     void SendMessageAsync(ref@ m) {
         SendMessageAsync(cast<Message>(m));
-    }
-
-    void TryGetCampaignIndicesAsync() {
-        while (true) {
-            if (GetCampaignIndicesAsync()) {
-                break;
-            }
-
-            sleep(5000);
-        }
-
-        for (uint i = 0; i < campaignsArr.Length; i++) {
-            Campaign@ campaign = campaignsArr[i];
-            if (false
-                or campaign is null
-                or campaign.type != WarriorMedals::CampaignType::Other
-            ) {
-                continue;
-            }
-
-            campaign.SetOtherCampaignIndex();
-        }
-
-        SortCampaigns();
     }
 
     namespace Nadeo {
