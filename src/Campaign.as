@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2025-10-29
+// m 2025-11-02
 
 class Campaign {
     int                         clubId     = -1;
@@ -22,21 +22,19 @@ class Campaign {
     uint                        year;
 
     uint get_countWarrior() {
-        uint _count = 0;
+        uint count = 0;
 
         for (uint i = 0; i < mapsArr.Length; i++) {
             WarriorMedals::Map@ map = mapsArr[i];
-            if (false
-                or map is null
-                or !map.hasWarrior
+            if (true
+                and map !is null
+                and map.hasWarrior
             ) {
-                continue;
+                count++;
             }
-
-            _count++;
         }
 
-        return _count;
+        return count;
     }
 
     bool get_official() {

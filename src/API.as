@@ -1,5 +1,5 @@
 // c 2024-07-18
-// m 2025-11-01
+// m 2025-11-02
 
 namespace API {
     const string baseUrl    = "https://e416.dev/api3";
@@ -124,10 +124,8 @@ namespace API {
 
         if (false
             or pbsById.GetType() == Json::Type::Null
-            or (true
-                and Nadeo::lastPbRequest > -1
-                and Time::Stamp - Nadeo::lastPbRequest > 86400 * 7
-            )
+            or Nadeo::lastPbRequest == -1
+            or Time::Stamp - Nadeo::lastPbRequest > 86400 * 7
         ) {
             Nadeo::GetAllPbsNewAsync();
         }
