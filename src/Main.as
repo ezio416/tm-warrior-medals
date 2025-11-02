@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-10-31
+// m 2025-11-02
 
 Campaign@[]         activeOtherCampaigns;
 Campaign@[]         activeSeasonalCampaigns;
@@ -252,6 +252,18 @@ void SetTotals() {
     for (uint i = 0; i < campaignsArr.Length; i++) {
         Campaign@ campaign = campaignsArr[i];
         if (campaign !is null) {
+            // why the FUCK do I have to do this
+            // setting PBs from file anywhere else doesn't work
+            for (uint j = 0; j < campaign.mapsArr.Length; j++) {
+                WarriorMedals::Map@ map = campaign.mapsArr[j];
+                if (true
+                    and int(map.pb) <= 0
+                    and pbsById.HasKey(map.id)
+                ) {
+                    map.pb = uint(pbsById[map.id]);
+                }
+            }
+
             const uint countWarrior = campaign.countWarrior;
             totalWarriorHave += countWarrior;
 
