@@ -12,6 +12,7 @@ namespace API {
     int64        savedExpiry = 0;
 [Setting hidden]
     string       savedToken;
+    bool         useOldPbs   = false;
 
     enum ResponseCode {
         OK              = 200,
@@ -315,6 +316,10 @@ namespace API {
                             WarnOutdated();
                         }
 
+                        if (json.HasKey("useOldPbs")) {
+                            useOldPbs = bool(json["useOldPbs"]);
+                        }
+
                         trace("existing token valid :)");
                         return;
                     } catch { }
@@ -492,6 +497,27 @@ namespace API {
             allPbsNew = true;
             const uint64 start = Time::Now;
             trace("getting all PBs...");
+
+            if (useOldPbs) {
+                warn("using old PB system");
+
+                for (uint i = 0; i < campaignsArr.Length; i++) {
+                    campaignsArr[i].GetPBsAsync();
+                }
+
+                try {
+                    Json::ToFile(IO::FromStorageFolder("pbs2.json"), pbsById, true);
+                } catch {
+                    error("error writing all PBs to file: " + getExceptionInfo());
+                }
+
+                trace("got all PBs (" + pbsById.Length + ") after " + (Time::Now - start) + "ms");
+
+                allPbsNew = false;
+                lastPbRequest = Time::Stamp;
+
+                return;
+            }
 
             uint offset = 0;
             Json::Value@ pbs = Json::Object();

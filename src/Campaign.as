@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2025-11-02
+// m 2025-11-04
 
 class Campaign {
     int                         clubId     = -1;
@@ -185,6 +185,9 @@ class Campaign {
             WarriorMedals::Map@ map = GetMap(uid);
             if (map !is null) {
                 map.SetPBFromAPI(map_api);
+                if (int(map.pb) > 0) {
+                    pbsById[map.id] = map.pb;
+                }
             }
         }
 

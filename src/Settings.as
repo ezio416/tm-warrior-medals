@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-11-02
+// m 2025-11-04
 
 [Setting hidden category="Colors"]       vec3 S_ColorFall                  = vec3(1.0f, 0.5f, 0.0f);
 [Setting hidden category="Colors"]       vec3 S_ColorSpring                = vec3(0.3f, 0.9f, 0.3f);
@@ -545,6 +545,8 @@ void Settings_Debug() {
 
         UI::Text("last pb request: " + Time::FormatString("%F %T", API::Nadeo::lastPbRequest));
         // API::Nadeo::lastPbRequest = UI::InputInt("last pb request##input", API::Nadeo::lastPbRequest);
+
+        UI::Text("useOldPbs: " + API::useOldPbs);
 
         UI::EndTabItem();
     }
