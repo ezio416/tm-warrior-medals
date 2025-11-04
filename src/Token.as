@@ -1,19 +1,22 @@
 // c 2025-10-23
-// m 2025-11-02
+// m 2025-11-04
 
 class Token {
-    int64            expiry  = 0;
-    bool             getting = false;
-    protected string _token;
+    bool getting = false;
 
     bool get_expired() {
         return Time::Stamp >= expiry;
     }
 
-    string get_token() {
-        return _token;
+    protected int64 _expiry = 0;
+    int64 get_expiry() { return _expiry; }
+    void set_expiry(const int64 e) {
+        _expiry = e;
+        API::savedExpiry = e;
     }
 
+    protected string _token;
+    string get_token() { return _token; }
     void set_token(const string&in t) {
         _token = t;
         API::savedToken = t;

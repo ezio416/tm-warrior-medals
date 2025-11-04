@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-11-02
+// m 2025-11-04
 
 Campaign@[]         activeOtherCampaigns;
 Campaign@[]         activeSeasonalCampaigns;
@@ -51,6 +51,9 @@ enum Medal {
 }
 
 void Main() {
+    if (API::savedExpiry > 0) {
+        token.expiry = API::savedExpiry;
+    }
     if (API::savedToken.Length > 0) {
         token.token = API::savedToken;
     }
@@ -106,6 +109,9 @@ void OnDestroyed() {
 }
 
 void OnEnabled() {
+    if (API::savedExpiry > 0) {
+        token.expiry = API::savedExpiry;
+    }
     if (API::savedToken.Length > 0) {
         token.token = API::savedToken;
     }

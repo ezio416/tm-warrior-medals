@@ -1,13 +1,15 @@
 // c 2024-07-18
-// m 2025-11-02
+// m 2025-11-04
 
 namespace API {
-    const string baseUrl    = "https://e416.dev/api3";
+    const string baseUrl     = "https://e416.dev/api3";
     string       checkingUid;
     dictionary   missing;
-    bool         requesting = false;
+    bool         requesting  = false;
 [Setting hidden]
-    bool         banned     = false;
+    bool         banned      = false;
+[Setting hidden]
+    int64        savedExpiry = 0;
 [Setting hidden]
     string       savedToken;
 
@@ -318,7 +320,7 @@ namespace API {
                     } catch { }
 
                 default:
-                    token.token = "";
+                    token.Clear();
                     trace("existing token invalid (" + tostring(code) + ")");
             }
         }
