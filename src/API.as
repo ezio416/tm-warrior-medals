@@ -2,12 +2,13 @@
 // m 2025-11-05
 
 namespace API {
-    const string baseUrl         = "https://e416.dev/api3";
+    const string baseUrl          = "https://e416.dev/api3";
     string       checkingUid;
     dictionary   missing;
-    bool         requesting      = false;
-    bool         shouldPing      = true;
-    bool         shouldUseOldPbs = false;
+    bool         requesting       = false;
+    bool         shouldGetIndices = true;
+    bool         shouldPing       = true;
+    bool         shouldUseOldPbs  = false;
 
 [Setting hidden] bool   banned      = false;
 [Setting hidden] int64  savedExpiry = 0;
@@ -93,7 +94,12 @@ namespace API {
         for (uint i = 0; i < types.Length; i++) {
             Json::Value@ section = data.Get(types[i]);
 
-            if (types[i] == "next") {
+            if (types[i] == "indices") {
+                if (WarriorMedals::CheckJsonType(section, Json::Type::Object, "indices")) {
+                    @campaignIndices = section;
+                }
+
+            } else if (types[i] == "next") {
                 if (WarriorMedals::CheckJsonType(section, Json::Type::Number, "next")) {
                     nextWarriorRequest = int64(section);
                     trace("next request: " + Time::FormatString("%F %T", nextWarriorRequest));
@@ -132,7 +138,9 @@ namespace API {
             Nadeo::GetAllPbsNewAsync();
         }
 
-        GetCampaignIndicesAsync();
+        if (shouldGetIndices) {
+            GetCampaignIndicesAsync();
+        }
 
         for (uint i = 0; i < campaignsArr.Length; i++) {
             Campaign@ campaign = campaignsArr[i];
@@ -317,13 +325,7 @@ namespace API {
                             WarnOutdated();
                         }
 
-                        if (json.HasKey("shouldPing")) {
-                            shouldPing = bool(json["shouldPing"]);
-                        }
-
-                        if (json.HasKey("shouldUseOldPbs")) {
-                            shouldUseOldPbs = bool(json["shouldUseOldPbs"]);
-                        }
+                        ParseConfigs(json["config"]);
 
                         trace("existing token valid :)");
                         return;
@@ -401,6 +403,8 @@ namespace API {
                 WarnOutdated();
             }
 
+            ParseConfigs(json["config"]);
+
             if (token.valid) {
                 trace("got token 2");
             } else {
@@ -415,6 +419,29 @@ namespace API {
 
         token.getting = false;
         startnew(CoroutineFunc(token.WatchAsync));
+    }
+
+    void ParseConfigs(Json::Value@ config) {
+        if (config.GetType() == Json::Type::Object) {
+            uint count = 0;
+
+            if (config.HasKey("shouldGetIndices")) {
+                shouldGetIndices = bool(config["shouldGetIndices"]);
+                count++;
+            }
+
+            if (config.HasKey("shouldPing")) {
+                shouldPing = bool(config["shouldPing"]);
+                count++;
+            }
+
+            if (config.HasKey("shouldUseOldPbs")) {
+                shouldUseOldPbs = bool(config["shouldUseOldPbs"]);
+                count++;
+            }
+
+            trace("configs: " + count);
+        }
     }
 
     void PingAsync() {
