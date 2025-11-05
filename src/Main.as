@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-11-04
+// m 2025-11-05
 
 Campaign@[]         activeOtherCampaigns;
 Campaign@[]         activeSeasonalCampaigns;
@@ -74,6 +74,7 @@ void Main() {
 
     yield();
 
+    startnew(PingLoop);
     startnew(PBLoop);
     startnew(WaitForNextRequestAsync);
 
@@ -178,6 +179,16 @@ void PBLoop() {
                 SetTotals();
             }
         }
+    }
+}
+
+void PingLoop() {
+    const uint64 msPerHour = 1000*60*60;
+    while (true) {
+        if (API::shouldPing) {
+            API::PingAsync();
+        }
+        sleep(msPerHour);
     }
 }
 

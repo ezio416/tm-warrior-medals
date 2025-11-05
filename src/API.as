@@ -1,22 +1,23 @@
 // c 2024-07-18
-// m 2025-11-04
+// m 2025-11-05
 
 namespace API {
-    const string baseUrl     = "https://e416.dev/api3";
+    const string baseUrl         = "https://e416.dev/api3";
     string       checkingUid;
     dictionary   missing;
-    bool         requesting  = false;
-[Setting hidden]
-    bool         banned      = false;
-[Setting hidden]
-    int64        savedExpiry = 0;
-[Setting hidden]
-    string       savedToken;
-    bool         useOldPbs   = false;
+    bool         requesting      = false;
+    bool         shouldPing      = true;
+    bool         shouldUseOldPbs = false;
+
+[Setting hidden] bool   banned      = false;
+[Setting hidden] int64  savedExpiry = 0;
+[Setting hidden] string savedToken;
 
     enum ResponseCode {
+        Unknown         = 0,
         OK              = 200,
         NoContent       = 204,
+        BadRequest      = 400,
         Unauthorized    = 401,
         Forbidden       = 403,
         UpgradeRequired = 426,
@@ -316,12 +317,17 @@ namespace API {
                             WarnOutdated();
                         }
 
-                        if (json.HasKey("useOldPbs")) {
-                            useOldPbs = bool(json["useOldPbs"]);
+                        if (json.HasKey("shouldPing")) {
+                            shouldPing = bool(json["shouldPing"]);
+                        }
+
+                        if (json.HasKey("shouldUseOldPbs")) {
+                            shouldUseOldPbs = bool(json["shouldUseOldPbs"]);
                         }
 
                         trace("existing token valid :)");
                         return;
+
                     } catch { }
 
                 default:
@@ -411,6 +417,22 @@ namespace API {
         startnew(CoroutineFunc(token.WatchAsync));
     }
 
+    void PingAsync() {
+        if (true
+            and !banned
+            and shouldPing
+        ) {
+            const auto code = ResponseCode(GetEdevAsync("/tm/warrior/ping").ResponseCode());
+            switch (code) {
+                case ResponseCode::OK:
+                    break;
+
+                default:
+                    warn("can't reach edev | " + tostring(code));
+            }
+        }
+    }
+
     Net::HttpRequest@ PostAsync(const string&in url, const string&in body = "", const bool start = true, const string&in agent = "", const string&in auth = "") {
         requesting = true;
 
@@ -490,15 +512,14 @@ namespace API {
         const uint64 minimumWait  = 1000;
         bool         requesting   = false;
 
-[Setting hidden]
-        int64 lastPbRequest       = -1;
+[Setting hidden] int64 lastPbRequest = -1;
 
         void GetAllPbsNewAsync() {
             allPbsNew = true;
             const uint64 start = Time::Now;
             trace("getting all PBs...");
 
-            if (useOldPbs) {
+            if (shouldUseOldPbs) {
                 warn("using old PB system");
 
                 for (uint i = 0; i < campaignsArr.Length; i++) {
