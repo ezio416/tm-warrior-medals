@@ -333,6 +333,15 @@ void Settings_Debug() {
         UI::EndTabItem();
     }
 
+    if (UI::BeginTabItem("Configs")) {
+        UI::Text("nadeoAllPbsWait: "  + API::nadeoAllPbsWait);
+        UI::Text("shouldGetIndices: " + API::shouldGetIndices);
+        UI::Text("shouldPing: "       + API::shouldPing);
+        UI::Text("useOldPbs: "        + API::shouldUseOldPbs);
+
+        UI::EndTabItem();
+    }
+
     if (UI::BeginTabItem("Maps")) {
         string[]@ uids = maps.GetKeys();
 
@@ -545,8 +554,6 @@ void Settings_Debug() {
 
         UI::Text("last pb request: " + Time::FormatString("%F %T", API::Nadeo::lastPbRequest));
         // API::Nadeo::lastPbRequest = UI::InputInt("last pb request##input", API::Nadeo::lastPbRequest);
-
-        UI::Text("useOldPbs: " + API::shouldUseOldPbs);
 
         UI::EndTabItem();
     }

@@ -5,6 +5,7 @@ namespace API {
     const string baseUrl          = "https://e416.dev/api3";
     string       checkingUid;
     dictionary   missing;
+    int64        nadeoAllPbsWait  = 604800;  // 1 week
     bool         requesting       = false;
     bool         shouldGetIndices = true;
     bool         shouldPing       = true;
@@ -133,7 +134,7 @@ namespace API {
         if (false
             or pbsById.GetType() == Json::Type::Null
             or Nadeo::lastPbRequest == -1
-            or Time::Stamp - Nadeo::lastPbRequest > 86400 * 7
+            or Time::Stamp - Nadeo::lastPbRequest > nadeoAllPbsWait
         ) {
             Nadeo::GetAllPbsNewAsync();
         }
@@ -424,6 +425,11 @@ namespace API {
     void ParseConfigs(Json::Value@ config) {
         if (config.GetType() == Json::Type::Object) {
             uint count = 0;
+
+            if (config.HasKey("nadeoAllPbsWait")) {
+                nadeoAllPbsWait = int64(config["nadeoAllPbsWait"]);
+                count++;
+            }
 
             if (config.HasKey("shouldGetIndices")) {
                 shouldGetIndices = bool(config["shouldGetIndices"]);
