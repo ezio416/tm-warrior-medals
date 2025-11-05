@@ -535,12 +535,9 @@ namespace API {
     }
 
     namespace Nadeo {
-        string       allCampaignsProgress;
         bool         allPbsNew    = false;
-        bool         allWeekly    = false;
         const string audienceCore = "NadeoServices";
         const string audienceLive = "NadeoLiveServices";
-        bool         cancel       = false;
         uint64       lastRequest  = 0;
         const uint64 minimumWait  = 1000;
         bool         requesting   = false;
