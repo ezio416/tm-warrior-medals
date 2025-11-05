@@ -27,6 +27,150 @@ namespace API {
         InternalServer  = 500
     }
 
+    class Request {
+        protected bool _running = false;
+        protected bool _started = false;
+
+        string get_body() { return _req.Body; }
+        void set_body(const string&in b) { _req.Body = b; }
+
+        bool get_finished() {
+            if (!_started) {
+                throw("request not started");
+            }
+            return !_running;
+        }
+
+        protected dictionary _headers;
+        dictionary@ get_headers() { return _headers; }
+
+        Net::HttpMethod get_method() { return _req.Method; }
+        void set_method(const Net::HttpMethod m) { _req.Method = m; }
+
+        protected Net::HttpRequest@ _req = Net::HttpRequest();
+        Net::HttpRequest@ get_req() const {
+            return _req;
+        }
+
+        string get_url() { return _req.Url; }
+        void set_url(const string&in u) { _req.Url = u; }
+
+        Request(const string&in url, const Net::HttpMethod method, const string&in body = "") {
+            this.url = url;
+            this.method = method;
+            this.body = body;
+
+            string[]@ keys = _req.Headers.GetKeys();
+            for (uint i = 0; i < keys.Length; i++) {
+                headers[keys[i]] = string(_req.Headers[keys[i]]);
+            }
+        }
+
+        Request@ Cancel() {
+            if (_running) {
+                _req.Cancel();
+            }
+            return this;
+        }
+
+        protected ResponseCode _code = ResponseCode::Unknown;
+        ResponseCode Code() {
+            if (_code == ResponseCode::Unknown) {
+                _code = ResponseCode(_req.ResponseCode());
+            }
+            return _code;
+        }
+
+        protected Json::Value@ _json;
+        Json::Value@ Json() {
+            if (_json is null) {
+                @_json = _req.Json();
+            }
+            return _json;
+        }
+
+        Request@ Retry() {
+            _started = false;
+            _code = ResponseCode::Unknown;
+            @_json = null;
+            _string = "";
+
+            const Net::HttpMethod method = this.method;
+            @_req = Net::HttpRequest(url);
+            this.method = method;
+
+            string[]@ keys = headers.GetKeys();
+            for (uint i = 0; i < keys.Length; i++) {
+                _req.Headers[keys[i]] = headers[keys[i]];
+            }
+
+            return Cancel().Start();
+        }
+
+        Request@ SetHeader(const string&in key, const string&in value) {
+            headers[key] = value;
+            _req.Headers[key] = value;
+            return this;
+        }
+
+        Request@ Start() {
+            if (_started) {
+                return this;
+            }
+            _running = true;
+            _started = true;
+            awaitable@ start = _req.Start();
+            while (start.IsRunning()) {
+                yield();
+            }
+            _running = false;
+            return this;
+        }
+
+        protected string _string;
+        string String() {
+            if (_string.Length == 0) {
+                _string = _req.String();
+            }
+            return _string;
+        }
+    }
+
+    class EdevRequest : Request {
+        protected string _auth;
+        string get_auth() { return _auth; }
+
+        EdevRequest(const string&in endpoint, const Net::HttpMethod method, const string&in body = "") {
+            super("https://e416.dev/api3" + endpoint, method, body);
+
+            SetHeader("Authorization", "Bearer " + token);
+
+            string executing;
+            Meta::Plugin@ pluginExec = Meta::ExecutingPlugin();
+            if (pluginExec !is pluginMeta) {
+                executing = " (" + pluginExec.ID + " " + pluginExec.Version + ")";
+            }
+            CSystemPlatformScript@ SysPlat = GetApp().SystemPlatform;
+            SetHeader(
+                "User-Agent",
+                "Openplanet / Net::HttpRequest / " + pluginMeta.ID + " " + pluginMeta.Version + executing
+                    + " / " + SysPlat.ExtraTool_Info.Replace("Openplanet ", "") + " / " + SysPlat.ExeVersion
+            );
+        }
+    }
+
+    class NadeoCoreRequest : Request {
+        NadeoCoreRequest(const string&in endpoint, const Net::HttpMethod method) {
+            super(NadeoServices::BaseURLCore() + endpoint, method);
+        }
+    }
+
+    class NadeoLiveRequest : Request {
+        NadeoLiveRequest(const string&in endpoint, const Net::HttpMethod method) {
+            super(NadeoServices::BaseURLLive() + endpoint, method);
+        }
+    }
+
     string EdevAgent() {
         string executing;
         Meta::Plugin@ pluginExec = Meta::ExecutingPlugin();
