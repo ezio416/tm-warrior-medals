@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-11-05
+// m 2025-11-06
 
 Campaign@[]         activeOtherCampaigns;
 Campaign@[]         activeSeasonalCampaigns;
@@ -132,9 +132,9 @@ void Render() {
         return;
     }
 
+    MessagesWindow();
     MainWindowDetached();
     MedalWindow();
-    MessagesWindow();
 }
 
 void RenderEarly() {
