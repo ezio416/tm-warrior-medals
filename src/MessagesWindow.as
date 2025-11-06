@@ -1,5 +1,5 @@
 // c 2025-10-30
-// m 2025-10-31
+// m 2025-11-06
 
 string newMessage;
 string newSubject;
@@ -33,6 +33,7 @@ void MessagesWindow() {
             UI::EndDisabled();  // API::requesting
 
             UI::SameLine();
+            UI::BeginDisabled(unreadMessages == messages.Length);
             if (UI::Button(Icons::Envelope)) {
                 for (uint i = 0; i < messages.Length; i++) {
                     if (!messages[i].hidden) {
@@ -40,9 +41,11 @@ void MessagesWindow() {
                     }
                 }
             }
+            UI::EndDisabled();
             UI::SetTooltip("mark all unread");
 
             UI::SameLine();
+            UI::BeginDisabled(unreadMessages == 0);
             if (UI::Button(Icons::EnvelopeOpen)) {
                 for (uint i = 0; i < messages.Length; i++) {
                     if (!messages[i].hidden) {
@@ -50,6 +53,7 @@ void MessagesWindow() {
                     }
                 }
             }
+            UI::EndDisabled();
             UI::SetTooltip("mark all read");
 
             UI::Separator();
@@ -62,7 +66,15 @@ void MessagesWindow() {
                     continue;
                 }
 
-                if (UI::TreeNode((message.read ? "" : "* ") + message.subject + "\\$888 #" + message.id + "###message-tree" + message.id, UI::TreeNodeFlags::Framed)) {
+                bool unread = false;
+                if (message.unread) {
+                    unread = true;
+                    UI::PushStyleColor(UI::Col::Header,        vec4(colorWarriorVec,        1.0f));
+                    UI::PushStyleColor(UI::Col::HeaderActive,  vec4(colorWarriorVec * 0.8f, 1.0f));
+                    UI::PushStyleColor(UI::Col::HeaderHovered, vec4(colorWarriorVec * 1.2f, 1.0f));
+                }
+
+                if (UI::TreeNode(message.subject + "\\$888 #" + message.id + "###message-tree" + message.id, UI::TreeNodeFlags::Framed)) {
                     if (message.read) {
                         if (UI::Button(Icons::EnvelopeO + "##" + i)) {
                             message.Unread();
@@ -93,6 +105,10 @@ void MessagesWindow() {
                     UI::TextDisabled(Time::FormatString("%F %T", message.timestamp));
 
                     UI::TreePop();
+                }
+
+                if (unread) {
+                    UI::PopStyleColor(3);
                 }
             }
 
