@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-11-05
+// m 2025-11-06
 
 [Setting hidden category="Colors"]       vec3 S_ColorFall                  = vec3(1.0f, 0.5f, 0.0f);
 [Setting hidden category="Colors"]       vec3 S_ColorSpring                = vec3(0.3f, 0.9f, 0.3f);
@@ -14,6 +14,10 @@
 [Setting hidden category="Main Window"]  bool S_MainWindowHideWithOP       = true;
 [Setting hidden category="Main Window"]  bool S_MainWindowOldestFirst      = false;
 [Setting hidden category="Main Window"]  bool S_MainWindowPercentages      = true;
+[Setting hidden category="Main Window"]  bool S_MainWindowShowOther        = true;
+[Setting hidden category="Main Window"]  bool S_MainWindowShowSeasonal     = true;
+[Setting hidden category="Main Window"]  bool S_MainWindowShowTotd         = true;
+[Setting hidden category="Main Window"]  bool S_MainWindowShowWeekly       = true;
 [Setting hidden category="Main Window"]  bool S_MainWindowTextShadows      = true;
 [Setting hidden category="Main Window"]  bool S_MainWindowTmioLinks        = true;
 [Setting hidden category="Main Window"]  bool S_MainWindowTypeTotals       = true;
@@ -109,6 +113,26 @@ void Settings_General() {
     S_MainWindowTextShadows = UI::Checkbox(
         "Show text shadows",
         S_MainWindowTextShadows
+    );
+
+    S_MainWindowShowSeasonal = UI::Checkbox(
+        "Show 'Seasonal' tab",
+        S_MainWindowShowSeasonal
+    );
+
+    S_MainWindowShowWeekly = UI::Checkbox(
+        "Show 'Weekly Shorts' tab",
+        S_MainWindowShowWeekly
+    );
+
+    S_MainWindowShowTotd = UI::Checkbox(
+        "Show 'Track of the Day' tab",
+        S_MainWindowShowTotd
+    );
+
+    S_MainWindowShowOther = UI::Checkbox(
+        "Show 'Other' tab",
+        S_MainWindowShowOther
     );
 
     UI::Separator();

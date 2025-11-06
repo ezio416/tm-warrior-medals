@@ -1,5 +1,5 @@
 // c 2024-07-24
-// m 2025-10-31
+// m 2025-11-06
 
 void MainWindow(const bool detached = false) {
     switch (selectedMedal) {
@@ -77,10 +77,18 @@ void MainWindow(const bool detached = false) {
     }
 
     UI::BeginTabBar("##tab-bar");
-    Tab_Seasonal(detached);
-    Tab_Weekly(detached);
-    Tab_Totd(detached);
-    Tab_Other(detached);
+    if (S_MainWindowShowSeasonal) {
+        Tab_Seasonal(detached);
+    }
+    if (S_MainWindowShowWeekly) {
+        Tab_Weekly(detached);
+    }
+    if (S_MainWindowShowTotd) {
+        Tab_Totd(detached);
+    }
+    if (S_MainWindowShowOther) {
+        Tab_Other(detached);
+    }
     UI::EndTabBar();
 
     UI::PopStyleColor(6);
