@@ -41,7 +41,7 @@ void MessagesWindow() {
                     }
                 }
             }
-            UI::EndDisabled();
+            UI::EndDisabled();  // unreadMessages == messages.Length
             UI::SetTooltip("mark all unread");
 
             UI::SameLine();
@@ -53,7 +53,7 @@ void MessagesWindow() {
                     }
                 }
             }
-            UI::EndDisabled();
+            UI::EndDisabled();  // unreadMessages == 0
             UI::SetTooltip("mark all read");
 
             UI::Separator();
@@ -66,9 +66,8 @@ void MessagesWindow() {
                     continue;
                 }
 
-                bool unread = false;
-                if (message.unread) {
-                    unread = true;
+                const bool unread = message.unread;
+                if (unread) {
                     UI::PushStyleColor(UI::Col::Header,        vec4(colorWarriorVec,        1.0f));
                     UI::PushStyleColor(UI::Col::HeaderActive,  vec4(colorWarriorVec * 0.8f, 1.0f));
                     UI::PushStyleColor(UI::Col::HeaderHovered, vec4(colorWarriorVec * 1.2f, 1.0f));
