@@ -1,5 +1,5 @@
 // c 2024-07-21
-// m 2025-07-19
+// m 2025-10-29
 
 /*
 Exports from the Warrior Medals plugin.
@@ -18,7 +18,7 @@ namespace WarriorMedals {
 
     /*
     Simple function for checking if a given Json::Value@ is of the correct type.
-    Only shared to make the compiler happy.
+    Only shared because it's used by shared code.
     */
     shared bool CheckJsonType(Json::Value@ value, const Json::Type desired, const string&in name, const bool warning = true) {
         if (value is null) {
@@ -41,7 +41,7 @@ namespace WarriorMedals {
 
     /*
     Simple function to get a month's name from its number.
-    Only shared to make the compiler happy.
+    Only shared because it's used by shared code.
     */
     shared string MonthName(const uint num) {
         switch (num) {
@@ -62,7 +62,7 @@ namespace WarriorMedals {
 
     /*
     Simple function to format a string for Openplanet's format codes and trim the string.
-    Only shared to make the compiler happy.
+    Only shared because it's used by shared code.
     */
     shared string OpenplanetFormatCodes(const string&in s) {
         return Text::OpenplanetFormatCodes(s).Trim();
@@ -70,7 +70,7 @@ namespace WarriorMedals {
 
     /*
     Simple function to strip a string of format codes and trim the string.
-    Only shared to make the compiler happy.
+    Only shared because it's used by shared code.
     */
     shared string StripFormatCodes(const string&in s) {
         return Text::StripFormatCodes(s).Trim();
@@ -118,6 +118,10 @@ namespace WarriorMedals {
         private string _downloadUrl;
         string get_downloadUrl() { return _downloadUrl; }
         private void set_downloadUrl(const string&in d) { _downloadUrl = d; }
+
+        private Map@ _duplicate;
+        Map@ get_duplicate() const { return _duplicate; }
+        private void set_duplicate(Map@ d) { @_duplicate = d; }
 
         private uint _gold;
         uint get_gold() { return _gold; }
@@ -465,6 +469,16 @@ namespace WarriorMedals {
 
             while (!App.ManiaTitleControlScriptAPI.IsReady) {
                 yield();
+            }
+        }
+
+        void SetDuplicate(Map@ map) {
+            if (true
+                and map !is null
+                and duplicate is null
+            ) {
+                @duplicate = map;
+                map.SetDuplicate(this);
             }
         }
 

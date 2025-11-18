@@ -2,7 +2,7 @@
 name = "Warrior Medals"
 author = "Ezio"
 category = "Race"
-version = "1.9.0"
+version = "1.10.2"
 siteid = 590
 
 [script]

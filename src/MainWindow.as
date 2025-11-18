@@ -1,5 +1,5 @@
 // c 2024-07-24
-// m 2025-08-10
+// m 2025-11-06
 
 void MainWindow(const bool detached = false) {
     switch (selectedMedal) {
@@ -43,14 +43,14 @@ void MainWindow(const bool detached = false) {
         HoverTooltip("Open the Warrior Medals website");
 
         UI::SameLine();
-        UI::BeginDisabled(feedbackShown);
+        UI::BeginDisabled(showMessages);
         UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-        if (UI::Button(Shadow() + Icons::Envelope)) {
-            feedbackShown = true;
+        if (UI::Button(Shadow() + Icons::Envelope + (unreadMessages > 0 ? " (" + unreadMessages + ")" : ""))) {
+            showMessages = true;
         }
         UI::PopStyleColor();
         UI::EndDisabled();
-        HoverTooltip("Send feedback to the plugin author (Ezio)");
+        HoverTooltip("Open messages");
 
         UI::SameLine();
         UI::BeginDisabled(false
@@ -63,7 +63,7 @@ void MainWindow(const bool detached = false) {
         }
         UI::PopStyleColor();
         UI::EndDisabled();
-        HoverTooltip("Get maps, medals info, and PBs");
+        HoverTooltip("Get info on maps and medals");
 
         UI::EndTable();
     }
@@ -77,10 +77,18 @@ void MainWindow(const bool detached = false) {
     }
 
     UI::BeginTabBar("##tab-bar");
-    Tab_Seasonal(detached);
-    Tab_Weekly(detached);
-    Tab_Totd(detached);
-    Tab_Other(detached);
+    if (S_MainWindowShowSeasonal) {
+        Tab_Seasonal(detached);
+    }
+    if (S_MainWindowShowWeekly) {
+        Tab_Weekly(detached);
+    }
+    if (S_MainWindowShowTotd) {
+        Tab_Totd(detached);
+    }
+    if (S_MainWindowShowOther) {
+        Tab_Other(detached);
+    }
     UI::EndTabBar();
 
     UI::PopStyleColor(6);
@@ -102,7 +110,7 @@ void MainWindowDetached() {
     }
 
     if (UI::Begin(
-        pluginTitle,
+        pluginTitle + "\\$666 v" + pluginMeta.Version + "###main-" + pluginMeta.ID,
         S_MainWindowDetached,
         S_MainWindowAutoResize ? UI::WindowFlags::AlwaysAutoResize : UI::WindowFlags::None
     )) {

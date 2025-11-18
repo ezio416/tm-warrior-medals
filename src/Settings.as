@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-08-14
+// m 2025-11-06
 
 [Setting hidden category="Colors"]       vec3 S_ColorFall                  = vec3(1.0f, 0.5f, 0.0f);
 [Setting hidden category="Colors"]       vec3 S_ColorSpring                = vec3(0.3f, 0.9f, 0.3f);
@@ -14,6 +14,10 @@
 [Setting hidden category="Main Window"]  bool S_MainWindowHideWithOP       = true;
 [Setting hidden category="Main Window"]  bool S_MainWindowOldestFirst      = false;
 [Setting hidden category="Main Window"]  bool S_MainWindowPercentages      = true;
+[Setting hidden category="Main Window"]  bool S_MainWindowShowOther        = true;
+[Setting hidden category="Main Window"]  bool S_MainWindowShowSeasonal     = true;
+[Setting hidden category="Main Window"]  bool S_MainWindowShowTotd         = true;
+[Setting hidden category="Main Window"]  bool S_MainWindowShowWeekly       = true;
 [Setting hidden category="Main Window"]  bool S_MainWindowTextShadows      = true;
 [Setting hidden category="Main Window"]  bool S_MainWindowTmioLinks        = true;
 [Setting hidden category="Main Window"]  bool S_MainWindowTypeTotals       = true;
@@ -109,6 +113,26 @@ void Settings_General() {
     S_MainWindowTextShadows = UI::Checkbox(
         "Show text shadows",
         S_MainWindowTextShadows
+    );
+
+    S_MainWindowShowSeasonal = UI::Checkbox(
+        "Show 'Seasonal' tab",
+        S_MainWindowShowSeasonal
+    );
+
+    S_MainWindowShowWeekly = UI::Checkbox(
+        "Show 'Weekly Shorts' tab",
+        S_MainWindowShowWeekly
+    );
+
+    S_MainWindowShowTotd = UI::Checkbox(
+        "Show 'Track of the Day' tab",
+        S_MainWindowShowTotd
+    );
+
+    S_MainWindowShowOther = UI::Checkbox(
+        "Show 'Other' tab",
+        S_MainWindowShowOther
     );
 
     UI::Separator();
@@ -333,6 +357,15 @@ void Settings_Debug() {
         UI::EndTabItem();
     }
 
+    if (UI::BeginTabItem("Configs")) {
+        UI::Text("nadeoAllPbsWait: "  + API::nadeoAllPbsWait);
+        UI::Text("shouldGetIndices: " + API::shouldGetIndices);
+        UI::Text("shouldPing: "       + API::shouldPing);
+        UI::Text("useOldPbs: "        + API::shouldUseOldPbs);
+
+        UI::EndTabItem();
+    }
+
     if (UI::BeginTabItem("Maps")) {
         string[]@ uids = maps.GetKeys();
 
@@ -408,9 +441,132 @@ void Settings_Debug() {
         UI::EndTabItem();
     }
 
+    if (UI::BeginTabItem("Messages")) {
+        // if (UI::Button(Icons::PaperPlane + " send example")) {
+        //     Json::Value@ json = Json::Object();
+        //     json["message"] = "test message";
+        //     json["subject"] = "test subject";
+        //     Message(json).Send();
+        // }
+
+        if (UI::TreeNode("hidden", UI::TreeNodeFlags::Framed)) {
+            string hidden;
+            for (uint i = 0; i < hiddenMessages.Length; i++) {
+                hidden += tostring(hiddenMessages[i]);
+                if (i < hiddenMessages.Length - 1) {
+                    hidden += ",";
+                }
+            }
+            UI::Text("hiddenMessages: ["  + hidden + "]");
+            UI::Text("unhiddenMessages: " + unhiddenMessages);
+
+            UI::BeginDisabled(hiddenMessages.Length == 0);
+            if (UI::Button(Icons::TrashO + " clear hidden")) {
+                hiddenMessages = {};
+                for (uint i = 0; i < messages.Length; i++) {
+                    messages[i].Show();
+                }
+            }
+            UI::EndDisabled();
+
+            UI::Separator();
+
+            for (uint i = 0; i < messages.Length; i++) {
+                Message@ message = messages[i];
+                if (message.hidden) {
+                    UI::BeginGroup();
+                    UI::Text(message.subject);
+                    UI::Text(message.message);
+                    UI::Text(tostring(message.timestamp));
+                    UI::EndGroup();
+                    UI::SameLine();
+                    if (UI::Button(Icons::Eye + "##" + i)) {
+                        message.Show();
+                    }
+                    UI::SetTooltip("show");
+
+                    UI::Separator();
+                }
+            }
+
+            UI::TreePop();
+        }
+
+        if (UI::TreeNode("read", UI::TreeNodeFlags::Framed)) {
+            string read;
+            for (uint i = 0; i < readMessages.Length; i++) {
+                read += tostring(readMessages[i]);
+                if (i < readMessages.Length - 1) {
+                    read += ",";
+                }
+            }
+            UI::Text("readMessages: ["    + read + "]");
+            UI::Text("unreadMessages: "   + unreadMessages);
+
+            UI::BeginDisabled(readMessages.Length == 0);
+            if (UI::Button(Icons::TrashO + " clear read")) {
+                readMessages = {};
+                for (uint i = 0; i < messages.Length; i++) {
+                    messages[i].Unread();
+                }
+            }
+            UI::EndDisabled();
+
+            UI::TreePop();
+        }
+
+        UI::EndTabItem();
+    }
+
+    if (UI::BeginTabItem("PBs")) {
+        if (UI::Button(Icons::Download + " Get All PBs")) {
+            startnew(API::Nadeo::GetAllPbsNewAsync);
+        }
+        UI::SetTooltip("you should never need to use this");
+
+        UI::TextWrapped(Json::Write(pbsById, true));
+
+        UI::EndTabItem();
+    }
+
+    if (UI::BeginTabItem("Token")) {
+        UI::Text("length: " + token.token.Length);
+
+        UI::Text("valid: " + tostring(token.valid));
+
+        string expiry = "expiry: ";
+        if (token.expiry > 0) {
+            expiry += Time::FormatString("%F %T", token.expiry) + " (";
+            const int64 delta = token.expiry - Time::Stamp;
+            if (delta > 0) {
+                expiry += "in " + Time::Format(delta * 1000, false);
+            } else {
+                expiry += Time::Format(delta * -1000, false) + " ago";
+            }
+            expiry += ")";
+        } else {
+            expiry += "none";
+        }
+        UI::Text(expiry);
+
+        if (UI::Button(Icons::Refresh + " check")) {
+            startnew(API::GetTokenAsync);
+        }
+
+        // UI::BeginDisabled(!token.valid);
+        // if (UI::Button(Icons::TrashO + " clear")) {
+        //     token.Clear();
+        // }
+        // UI::EndDisabled();
+
+        UI::EndTabItem();
+    }
+
     if (UI::BeginTabItem("Other")) {
         UI::Text("previous totd: " + (previousTotd !is null ? previousTotd.date : "null"));
+
         UI::Text("latest totd: " + (latestTotd !is null ? latestTotd.date : "null"));
+
         string next = "next request: " + Time::FormatString("%F %T", nextWarriorRequest) + " (";
         const int64 delta = nextWarriorRequest - Time::Stamp;
         if (delta > 0) {
@@ -419,6 +575,9 @@ void Settings_Debug() {
             next += Time::Format(delta * -1000, false) + " ago";
         }
         UI::Text(next + ")");
+
+        UI::Text("last pb request: " + Time::FormatString("%F %T", API::Nadeo::lastPbRequest));
+        // API::Nadeo::lastPbRequest = UI::InputInt("last pb request##input", API::Nadeo::lastPbRequest);
 
         UI::EndTabItem();
     }

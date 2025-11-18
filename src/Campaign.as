@@ -1,5 +1,5 @@
 // c 2024-07-22
-// m 2025-07-26
+// m 2025-11-04
 
 class Campaign {
     int                         clubId     = -1;
@@ -22,21 +22,19 @@ class Campaign {
     uint                        year;
 
     uint get_countWarrior() {
-        uint _count = 0;
+        uint count = 0;
 
         for (uint i = 0; i < mapsArr.Length; i++) {
             WarriorMedals::Map@ map = mapsArr[i];
-            if (false
-                or map is null
-                or !map.hasWarrior
+            if (true
+                and map !is null
+                and map.hasWarrior
             ) {
-                continue;
+                count++;
             }
-
-            _count++;
         }
 
-        return _count;
+        return count;
     }
 
     bool get_official() {
@@ -187,6 +185,9 @@ class Campaign {
             WarriorMedals::Map@ map = GetMap(uid);
             if (map !is null) {
                 map.SetPBFromAPI(map_api);
+                if (int(map.pb) > 0) {
+                    pbsById[map.id] = map.pb;
+                }
             }
         }
 
@@ -222,6 +223,21 @@ void BuildCampaigns() {
         auto map = cast<WarriorMedals::Map>(maps[uids[i]]);
         if (map is null) {
             continue;
+        }
+
+        WarriorMedals::Map@ duplicate = map.duplicate;
+        if (duplicate !is null) {
+            // warn("adding duplicate to campaign: " + duplicate.nameStripped);
+
+            Campaign@ campaign = GetCampaign(CampaignUid(duplicate.campaignName, duplicate.clubName));
+            if (campaign !is null) {
+                campaign.AddMap(duplicate);
+            } else {
+                @campaign = Campaign(duplicate);
+                campaign.AddMap(duplicate);
+                campaigns[campaign.uid] = @campaign;
+                campaignsArr.InsertLast(@campaign);
+            }
         }
 
         Campaign@ campaign = GetCampaign(CampaignUid(map.campaignName, map.clubName));

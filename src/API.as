@@ -1,11 +1,31 @@
 // c 2024-07-18
-// m 2025-08-10
+// m 2025-11-05
 
 namespace API {
-    const string baseUrl    = "https://e416.dev/api2";
+    const string baseUrl          = "https://e416.dev/api3";
     string       checkingUid;
     dictionary   missing;
-    bool         requesting = false;
+    int64        nadeoAllPbsWait  = 604800;  // 1 week
+    bool         requesting       = false;
+    bool         shouldGetIndices = true;
+    bool         shouldPing       = true;
+    bool         shouldUseOldPbs  = false;
+
+[Setting hidden] bool   banned      = false;
+[Setting hidden] int64  savedExpiry = 0;
+[Setting hidden] string savedToken;
+
+    enum ResponseCode {
+        Unknown         = 0,
+        OK              = 200,
+        NoContent       = 204,
+        BadRequest      = 400,
+        Unauthorized    = 401,
+        Forbidden       = 403,
+        UpgradeRequired = 426,
+        TooManyRequests = 429,
+        InternalServer  = 500
+    }
 
     string EdevAgent() {
         string executing;
@@ -15,10 +35,11 @@ namespace API {
         }
 
         CSystemPlatformScript@ SysPlat = GetApp().SystemPlatform;
-        return reqAgentStart + executing + " / " + SysPlat.ExtraTool_Info.Replace("Openplanet ", "") + " / " + SysPlat.ExeVersion;
+        return "Openplanet / Net::HttpRequest / " + pluginMeta.ID + " " + pluginMeta.Version + executing
+            + " / " + SysPlat.ExtraTool_Info.Replace("Openplanet ", "") + " / " + SysPlat.ExeVersion;
     }
 
-    Net::HttpRequest@ GetAsync(const string&in url, const bool start = true, const string&in agent = "") {
+    Net::HttpRequest@ GetAsync(const string&in url, const bool start = true, const string&in agent = "", const string&in auth = "") {
         requesting = true;
 
         Net::HttpRequest@ req = Net::HttpRequest();
@@ -26,6 +47,9 @@ namespace API {
         req.Url = url;
         if (agent.Length > 0) {
             req.Headers["User-Agent"] = agent;
+        }
+        if (auth.Length > 0) {
+            req.Headers["Authorization"] = "Bearer " + auth;
         }
 
         if (start) {
@@ -44,43 +68,17 @@ namespace API {
             yield();
         }
 
-        return GetAsync(baseUrl + endpoint, start, EdevAgent());
-    }
-
-    void CheckVersionAsync() {
-        Net::HttpRequest@ req = GetEdevAsync("/tm/warrior/plugin-version");
-
-        const int code = req.ResponseCode();
-        switch (code) {
-            case 200:
-                break;
-
-            case 403:
-                warn("You've been denied access to the plugin. If you believe this is an error, contact Ezio on Discord.");
-                break;
-
-            case 426: {
-                const string msg = "Please update through the Plugin Manager at the top. Your plugin version will soon be unsupported!";
-                warn(msg);
-                UI::ShowNotification(pluginTitle, msg, vec4(colorWarriorVec * 0.5f, 1.0f), 10000);
-                break;
-            }
-
-            default:
-                warn("something went wrong checking the plugin version: " + code + " " + req.String());
-        }
+        return GetAsync(baseUrl + endpoint, start, EdevAgent(), token.token);
     }
 
     void GetAllMapInfosAsync() {
-        startnew(TryGetCampaignIndicesAsync);
-
         const uint64 start = Time::Now;
         trace("getting all map infos");
 
         Net::HttpRequest@ req = GetEdevAsync("/tm/warrior/all");
 
         const int respCode = req.ResponseCode();
-        if (respCode != 200) {
+        if (respCode != ResponseCode::OK) {
             error("getting all map infos failed after " + (Time::Now - start) + "ms: code: " + respCode + " | msg: " + req.String().Replace("\n", " "));
             return;
         }
@@ -93,18 +91,21 @@ namespace API {
 
         yield();
 
-        bool gotNext = false;
-
         string[]@ types = data.GetKeys();
         for (uint i = 0; i < types.Length; i++) {
             Json::Value@ section = data.Get(types[i]);
 
-            if (types[i] == "next") {  // future proofing, plan to change backend later
+            if (types[i] == "indices") {
+                if (WarriorMedals::CheckJsonType(section, Json::Type::Object, "indices")) {
+                    @campaignIndices = section;
+                }
+
+            } else if (types[i] == "next") {
                 if (WarriorMedals::CheckJsonType(section, Json::Type::Number, "next")) {
                     nextWarriorRequest = int64(section);
                     trace("next request: " + Time::FormatString("%F %T", nextWarriorRequest));
-                    gotNext = true;
                 }
+
             } else {
                 if (!WarriorMedals::CheckJsonType(section, Json::Type::Array, "section-" + i)) {
                     error("getting all map infos failed after " + (Time::Now - start) + "ms");
@@ -113,28 +114,47 @@ namespace API {
 
                 for (uint j = 0; j < section.Length; j++) {
                     auto map = WarriorMedals::Map(section[j], types[i]);
-                    maps[map.uid] = @map;
-                    mapsById[map.id] = @map;
+                    if (maps.Exists(map.uid)) {
+                        auto existing = cast<WarriorMedals::Map>(maps[map.uid]);
+                        existing.SetDuplicate(map);
+                    } else {
+                        maps[map.uid] = @map;
+                        mapsById[map.id] = @map;
+                    }
                 }
             }
 
             yield();
         }
 
-        if (!gotNext) {
-            trace("didn't find next request time, getting now...");
-
-            try {
-                nextWarriorRequest = int64(GetEdevAsync("/tm/warrior/next").Json()[0]);
-                trace("next request: " + Time::FormatString("%F %T", nextWarriorRequest));
-            } catch {
-                error("getting next request time failed");
-            }
-        }
-
         trace("got all map infos after " + (Time::Now - start) + "ms");
 
-        Nadeo::GetAllPbsNewAsync();
+        ReadPBs();
+
+        if (false
+            or pbsById.GetType() == Json::Type::Null
+            or Nadeo::lastPbRequest == -1
+            or Time::Stamp - Nadeo::lastPbRequest > nadeoAllPbsWait
+        ) {
+            Nadeo::GetAllPbsNewAsync();
+        }
+
+        if (shouldGetIndices) {
+            GetCampaignIndicesAsync();
+        }
+
+        for (uint i = 0; i < campaignsArr.Length; i++) {
+            Campaign@ campaign = campaignsArr[i];
+            if (false
+                or campaign is null
+                or campaign.type != WarriorMedals::CampaignType::Other
+            ) {
+                continue;
+            }
+
+            campaign.SetOtherCampaignIndex();
+        }
+
         BuildCampaigns();
     }
 
@@ -145,7 +165,7 @@ namespace API {
         Net::HttpRequest@ req = GetEdevAsync("/tm/warrior/campaign-indices");
 
         const int respCode = req.ResponseCode();
-        if (respCode != 200) {
+        if (respCode != ResponseCode::OK) {
             error("getting campaign indices failed after " + (Time::Now - start) + "ms: code: " + respCode + " | msg: " + req.String().Replace("\n", " "));
             return false;
         }
@@ -199,14 +219,10 @@ namespace API {
 
         const int respCode = req.ResponseCode();
         switch (respCode) {
-            case 200:
+            case ResponseCode::OK:
                 break;
 
-            case 403:
-                warn("You've been denied access to the plugin. If you believe this is an error, contact Ezio on Discord.");
-                return;
-
-            case 429:
+            case ResponseCode::TooManyRequests:
                 error("getting map info for " + uid + " failed after " + (Time::Now - start) + "ms: too many requests");
                 checkingUid = "";
                 return;
@@ -235,7 +251,222 @@ namespace API {
         checkingUid = "";
     }
 
-    Net::HttpRequest@ PostAsync(const string&in url, const string&in body = "", const bool start = true, const string&in agent = "") {
+    void GetMessagesAsync() {
+        Net::HttpRequest@ req = GetEdevAsync("/tm/warrior/message");
+
+        const ResponseCode code = ResponseCode(req.ResponseCode());
+        switch (code) {
+            case ResponseCode::OK:
+                messages = {};
+                try {
+                    Json::Value@ json = req.Json();
+                    unhiddenMessages = json.Length;
+                    unreadMessages = json.Length;
+
+                    for (uint i = 0; i < json.Length; i++) {
+                        auto message = Message(json[i]);
+
+                        if (hiddenMessages.Find(message.id) > -1) {
+                            message.hidden = true;
+                            unhiddenMessages--;
+                        }
+
+                        if (readMessages.Find(message.id) > -1) {
+                            message.read = true;
+                            unreadMessages--;
+                        }
+
+                        messages.InsertLast(@message);
+                    }
+
+                    if (messages.Length > 1) {
+                        messages.Sort(function(a, b) { return a.id > b.id; });
+                    }
+
+                    for (int i = messages.Length - 1; i >= 0; i--) {
+                        if (true
+                            and messages[i].notice
+                            and messages[i].unread
+                        ) {
+                            messages[i].Notify();
+                        }
+                    }
+
+                } catch {
+                    error("error parsing messages: " + getExceptionInfo());
+                }
+
+                break;
+
+            default:
+                error("error getting messages (" + tostring(code) + "): " + req.String());
+        }
+    }
+
+    void GetTokenAsync() {
+        if (token.getting) {
+            return;
+        }
+        token.getting = true;
+
+        if (token.valid) {
+            trace("using existing token...");
+
+            Net::HttpRequest@ req = GetEdevAsync("/tm/warrior/auth");
+
+            const ResponseCode code = ResponseCode(req.ResponseCode());
+            switch (code) {
+                case ResponseCode::OK:
+                    token.getting = false;
+                    try {
+                        Json::Value@ json = req.Json();
+                        token.expiry = int64(json["expiry"]);
+
+                        if (bool(json["outdated"])) {
+                            WarnOutdated();
+                        }
+
+                        ParseConfigs(json["config"]);
+
+                        trace("existing token valid :)");
+                        return;
+
+                    } catch { }
+
+                default:
+                    token.Clear();
+                    trace("existing token invalid (" + tostring(code) + ")");
+            }
+        }
+
+        trace("getting token 1...");
+
+        Auth::PluginAuthTask@ tokenTask = Auth::GetToken();
+        while (!tokenTask.Finished()) {
+            yield();
+        }
+
+        if (!tokenTask.IsSuccess()) {
+            error("error getting token 1: " + tokenTask.Error());
+            token.getting = false;
+            return;
+        }
+
+        token.token = tokenTask.Token();
+
+        trace("got token 1, getting token 2...");
+
+        const uint64 start = Time::Now;
+        Net::HttpRequest@ req = PostEdevAsync("/tm/warrior/auth", "", false);
+        req.Start();
+        while (!req.Finished()) {
+            yield();
+
+            if (Time::Now - start > 10000) {
+                error("error getting token 2: timed out");
+                req.Cancel();
+                requesting = false;
+                token.getting = false;
+                return;
+            }
+        }
+
+        requesting = false;
+
+        const ResponseCode code = ResponseCode(req.ResponseCode());
+        switch (code) {
+            case ResponseCode::OK:
+                banned = false;
+                break;
+
+            case ResponseCode::Forbidden:
+                error("You've been denied access to the plugin. If you believe this is an error, contact Ezio on Discord.");
+                token.getting = false;
+                banned = true;
+                return;
+
+            default:
+                error(
+                    "error getting token 2: " + tostring(code)
+                    + " | " + req.String().Replace("\n", "\\n")
+                );
+                token.getting = false;
+                banned = false;
+                return;
+        }
+
+        try {
+            Json::Value@ json = req.Json();
+            token.token = string(json["token"]);
+            token.expiry = int64(json["expiry"]);
+
+            if (bool(json["outdated"])) {
+                WarnOutdated();
+            }
+
+            ParseConfigs(json["config"]);
+
+            if (token.valid) {
+                trace("got token 2");
+            } else {
+                error("error getting token 2: unknown");
+                token.Clear();
+            }
+
+        } catch {
+            error("error parsing token 2: " + getExceptionInfo());
+            token.Clear();
+        }
+
+        token.getting = false;
+        startnew(CoroutineFunc(token.WatchAsync));
+    }
+
+    void ParseConfigs(Json::Value@ config) {
+        if (config.GetType() == Json::Type::Object) {
+            uint count = 0;
+
+            if (config.HasKey("nadeoAllPbsWait")) {
+                nadeoAllPbsWait = int64(config["nadeoAllPbsWait"]);
+                count++;
+            }
+
+            if (config.HasKey("shouldGetIndices")) {
+                shouldGetIndices = bool(config["shouldGetIndices"]);
+                count++;
+            }
+
+            if (config.HasKey("shouldPing")) {
+                shouldPing = bool(config["shouldPing"]);
+                count++;
+            }
+
+            if (config.HasKey("shouldUseOldPbs")) {
+                shouldUseOldPbs = bool(config["shouldUseOldPbs"]);
+                count++;
+            }
+
+            trace("configs: " + count);
+        }
+    }
+
+    void PingAsync() {
+        if (true
+            and !banned
+            and shouldPing
+        ) {
+            const auto code = ResponseCode(GetEdevAsync("/tm/warrior/ping").ResponseCode());
+            switch (code) {
+                case ResponseCode::OK:
+                    break;
+
+                default:
+                    warn("can't reach edev | " + tostring(code));
+            }
+        }
+    }
+
+    Net::HttpRequest@ PostAsync(const string&in url, const string&in body = "", const bool start = true, const string&in agent = "", const string&in auth = "") {
         requesting = true;
 
         Net::HttpRequest@ req = Net::HttpRequest();
@@ -245,6 +476,9 @@ namespace API {
         req.Headers["Content-Type"] = "application/json";
         if (agent.Length > 0) {
             req.Headers["User-Agent"] = agent;
+        }
+        if (auth.Length > 0) {
+            req.Headers["Authorization"] = "Bearer " + auth;
         }
 
         if (start) {
@@ -263,101 +497,78 @@ namespace API {
             yield();
         }
 
-        return PostAsync(baseUrl + endpoint, body, start, EdevAgent());
+        return PostAsync(baseUrl + endpoint, body, start, EdevAgent(), token.token);
     }
 
-    bool SendFeedbackAsync(const string&in subject, const string&in message, const bool anonymous = false) {
-        if (false
-            or subject.Length > 1000
-            or message.Length > 10000
-        ) {
-            warn("shorten your subject or message.");
-            return false;
+    void SendMessageAsync(Message@ message) {
+        if (message is null) {
+            warn("null message");
+            return;
         }
 
-        Json::Value@ body = Json::Object();
-        body["subject"] = subject;
-        body["message"] = message;
-
-        if (InMap()) {
-            body["mapUid"] = GetApp().RootMap.EdChallengeId;
+        if (message.big) {
+            warn("shorten your subject or message");
+            return;
         }
 
-        auto App = cast<CTrackMania>(GetApp());
-        if (true
-            and !anonymous
-            and App.LocalPlayerInfo !is null
-        ) {
-            body["accountId"] = App.LocalPlayerInfo.WebServicesUserId;
-        }
+        Net::HttpRequest@ req = PostEdevAsync("/tm/warrior/message", tostring(message.GetMap()));
 
-        Net::HttpRequest@ req = PostEdevAsync("/tm/warrior/feedback", Json::Write(body));
-
-        const int code = req.ResponseCode();
+        const ResponseCode code = ResponseCode(req.ResponseCode());
         switch (code) {
-            case 200:
-                print(Icons::InfoCircle + " sent: " + req.Body);
-                return true;
-
-            case 403:
-                warn("You've been denied access to the plugin. If you believe this is an error, contact Ezio on Discord.");
-                return false;
-
-            case 429: {
-                const string msg = "You've sent enough feedback for today.";
-                warn(msg);
-                UI::ShowNotification(pluginTitle, msg, vec4(1.0f, 0.6f, 0.0f, 0.8f));
-                feedbackLocked = true;
-                return false;
-            }
+            case ResponseCode::OK:
+            case ResponseCode::NoContent:
+                trace("sent message: " + newSubject + " | " + newMessage);
+                UI::ShowNotification(pluginTitle + " - sent message", newSubject + " | " + newMessage);
+                newMessage = "";
+                newSubject = "";
+                break;
 
             default:
-                warn(Icons::ExclamationTriangle + " failed (" + code + "), can't send: " + Json::Write(body));
+                error("failed to send message (" + tostring(code) + "): " + req.String());
                 warn(req.String());
                 UI::ShowNotification(pluginTitle, "Something went wrong, check the log!", vec4(1.0f, 0.3f, 0.0f, 0.8f));
-                return false;
         }
     }
 
-    void TryGetCampaignIndicesAsync() {
-        while (true) {
-            if (GetCampaignIndicesAsync()) {
-                break;
-            }
-
-            sleep(5000);
-        }
-
-        for (uint i = 0; i < campaignsArr.Length; i++) {
-            Campaign@ campaign = campaignsArr[i];
-            if (false
-                or campaign is null
-                or campaign.type != WarriorMedals::CampaignType::Other
-            ) {
-                continue;
-            }
-
-            campaign.SetOtherCampaignIndex();
-        }
-
-        SortCampaigns();
+    void SendMessageAsync(ref@ m) {
+        SendMessageAsync(cast<Message>(m));
     }
 
     namespace Nadeo {
-        string       allCampaignsProgress;
         bool         allPbsNew    = false;
-        bool         allWeekly    = false;
         const string audienceCore = "NadeoServices";
         const string audienceLive = "NadeoLiveServices";
-        bool         cancel       = false;
         uint64       lastRequest  = 0;
         const uint64 minimumWait  = 1000;
         bool         requesting   = false;
+
+[Setting hidden] int64 lastPbRequest = -1;
 
         void GetAllPbsNewAsync() {
             allPbsNew = true;
             const uint64 start = Time::Now;
             trace("getting all PBs...");
+
+            if (shouldUseOldPbs) {
+                warn("using old PB system");
+
+                for (uint i = 0; i < campaignsArr.Length; i++) {
+                    campaignsArr[i].GetPBsAsync();
+                }
+
+                try {
+                    Json::ToFile(IO::FromStorageFolder("pbs2.json"), pbsById, true);
+                } catch {
+                    error("error writing all PBs to file: " + getExceptionInfo());
+                }
+
+                trace("got all PBs (" + pbsById.Length + ") after " + (Time::Now - start) + "ms");
+
+                allPbsNew = false;
+                lastPbRequest = Time::Stamp;
+
+                return;
+            }
 
             uint offset = 0;
             Json::Value@ pbs = Json::Object();
@@ -369,7 +580,7 @@ namespace API {
                 @req = GetCoreAsync("/v2/accounts/" + GetApp().LocalPlayerInfo.WebServicesUserId + "/mapRecords/?offset=" + offset);
 
                 const int respCode = req.ResponseCode();
-                if (respCode != 200) {
+                if (respCode != ResponseCode::OK) {
                     error("getting all PBs (offset " + offset + ") failed after " + (Time::Now - start) + "ms: code: " + respCode + " | msg: " + req.String().Replace("\n", " "));
                     continue;
                 }
@@ -407,6 +618,9 @@ namespace API {
                 offset += 1000;
             }
 
+            @pbsById = Json::Value();
+            pbsById = pbs;
+
             try {
                 Json::ToFile(IO::FromStorageFolder("pbs2.json"), pbs, true);
             } catch {
@@ -416,6 +630,7 @@ namespace API {
             trace("got all PBs (" + pbs.Length + ") after " + (Time::Now - start) + "ms");
 
             allPbsNew = false;
+            lastPbRequest = Time::Stamp;
         }
 
         Net::HttpRequest@ GetAsync(const string&in audience, const string&in url, const bool start = true) {
@@ -485,13 +700,11 @@ namespace API {
         }
 
         void WaitAsync() {
-            uint64 now;
-
-            while ((now = Time::Now) - lastRequest < minimumWait) {
-                yield();
+            const uint64 now = Time::Now;
+            if (now - lastRequest < minimumWait) {
+                sleep(lastRequest + minimumWait - now);
             }
-
-            lastRequest = now;
+            lastRequest = Time::Now;
         }
     }
 }

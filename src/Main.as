@@ -1,5 +1,5 @@
 // c 2024-07-17
-// m 2025-08-10
+// m 2025-11-06
 
 Campaign@[]         activeOtherCampaigns;
 Campaign@[]         activeSeasonalCampaigns;
@@ -11,6 +11,7 @@ Campaign@[]         campaignsArr;
 Campaign@[]         campaignsArrRev;
 const vec3          colorWarriorVec          = vec3(0.18f, 0.58f, 0.8f);
 const bool          hasPlayPermission        = Permissions::PlayLocalMap();
+int[]               hiddenMessages;
 UI::Texture@        iconWarrior32;
 UI::Texture@        iconWarrior512;
 nvg::Texture@       iconWarriorNvg;
@@ -18,16 +19,19 @@ WarriorMedals::Map@ latestTotd;
 bool                loading                  = false;
 dictionary          maps;
 dictionary          mapsById;
+Message@[]          messages;
 int64               nextWarriorRequest       = 0;
+Json::Value@        pbsById                  = Json::Value();
 const string        pluginColor              = "\\$38C";
 const string        pluginIcon               = Icons::Circle;
 Meta::Plugin@       pluginMeta               = Meta::ExecutingPlugin();
 const string        pluginTitle              = pluginColor + pluginIcon + "\\$G " + pluginMeta.Name;
 WarriorMedals::Map@ previousTotd;
-const string        reqAgentStart            = "Openplanet / Net::HttpRequest / " + pluginMeta.ID + " " + pluginMeta.Version;
+int[]               readMessages;
 vec3[]              seasonColors;
 Medal               selectedMedal            = Medal::Warrior;
 bool                settingTotals            = false;
+Token               token;
 uint                total                    = 0;
 uint                totalWarriorHave         = 0;
 uint                totalWarriorOther        = 0;
@@ -39,25 +43,38 @@ uint                totalWarriorTotdHave     = 0;
 uint                totalWarriorWeekly       = 0;
 uint                totalWarriorWeeklyHave   = 0;
 const string        uidSeparator             = "|warrior-campaign|";
+uint                unhiddenMessages         = 0;
+uint                unreadMessages           = 0;
 
 enum Medal {
     Warrior
 }
 
 void Main() {
-    startnew(API::CheckVersionAsync);
+    if (API::savedExpiry > 0) {
+        token.expiry = API::savedExpiry;
+    }
+    if (API::savedToken.Length > 0) {
+        token.token = API::savedToken;
+    }
 
-    OnSettingsChanged();
-    startnew(API::GetAllMapInfosAsync);
+    ReadMessageFile("hidden");
+    ReadMessageFile("read");
+
     WarriorMedals::GetIcon32();
-
-    yield();
-
     IO::FileSource file("assets/warrior_512.png");
     @iconWarriorNvg = nvg::LoadTexture(file.Read(file.Size()));
 
     yield();
 
+    API::GetTokenAsync();
+
+    OnSettingsChanged();
+    startnew(API::GetAllMapInfosAsync);
+
+    yield();
+
+    startnew(PingLoop);
     startnew(PBLoop);
     startnew(WaitForNextRequestAsync);
 
@@ -65,6 +82,8 @@ void Main() {
     trace("registering UME medal");
     UltimateMedalsExtended::AddMedal(UME_Warrior());
 #endif
+
+    API::GetMessagesAsync();
 
     bool inMap = InMap();
     bool wasInMap = false;
@@ -90,6 +109,15 @@ void OnDestroyed() {
 #endif
 }
 
+void OnEnabled() {
+    if (API::savedExpiry > 0) {
+        token.expiry = API::savedExpiry;
+    }
+    if (API::savedToken.Length > 0) {
+        token.token = API::savedToken;
+    }
+}
+
 void OnSettingsChanged() {
     seasonColors = {
         S_ColorWinter,
@@ -104,9 +132,9 @@ void Render() {
         return;
     }
 
+    MessagesWindow();
     MainWindowDetached();
     MedalWindow();
-    FeedbackWindow();
 }
 
 void RenderEarly() {
@@ -154,6 +182,69 @@ void PBLoop() {
     }
 }
 
+void PingLoop() {
+    const uint64 msPerHour = 1000*60*60;
+    while (true) {
+        if (API::shouldPing) {
+            API::PingAsync();
+        }
+        sleep(msPerHour);
+    }
+}
+
+void ReadMessageFile(const string&in name) {
+    const string path = IO::FromStorageFolder(name + ".json");
+    trace("reading " + path);
+    Json::Value@ file = Json::FromFile(path);
+    if (file.GetType() == Json::Type::Array) {
+        if (name == "hidden") {
+            hiddenMessages = {};
+        } else if (name == "read") {
+            readMessages = {};
+        }
+
+        for (uint i = 0; i < file.Length; i++) {
+            if (name == "hidden") {
+                hiddenMessages.InsertLast(int(file[i]));
+            } else if (name == "read") {
+                readMessages.InsertLast(int(file[i]));
+            }
+        }
+    }
+}
+
+void ReadPBs() {
+    const uint64 start = Time::Now;
+    trace("reading PBs from file");
+
+    @pbsById = Json::Value();
+
+    try {
+        @pbsById = Json::FromFile(IO::FromStorageFolder("pbs2.json"));
+        if (pbsById.GetType() != Json::Type::Object) {
+            @pbsById = Json::Value();
+            throw("bad json");
+        }
+    } catch {
+        error("error reading all PBs from file after " + (Time::Now - start) + "ms: " + getExceptionInfo());
+        return;
+    }
+
+    string[]@ ids = mapsById.GetKeys();
+    string id;
+    for (uint i = 0; i < ids.Length; i++) {
+        id = ids[i];
+        if (pbsById.HasKey(id)) {
+            auto map = cast<WarriorMedals::Map>(mapsById[id]);
+            if (map !is null) {
+                map.pb = uint(pbsById[id]);
+            }
+        }
+    }
+
+    trace("read all PBs (" + pbsById.Length + ") after " + (Time::Now - start) + "ms");
+}
+
 void SetTotals() {
     if (settingTotals) {
         return;
@@ -178,6 +269,18 @@ void SetTotals() {
     for (uint i = 0; i < campaignsArr.Length; i++) {
         Campaign@ campaign = campaignsArr[i];
         if (campaign !is null) {
+            // why the FUCK do I have to do this
+            // setting PBs from file anywhere else doesn't work
+            for (uint j = 0; j < campaign.mapsArr.Length; j++) {
+                WarriorMedals::Map@ map = campaign.mapsArr[j];
+                if (true
+                    and int(map.pb) <= 0
+                    and pbsById.HasKey(map.id)
+                ) {
+                    map.pb = uint(pbsById[map.id]);
+                }
+            }
+
             const uint countWarrior = campaign.countWarrior;
             totalWarriorHave += countWarrior;
 
@@ -218,7 +321,7 @@ void WaitForNextRequestAsync() {
             and Time::Stamp - nextWarriorRequest > 0
         ) {
             trace("passed next request time, waiting to actually request...");
-            sleep(300000);
+            sleep(Math::Rand(240000, 360001));  // 4-6 minutes
             trace("auto-requesting maps...");
             API::GetAllMapInfosAsync();
         }
