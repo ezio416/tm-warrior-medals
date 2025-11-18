@@ -28,6 +28,7 @@ Weekly Shorts:
 -
 - when leaderboards are revealed (1 week after release)
 - 1/2 of the way between author and world record
+- discontinued after week 52
 - examples:
 
     |Map                |World Record|Warrior|Author |
