@@ -594,7 +594,7 @@ void HoverTooltipSetting(const string&in msg, const string&in color = "666") {
         return;
     }
 
-    // UI::SetNextWindowSize(int(Math::Min(Draw::MeasureString(msg).x, 400.0f)), 0.0f);
+    // UI::SetNextWindowSize(int(Math::Min(UI::MeasureString(msg).x, 400.0f)), 0.0f);
     UI::BeginTooltip();
     // UI::TextWrapped(Shadow() + msg);
     UI::Text(Shadow() + msg);

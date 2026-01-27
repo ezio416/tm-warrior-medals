@@ -437,8 +437,8 @@ void DrawCampaign(CGameManialinkFrame@ Maps, const string&in uid, const bool clu
 
     const string medalStackName = live ? "frame-medalstack" : "frame-medal-stack";
 
-    const float w      = Math::Max(1, Draw::GetWidth());
-    const float h      = Math::Max(1, Draw::GetHeight());
+    const float w      = Math::Max(1, Display::GetWidth());
+    const float h      = Math::Max(1, Display::GetHeight());
     const vec2  center = vec2(w * 0.5f, h * 0.5f);
     const float unit   = (w / h < stdRatio) ? w / 320.0f : h / 180.0f;
     const vec2  scale  = vec2(unit, -unit);
@@ -515,8 +515,8 @@ void _DrawWeekly(CGameManialinkPage@ Page, const string&in campaignName) {
         return;
     }
 
-    const float w      = Math::Max(1, Draw::GetWidth());
-    const float h      = Math::Max(1, Draw::GetHeight());
+    const float w      = Math::Max(1, Display::GetWidth());
+    const float h      = Math::Max(1, Display::GetHeight());
     const vec2  center = vec2(w * 0.5f, h * 0.5f);
     const float unit   = (w / h < stdRatio) ? w / 320.0f : h / 180.0f;
     const vec2  scale  = vec2(unit, -unit);
@@ -677,8 +677,8 @@ void DrawOverLiveTotdPage(CGameManialinkPage@ Page) {  // should shift the medal
         return;
     }
 
-    const float w      = Math::Max(1, Draw::GetWidth());
-    const float h      = Math::Max(1, Draw::GetHeight());
+    const float w      = Math::Max(1, Display::GetWidth());
+    const float h      = Math::Max(1, Display::GetHeight());
     const vec2  center = vec2(w * 0.5f, h * 0.5f);
     const float unit   = (w / h < stdRatio) ? w / 320.0f : h / 180.0f;
     const vec2  scale  = vec2(unit, -unit);
@@ -771,8 +771,8 @@ void DrawOverPlaygroundPage(CGameManialinkPage@ Page, const PlaygroundPageType t
         return;
     }
 
-    const float w      = Math::Max(1, Draw::GetWidth());
-    const float h      = Math::Max(1, Draw::GetHeight());
+    const float w      = Math::Max(1, Display::GetWidth());
+    const float h      = Math::Max(1, Display::GetHeight());
     const vec2  center = vec2(w * 0.5f, h * 0.5f);
     const float hUnit  = h / 180.0f;
     const vec2  scale  = vec2((w / h > stdRatio) ? hUnit : w / 320.0f, -hUnit);
@@ -836,8 +836,8 @@ void _DrawSoloMedal(CGameManialinkFrame@ MedalStack) {
         return;
     }
 
-    const float w      = Math::Max(1, Draw::GetWidth());
-    const float h      = Math::Max(1, Draw::GetHeight());
+    const float w      = Math::Max(1, Display::GetWidth());
+    const float h      = Math::Max(1, Display::GetHeight());
     const vec2  center = vec2(w * 0.5f, h * 0.5f);
     const float unit   = (w / h < stdRatio) ? w / 320.0f : h / 180.0f;
     const vec2  scale  = vec2(unit, -unit);
@@ -963,8 +963,8 @@ void DrawOverTotdPage(CGameManialinkPage@ Page) {
         }
     }
 
-    const float w      = Math::Max(1, Draw::GetWidth());
-    const float h      = Math::Max(1, Draw::GetHeight());
+    const float w      = Math::Max(1, Display::GetWidth());
+    const float h      = Math::Max(1, Display::GetHeight());
     const vec2  center = vec2(w * 0.5f, h * 0.5f);
     const float unit   = (w / h < stdRatio) ? w / 320.0f : h / 180.0f;
     const vec2  scale  = vec2(unit, -unit);

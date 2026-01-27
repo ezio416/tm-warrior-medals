@@ -375,7 +375,7 @@ void Tab_Other(const bool detached = false) {
             if (!campaign.official) {
                 uniqueClubs.Set(campaign.clubName, 0);
                 unofficialCampaigns.InsertLast(campaign);
-                unofficialCampaignMaxLength = Math::Max(unofficialCampaignMaxLength, Draw::MeasureString(campaign.nameStripped).x);
+                unofficialCampaignMaxLength = Math::Max(unofficialCampaignMaxLength, UI::MeasureString(campaign.nameStripped).x);
                 continue;
             }
 
