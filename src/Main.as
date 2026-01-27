@@ -80,7 +80,7 @@ void Main() {
     UltimateMedalsExtended::AddMedal(UME_Warrior());
 #endif
 
-    API::GetMessagesAsync();
+    startnew(API::GetMessagesAsync);
 
     bool inMap = InMap();
     bool wasInMap = false;

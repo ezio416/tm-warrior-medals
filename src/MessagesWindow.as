@@ -149,7 +149,7 @@ void MessagesWindow() {
                 Message message;
                 message.subject = newSubject;
                 message.message = newMessage;
-                startnew(API::SendMessageAsync, message);
+                message.Send();
             }
             UI::EndDisabled();  // empty subject/message
 

@@ -249,6 +249,13 @@ namespace API {
     }
 
     void GetMessagesAsync() {
+        while (false
+            or token.token.Length == 0
+            or requesting
+        ) {
+            yield();
+        }
+
         Net::HttpRequest@ req = GetEdevAsync("/tm/warrior/message");
 
         const ResponseCode code = ResponseCode(req.ResponseCode());
@@ -506,6 +513,13 @@ namespace API {
         if (message.big) {
             warn("shorten your subject or message");
             return;
+        }
+
+        while (false
+            or token.token.Length == 0
+            or requesting
+        ) {
+            yield();
         }
 
         Net::HttpRequest@ req = PostEdevAsync("/tm/warrior/message", tostring(message.GetMap()));
