@@ -1,6 +1,3 @@
-// c 2025-10-23
-// m 2025-11-04
-
 class Token {
     bool getting = false;
 

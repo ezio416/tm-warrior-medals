@@ -1,6 +1,3 @@
-// c 2024-07-18
-// m 2025-10-29
-
 void HoverTooltip(const string&in msg) {
     if (!UI::IsItemHovered(UI::HoveredFlags::AllowWhenDisabled)) {
         return;

@@ -1,6 +1,3 @@
-// c 2025-06-27
-// m 2025-07-18
-
 #if DEPENDENCY_ULTIMATEMEDALSEXTENDED
 
 class UME_Warrior : UltimateMedalsExtended::IMedal {

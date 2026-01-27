@@ -1,6 +1,3 @@
-// c 2024-07-21
-// m 2025-10-29
-
 /*
 Exports from the Warrior Medals plugin.
 */

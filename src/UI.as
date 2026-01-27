@@ -1,6 +1,3 @@
-// c 2024-07-22
-// m 2025-07-26
-
 const float stdRatio                = 16.0f / 9.0f;
 uint        valueOverlayConfirmQuit = 0;
 uint        valueOverlaySettings    = 0;

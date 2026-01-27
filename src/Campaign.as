@@ -1,6 +1,3 @@
-// c 2024-07-22
-// m 2025-11-04
-
 class Campaign {
     int                         clubId     = -1;
     string                      clubName;

@@ -1,6 +1,3 @@
-// c 2025-10-30
-// m 2025-10-31
-
 class Message {
     bool   hidden    = false;
     int    id        = -1;

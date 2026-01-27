@@ -1,6 +1,3 @@
-// c 2024-07-24
-// m 2025-11-06
-
 void MainWindow(const bool detached = false) {
     switch (selectedMedal) {
         case Medal::Warrior:

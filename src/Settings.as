@@ -1,6 +1,3 @@
-// c 2024-07-17
-// m 2025-11-06
-
 [Setting hidden category="Colors"]       vec3 S_ColorFall                  = vec3(1.0f, 0.5f, 0.0f);
 [Setting hidden category="Colors"]       vec3 S_ColorSpring                = vec3(0.3f, 0.9f, 0.3f);
 [Setting hidden category="Colors"]       vec3 S_ColorSummer                = vec3(1.0f, 0.8f, 0.0f);

@@ -1,6 +1,3 @@
-// c 2024-07-18
-// m 2025-11-05
-
 namespace API {
     const string baseUrl          = "https://e416.dev/api3";
     string       checkingUid;
