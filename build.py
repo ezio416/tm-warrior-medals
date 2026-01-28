@@ -1,5 +1,5 @@
 # c 2023-12-28
-# m 2026-01-27
+# m 2026-01-28
 
 import os
 from zipfile import ZipFile, ZIP_DEFLATED
@@ -12,7 +12,7 @@ def count_lines(src: str) -> int:
         for file in files:
             if file.lower().endswith('.as'):
                 path: str = f'{dir}/{file}'
-                with open(path) as file:
+                with open(path, encoding='utf-8') as file:
                     lines: int = 0
 
                     for line in file:
