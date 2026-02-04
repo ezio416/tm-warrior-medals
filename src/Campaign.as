@@ -260,8 +260,9 @@ string CampaignUid(const string&in name, const string&in club = "") {
 }
 
 Campaign@ GetCampaign(const string&in uid) {
-    if (!campaigns.Exists(uid))
+    if (!campaigns.Exists(uid)) {
         return null;
+    }
 
     return cast<Campaign>(campaigns[uid]);
 }

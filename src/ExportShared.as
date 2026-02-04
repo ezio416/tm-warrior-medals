@@ -459,7 +459,9 @@ namespace WarriorMedals {
             auto App = cast<CTrackMania>(GetApp());
 
             if (App.Network.PlaygroundClientScriptAPI.IsInGameMenuDisplayed) {
-                App.Network.PlaygroundInterfaceScriptHandler.CloseInGameMenu(CGameScriptHandlerPlaygroundInterface::EInGameMenuResult::Quit);
+                App.Network.PlaygroundInterfaceScriptHandler.CloseInGameMenu(
+                    CGameScriptHandlerPlaygroundInterface::EInGameMenuResult::Quit
+                );
             }
 
             App.BackToMainMenu();
