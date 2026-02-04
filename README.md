@@ -11,7 +11,7 @@ This is of course inspired by the [Champion Medals](https://openplanet.dev/plugi
 
 Medals may be manually adjusted due to physics changes or for being more difficult than they should be. [Message me on Discord](https://discord.gg/uu9kUZGte6), [create a GitHub issue](https://github.com/ezio416/tm-warrior-medals/issues), or message me directly from the plugin if you feel like a Warrior medal does not make sense in some way. Do not ask for Warrior medals to be harder - grind for the Champion medal instead.
 
-This plugin, like all of mine, is licensed under [MIT](https://opensource.org/license/mit), which is one of the most lenient. You may also use Warrior medal data in whichever way you like without permission, though if you want to get it directly from my API, please at least discuss it with me first so we can work out a good solution for your needs.
+This plugin, like most of mine, is licensed under [BSD 2-Clause](https://opensource.org/license/bsd-2-clause), which is one of the most lenient. You may also use Warrior medal data in whichever way you like without permission, though if you want to get it directly from my API, please at least discuss it with me first so we can work out a good solution for your needs.
 
 Seasonal Campaigns:
 -
