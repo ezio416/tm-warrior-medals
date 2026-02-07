@@ -258,7 +258,7 @@ void Settings_MedalsInUI() {
         HoverTooltipSetting("Runs off the edge of the background tile a little bit, should be fixed in the future");
         S_UIMedalsClubCampaign     = UI::Checkbox("Club campaign",            S_UIMedalsClubCampaign);
         HoverTooltipSetting("May be inaccurate if a club or campaign's name is changed");
-        // S_UIMedalsGrand            = UI::Checkbox("Weekly Grands",            S_UIMedalsGrand);
+        S_UIMedalsGrand            = UI::Checkbox("Weekly Grands",            S_UIMedalsGrand);
         S_UIMedalsWeekly           = UI::Checkbox("Weekly Shorts",            S_UIMedalsWeekly);
 
         UI::Separator();

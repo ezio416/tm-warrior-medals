@@ -21,6 +21,7 @@ void DrawOverUI() {
             and !S_UIMedalsTotd
             and !S_UIMedalsClubCampaign
             and !S_UIMedalsWeekly
+            and !S_UIMedalsGrand
             and !S_UIMedalBanner
             and !S_UIMedalStart
             and !S_UIMedalPause
@@ -283,6 +284,7 @@ void DrawOverUI() {
     CGameManialinkPage@ LiveCampaign;
     CGameManialinkPage@ LiveTotd;
     CGameManialinkPage@ Totd;
+    CGameManialinkPage@ Weekly;
 
     int start, end;
     string pageName;
@@ -295,6 +297,7 @@ void DrawOverUI() {
                     or S_UIMedalsSeasonalCampaign
                     or S_UIMedalsClubCampaign
                     or S_UIMedalsWeekly
+                    or S_UIMedalsGrand
                 )
             )
             and !(true
@@ -308,6 +311,10 @@ void DrawOverUI() {
             and !(true
                 and LiveTotd is null
                 and S_UIMedalsLiveTotd
+            )
+            and !(true
+                and Weekly is null
+                and S_UIMedalsGrand
             )
         ) {
             break;
@@ -335,7 +342,16 @@ void DrawOverUI() {
         }
         pageName = Layer.ManialinkPageUtf8.SubStr(start + 1, end - start - 1);
 
-        if (pageName.Contains("Overlay_ReportSystem")) {  // 2025-07-04_14_15 index 7
+        if (true
+            and S_UIMedalsGrand
+            and Weekly is null
+            and pageName.Contains("Trackmania_MainMenuPages_WeeklyTracks")  // 2026-02-02_17_51 index 4
+        ) {
+            @Weekly = Layer.LocalPage;
+            continue;
+        }
+
+        if (pageName.Contains("Overlay_ReportSystem")) {  // 2026-02-02_17_51 index 8
             auto Frame = cast<CGameManialinkFrame>(Layer.LocalPage.GetFirstChild("frame-report-system"));
             if (true
                 and Frame !is null
@@ -348,7 +364,7 @@ void DrawOverUI() {
         if (true
             and S_UIMedalsSoloMenu
             and Solo is null
-            and pageName.Contains("Page_Solo")  // 2025-07-04_14_15 index 15
+            and pageName.Contains("Page_Solo")  // 2026-02-02_17_51 index 16
         ) {
             @Solo = Layer.LocalPage;
             continue;
@@ -357,7 +373,7 @@ void DrawOverUI() {
         if (true
             and S_UIMedalsLiveTotd
             and LiveTotd is null
-            and pageName.Contains("Page_TOTDChannelDisplay")  // 2025-07-04_14_15 index 25
+            and pageName.Contains("Page_TOTDChannelDisplay")  // 2026-02-02_17_51 index 26
         ) {
             @LiveTotd = Layer.LocalPage;
             continue;
@@ -370,7 +386,7 @@ void DrawOverUI() {
                 or S_UIMedalsWeekly
             )
             and Campaign is null
-            and pageName.Contains("Page_CampaignDisplay")  // 2025-07-04_14_15 index 28
+            and pageName.Contains("Page_CampaignDisplay")  // 2026-02-02_17_51 index 30
         ) {
             @Campaign = Layer.LocalPage;
             continue;
@@ -379,7 +395,7 @@ void DrawOverUI() {
         if (true
             and S_UIMedalsTotd
             and Totd is null
-            and pageName.Contains("Page_MonthlyCampaignDisplay")  // 2025-07-04_14_15 index 29
+            and pageName.Contains("Page_MonthlyCampaignDisplay")  // 2026-02-02_17_51 index 31
         ) {
             @Totd = Layer.LocalPage;
             continue;
@@ -388,7 +404,7 @@ void DrawOverUI() {
         if (true
             and S_UIMedalsLiveCampaign
             and LiveCampaign is null
-            and pageName.Contains("Page_RoomCampaignDisplay")  // 2025-07-04_14_15 index 39
+            and pageName.Contains("Page_RoomCampaignDisplay")  // 2026-02-02_17_51 index 41
         ) {
             @LiveCampaign = Layer.LocalPage;
             continue;
@@ -405,6 +421,9 @@ void DrawOverUI() {
     DrawOverLiveCampaignPage(LiveCampaign);
     DrawOverLiveTotdPage(LiveTotd);
     DrawOverTotdPage(Totd);
+    // if (Campaign is null) {
+    //     DrawOverWeeklyPage(Weekly);
+    // }
 }
 
 void DrawCampaign(CGameManialinkFrame@ Maps, const string&in uid, const bool club = false, const bool live = false) {
@@ -481,12 +500,67 @@ void DrawCampaign(CGameManialinkFrame@ Maps, const string&in uid, const bool clu
 }
 
 void _DrawWeekly(CGameManialinkPage@ Page, const string&in campaignName) {
-    if (!S_UIMedalsWeekly) {
+    if (false
+        or !S_UIMedalsWeekly
+        or !S_UIMedalsGrand
+    ) {
         return;
     }
 
     uint week = 0;
     if (!Text::TryParseUInt(campaignName.SubStr(11), week)) {
+        return;
+    }
+
+    if (S_UIMedalsGrand) {
+        auto GrandFrame = cast<CGameManialinkFrame>(Page.GetFirstChild("frame-weekly-grands-maps"));
+        if (true
+            and GrandFrame !is null
+            and GrandFrame.Visible
+        ) {
+            Campaign@ campaign = GetCampaign(CampaignUid("grand week " + week));
+            if (false
+                or campaign is null
+                or (true
+                    and !S_UIMedalsAlwaysMenu
+                    and !campaign.mapsArr[0].hasWarrior
+                )
+            ) {
+                return;
+            }
+
+            auto Map0 = cast<CGameManialinkFrame>(GrandFrame.GetFirstChild("frame-weekly-grands-map-0"));
+            if (Map0 is null) {
+                return;
+            }
+
+            auto MedalStack = cast<CGameManialinkFrame>(Map0.GetFirstChild("frame-medal-stack"));
+            if (false
+                or MedalStack is null
+                or !MedalStack.Visible
+            ) {
+                return;
+            }
+
+            const float w      = Math::Max(1, Display::GetWidth());
+            const float h      = Math::Max(1, Display::GetHeight());
+            const vec2  center = vec2(w * 0.5f, h * 0.5f);
+            const float unit   = (w / h < stdRatio) ? w / 320.0f : h / 180.0f;
+            const vec2  scale  = vec2(unit, -unit);
+            const vec2  size   = vec2(unit * 12.04f);
+            const vec2  offset = vec2(size.x * 0.015f, -size.y * 0.5f);
+
+            const vec2 coords = center + offset + scale * MedalStack.AbsolutePosition_V3;
+
+            nvg::BeginPath();
+            nvg::FillPaint(nvg::TexturePattern(coords, size, 0.0f, iconWarriorNvg, 1.0f));
+            nvg::Fill();
+
+            return;
+        }
+    }
+
+    if (!S_UIMedalsWeekly) {
         return;
     }
 
@@ -1010,4 +1084,34 @@ void DrawOverTotdPage(CGameManialinkPage@ Page) {
         nvg::FillPaint(nvg::TexturePattern(coords, size, 0.0f, iconWarriorNvg, 1.0f));
         nvg::Fill();
     }
+}
+
+void DrawOverWeeklyPage(CGameManialinkPage@ Page) {
+    if (Page is null) {
+        return;
+    }
+
+    auto StackParent = cast<CGameManialinkFrame>(
+        Page.GetFirstChild("trackmania-main-menu-pages-weekly-tracks-medal-stack-weekly-grands")  // wtf
+    );
+    if (StackParent is null) {
+        return;
+    }
+
+    bool latestGrandHasWarrior = false;
+
+    // TODO
+
+    if (!latestGrandHasWarrior) {
+        return;
+    }
+
+    if (false
+        or S_UIMedalsAlwaysMenu
+        or false
+    ) {
+        _DrawSoloMedal(StackParent);
+    }
+
+    UI::Text("weekly");
 }
