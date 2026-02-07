@@ -264,11 +264,6 @@ namespace WarriorMedals {
                 campaignType = CampaignType::Grand;
                 clones = true;
             }
-
-            if (campaignType == CampaignType::Seasonal) {
-                campaignName = name.SubStr(0, name.Length - 5);
-                index = int8(Text::ParseUInt(name.SubStr(name.Length - 2)) - 1);
-            }
         }
         Map(Json::Value@ map, const string&in type) {  // full list
             author        = uint(map["authorTime"]);
@@ -291,11 +286,21 @@ namespace WarriorMedals {
                 this.week = int(week);
             }
 
+            if (map.HasKey("campaignName")) {
+                Json::Value@ campaignName = map["campaignName"];
+                if (CheckJsonType(campaignName, Json::Type::String, "campaignName", false)) {
+                    this.campaignName = string(campaignName);
+                }
+
+                Json::Value@ index = map["mapIndex"];
+                if (CheckJsonType(index, Json::Type::Number, "index", false)) {
+                    this.index = int8(index);
+                }
+            }
+
             if (type == "Seasonal") {
                 campaignType = CampaignType::Seasonal;
                 campaignId = int(map["campaignId"]);
-                campaignName = name.SubStr(0, name.Length - 5);
-                index = int8(Text::ParseUInt(name.SubStr(name.Length - 2)) - 1);
 
             } else if (type == "Weekly") {
                 campaignType = CampaignType::Weekly;
