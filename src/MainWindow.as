@@ -342,7 +342,7 @@ bool Tab_SingleCampaign(Campaign@ campaign, const bool selected) {
     return open;
 }
 
-void Tab_Grand(const bool detached = false) {
+void Tab_Grand(const bool detached = false) {  // TODO redo tab, weeks only have one map each
     if (!UI::BeginTabItem(Shadow() + Icons::Trophy + " Grands###tab-grand")) {
         return;
     }
@@ -387,7 +387,7 @@ void Tab_Grand(const bool detached = false) {
             }
 
             UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-            if (UI::Button(Shadow() + campaign.name, buttonSize)) {
+            if (UI::Button(Shadow() + campaign.name.Replace("Grand ", ""), buttonSize)) {
                 const int index = activeWeeklyGrands.FindByRef(campaign);
                 if (index > -1) {
                     activeWeeklyGrands.RemoveAt(index);
