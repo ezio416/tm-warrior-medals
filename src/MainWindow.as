@@ -214,7 +214,7 @@ bool Tab_SingleCampaign(Campaign@ campaign, const bool selected) {
                                 break;
 
                             case WarriorMedals::CampaignType::Weekly:
-                                clubId = "weekly";
+                                clubId = "weeklyshorts";
                                 break;
 
                             default:
