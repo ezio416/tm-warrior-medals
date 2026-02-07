@@ -259,6 +259,7 @@ void Settings_MedalsInUI() {
         S_UIMedalsClubCampaign     = UI::Checkbox("Club campaign",            S_UIMedalsClubCampaign);
         HoverTooltipSetting("May be inaccurate if a club or campaign's name is changed");
         S_UIMedalsGrand            = UI::Checkbox("Weekly Grands",            S_UIMedalsGrand);
+        HoverTooltipSetting("Currently only shows on the campaign page");
         S_UIMedalsWeekly           = UI::Checkbox("Weekly Shorts",            S_UIMedalsWeekly);
 
         UI::Separator();
