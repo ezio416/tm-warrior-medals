@@ -362,6 +362,8 @@ void Tab_Grand(const bool detached = false) {
         uint curWeekInYear = 0;
         int  lastYear      = -1;
 
+        const vec2 buttonSize = vec2(scale * 78.0f, scale * 25.0f);
+
         Campaign@[]@ arr = S_MainWindowOldestFirst ? campaignsArrRev : campaignsArr;
         for (uint i = 0; i < arr.Length; i++) {
             Campaign@ campaign = arr[i];
@@ -385,7 +387,7 @@ void Tab_Grand(const bool detached = false) {
             }
 
             UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-            if (UI::Button(Shadow() + campaign.name, vec2(scale * 78.0f, scale * 25.0f))) {  // TODO inefficient
+            if (UI::Button(Shadow() + campaign.name, buttonSize)) {
                 const int index = activeWeeklyGrands.FindByRef(campaign);
                 if (index > -1) {
                     activeWeeklyGrands.RemoveAt(index);
@@ -497,6 +499,8 @@ void Tab_Other(const bool detached = false) {
 
             index = 0;
 
+            const vec2 buttonSize = vec2(unofficialCampaignMaxLength + scale * 15.0f, scale * 25.0f);
+
             for (uint j = 0; j < unofficialCampaigns.Length; j++) {  // TODO inefficient
                 Campaign@ campaign = unofficialCampaigns[j];
                 if (campaign.clubName != clubName) {
@@ -510,7 +514,7 @@ void Tab_Other(const bool detached = false) {
                 UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
                 if (UI::Button(
                     Shadow() + campaign.nameStripped + "###button-" + campaign.uid,
-                    vec2(unofficialCampaignMaxLength + scale * 15.0f, scale * 25.0f)  // TODO inefficient
+                    buttonSize
                 )) {
                     const int index2 = activeOtherCampaigns.FindByRef(campaign);
                     if (index2 > -1) {
