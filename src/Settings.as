@@ -94,7 +94,6 @@ void Settings_General() {
         "Show totals per campaign type",
         S_MainWindowTypeTotals
     );
-    HoverTooltipSetting("Seasonal, Totd, etc.");
 
     S_MainWindowPercentages = UI::Checkbox(
         "Show percentages",
