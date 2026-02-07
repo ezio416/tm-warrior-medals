@@ -24,6 +24,17 @@ Seasonal Campaigns:
     |Summer 2024 - 01|22.325      |23.524  |23.923  |
     |Summer 2024 - 25|1:07.943    |1:09.746|1:10.347|
 
+Weekly Grands:
+-
+- 2 days after the map releases (Tuesday 18:00 CET)
+- 3/8 of the way between author and world record
+- examples:
+
+    |Map             |World Record|Warrior  |Author   |
+    |:-:             |:-:         |:-:      |:-:      |
+    |First Chill (#5)|9:28.571    |10:02.392|10:22.684|
+    |Green Flow (#6) |9:22.727    |10:25.987|11:03.942|
+
 Weekly Shorts:
 -
 - when leaderboards are revealed (1 week after release)
