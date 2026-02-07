@@ -85,22 +85,23 @@ void Main() {
 
     startnew(API::GetMessagesAsync);
 
-    bool inMap = InMap();
-    bool wasInMap = false;
+    // TODO grands can get fucked up with this loop running
+    // bool inMap = InMap();
+    // bool wasInMap = false;
 
-    while (true) {
-        yield();
+    // while (true) {
+    //     yield();
 
-        inMap = InMap();
+    //     inMap = InMap();
 
-        if (wasInMap != inMap) {
-            wasInMap = inMap;
+    //     if (wasInMap != inMap) {
+    //         wasInMap = inMap;
 
-            if (inMap) {
-                API::GetMapInfoAsync();
-            }
-        }
-    }
+    //         if (inMap) {
+    //             API::GetMapInfoAsync();
+    //         }
+    //     }
+    // }
 }
 
 void OnDestroyed() {

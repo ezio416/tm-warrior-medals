@@ -101,6 +101,10 @@ namespace WarriorMedals {
         CampaignType get_campaignType() { return _campaignType; }
         private void set_campaignType(const CampaignType c) { _campaignType = c; }
 
+        private bool _clones = false;
+        bool get_clones() { return _clones; }
+        private void set_clones(const bool c) { _clones = c; }
+
         private int _clubId = -1;
         int get_clubId() { return _clubId; }
         private void set_clubId(const int c) { _clubId = c; }
@@ -252,6 +256,15 @@ namespace WarriorMedals {
                 this.week = int(week);
             }
 
+            Json::Value@ type = map["type"];
+            if (true
+                and CheckJsonType(type, Json::Type::String, "type", false)
+                and string(type) == "Grand"
+            ) {
+                campaignType = CampaignType::Grand;
+                clones = true;
+            }
+
             if (campaignType == CampaignType::Seasonal) {
                 campaignName = name.SubStr(0, name.Length - 5);
                 index = int8(Text::ParseUInt(name.SubStr(name.Length - 2)) - 1);
@@ -303,6 +316,7 @@ namespace WarriorMedals {
                 number = int(map["number"]);
                 campaignName = "Grand Week " + this.week;
                 index = 0;
+                clones = true;
 
             } else if (type == "Other") {
                 campaignType = CampaignType::Other;
@@ -337,7 +351,7 @@ namespace WarriorMedals {
                 uid,
                 "PersonalBest",
                 "",
-                "TimeAttack",
+                "TimeAttack" + (clones ? "Clone" : ""),
                 ""
             );
         }

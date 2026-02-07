@@ -632,8 +632,17 @@ namespace API {
             @pbsById = Json::Value();
             pbsById = pbs;
 
+            for (uint i = 0; i < campaignsArr.Length; i++) {
+                if (true
+                    and campaignsArr[i].type == WarriorMedals::CampaignType::Grand
+                    and campaignsArr[i].mapsArr.Length > 0
+                ) {
+                    campaignsArr[i].GetPBsAsync();
+                }
+            }
+
             try {
-                Json::ToFile(IO::FromStorageFolder("pbs2.json"), pbs, true);
+                Json::ToFile(IO::FromStorageFolder("pbs2.json"), pbsById, true);
             } catch {
                 error("error writing all PBs to file: " + getExceptionInfo());
             }

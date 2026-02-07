@@ -143,9 +143,9 @@ namespace WarriorMedals {
             return 0;
         }
 
-        if (!maps.Exists(uid)) {
-            API::GetMapInfoAsync(uid);
-        }
+        // if (!maps.Exists(uid)) {  // TODO
+        //     API::GetMapInfoAsync(uid);
+        // }
 
         if (!maps.Exists(uid)) {
             return 0;
