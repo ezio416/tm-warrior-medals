@@ -362,7 +362,7 @@ void Tab_Grand(const bool detached = false) {  // TODO redo, weeks only have one
         uint curWeekInYear = 0;
         int  lastYear      = -1;
 
-        const vec2 buttonSize = vec2(scale * 78.0f, scale * 25.0f);
+        const vec2 buttonSize = vec2(scale * 86.5f, scale * 25.0f);
 
         Campaign@[]@ arr = S_MainWindowOldestFirst ? campaignsArrRev : campaignsArr;
         for (uint i = 0; i < arr.Length; i++) {
@@ -452,7 +452,7 @@ void Tab_Other(const bool detached = false) {  // TODO redo, too many campaigns 
 
         float unofficialCampaignMaxLength = 0.0f;
 
-        const vec2 buttonSize = vec2(scale * 120.0f, scale * 25.0f);
+        const vec2 buttonSize = vec2(scale * 151.0f, scale * 25.0f);
 
         for (uint i = 0; i < campaignsArr.Length; i++) {
             Campaign@ campaign = campaignsArr[i];
@@ -569,7 +569,7 @@ void Tab_Seasonal(const bool detached = false) {
 
         int lastYear = -1;
 
-        const vec2 buttonSize = vec2(scale * 100.0f, scale * 25.0f);
+        const vec2 buttonSize = vec2(scale * 111.0f, scale * 25.0f);
 
         Campaign@[]@ arr = S_MainWindowOldestFirst ? campaignsArrRev : campaignsArr;
         for (uint i = 0; i < arr.Length; i++) {
@@ -662,7 +662,7 @@ void Tab_Totd(const bool detached = false) {
         uint curMonthInYear = 0;
         int  lastYear       = -1;
 
-        const vec2 buttonSize = vec2(scale * 137.0f, scale * 25.0f);
+        const vec2 buttonSize = vec2(scale * 151.0f, scale * 25.0f);
 
         Campaign@[]@ arr = S_MainWindowOldestFirst ? campaignsArrRev : campaignsArr;
         for (uint i = 0; i < arr.Length; i++) {
@@ -758,7 +758,7 @@ void Tab_Weekly(const bool detached = false) {
         uint curWeekInYear = 0;
         int  lastYear      = -1;
 
-        const vec2 buttonSize = vec2(scale * 78.0f, scale * 25.0f);
+        const vec2 buttonSize = vec2(scale * 86.5f, scale * 25.0f);
 
         Campaign@[]@ arr = S_MainWindowOldestFirst ? campaignsArrRev : campaignsArr;
         for (uint i = 0; i < arr.Length; i++) {
