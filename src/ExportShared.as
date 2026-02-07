@@ -207,20 +207,20 @@ namespace WarriorMedals {
             }
 
             if (map.HasKey("campaignName")) {
-                campaignType = CampaignType::Other;
-
                 Json::Value@ campaignName = map["campaignName"];
                 if (CheckJsonType(campaignName, Json::Type::String, "campaignName", false)) {
                     this.campaignName = string(campaignName);
                 }
 
-                Json::Value@ index = map["campaignIndex"];
-                if (CheckJsonType(index, Json::Type::Number, "index", false)) {
+                Json::Value@ index = map["mapIndex"];
+                if (CheckJsonType(index, Json::Type::Number, "mapIndex", false)) {
                     this.index = int8(index);
                 }
             }
 
             if (map.HasKey("clubId")) {
+                campaignType = CampaignType::Other;
+
                 Json::Value@ clubId = map["clubId"];
                 if (CheckJsonType(clubId, Json::Type::Number, "clubId", false)) {
                     this.clubId = int(clubId);
@@ -293,7 +293,7 @@ namespace WarriorMedals {
                 }
 
                 Json::Value@ index = map["mapIndex"];
-                if (CheckJsonType(index, Json::Type::Number, "index", false)) {
+                if (CheckJsonType(index, Json::Type::Number, "mapIndex", false)) {
                     this.index = int8(index);
                 }
             }
@@ -301,6 +301,11 @@ namespace WarriorMedals {
             if (type == "Seasonal") {
                 campaignType = CampaignType::Seasonal;
                 campaignId = int(map["campaignId"]);
+
+                if (campaignName.Length == 0) {  // TODO remove after api change
+                    campaignName = name.SubStr(0, name.Length - 5);
+                    index = int8(Text::ParseUInt(name.SubStr(name.Length - 2)) - 1);
+                }
 
             } else if (type == "Weekly") {
                 campaignType = CampaignType::Weekly;
