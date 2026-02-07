@@ -9,6 +9,7 @@ namespace WarriorMedals {
         Seasonal,
         Weekly,
         TrackOfTheDay,
+        Grand,
         Other,
         Unknown
     }
@@ -295,6 +296,13 @@ namespace WarriorMedals {
                 date = string(map["date"]);
                 campaignName = MonthName(Text::ParseUInt(date.SubStr(5, 2))) + " " + date.SubStr(0, 4);
                 index = int8(Text::ParseUInt(date.SubStr(date.Length - 2)) - 1);
+
+            } else if (type == "Grand") {
+                campaignType = CampaignType::Grand;
+                campaignId = int(map["campaignId"]);
+                number = int(map["number"]);
+                campaignName = "Grand Week " + this.week;
+                index = 0;
 
             } else if (type == "Other") {
                 campaignType = CampaignType::Other;

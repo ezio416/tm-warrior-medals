@@ -11,6 +11,7 @@
 [Setting hidden category="Main Window"]  bool S_MainWindowHideWithOP       = true;
 [Setting hidden category="Main Window"]  bool S_MainWindowOldestFirst      = false;
 [Setting hidden category="Main Window"]  bool S_MainWindowPercentages      = true;
+[Setting hidden category="Main Window"]  bool S_MainWindowShowGrand        = true;
 [Setting hidden category="Main Window"]  bool S_MainWindowShowOther        = true;
 [Setting hidden category="Main Window"]  bool S_MainWindowShowSeasonal     = true;
 [Setting hidden category="Main Window"]  bool S_MainWindowShowTotd         = true;
@@ -33,6 +34,7 @@
 /*[Setting hidden category="UI Medals"]*/bool S_UIMedalsAlwaysMenu         = false;
 /*[Setting hidden category="UI Medals"]*/bool S_UIMedalsAlwaysPlayground   = false;
 [Setting hidden category="UI Medals"]    bool S_UIMedalsClubCampaign       = true;
+[Setting hidden category="UI Medals"]    bool S_UIMedalsGrand              = true;
 [Setting hidden category="UI Medals"]    bool S_UIMedalsLiveCampaign       = true;
 [Setting hidden category="UI Medals"]    bool S_UIMedalsLiveTotd           = false;
 [Setting hidden category="UI Medals"]    bool S_UIMedalsSeasonalCampaign   = true;
@@ -104,7 +106,7 @@ void Settings_General() {
         "Sort campaigns oldest to newest",
         S_MainWindowOldestFirst
     );
-    HoverTooltipSetting("Seasonal, Weekly Shorts, Track of the Day");
+    HoverTooltipSetting("Seasonal, Weekly Grands, Weekly Shorts, Track of the Day");
 
     S_MainWindowTextShadows = UI::Checkbox(
         "Show text shadows",
@@ -114,6 +116,11 @@ void Settings_General() {
     S_MainWindowShowSeasonal = UI::Checkbox(
         "Show 'Seasonal' tab",
         S_MainWindowShowSeasonal
+    );
+
+    S_MainWindowShowGrand = UI::Checkbox(
+        "Show 'Weekly Grands' tab",
+        S_MainWindowShowGrand
     );
 
     S_MainWindowShowWeekly = UI::Checkbox(
@@ -238,6 +245,7 @@ void Settings_MedalsInUI() {
             pluginMeta.GetSetting("S_UIMedalsTotd").Reset();
             pluginMeta.GetSetting("S_UIMedalsLiveTotd").Reset();
             pluginMeta.GetSetting("S_UIMedalsWeekly").Reset();
+            pluginMeta.GetSetting("S_UIMedalsGrand").Reset();
         }
 
         S_UIMedalsSoloMenu         = UI::Checkbox("Solo menu",                S_UIMedalsSoloMenu);
@@ -250,6 +258,7 @@ void Settings_MedalsInUI() {
         HoverTooltipSetting("Runs off the edge of the background tile a little bit, should be fixed in the future");
         S_UIMedalsClubCampaign     = UI::Checkbox("Club campaign",            S_UIMedalsClubCampaign);
         HoverTooltipSetting("May be inaccurate if a club or campaign's name is changed");
+        // S_UIMedalsGrand            = UI::Checkbox("Weekly Grands",            S_UIMedalsGrand);
         S_UIMedalsWeekly           = UI::Checkbox("Weekly Shorts",            S_UIMedalsWeekly);
 
         UI::Separator();

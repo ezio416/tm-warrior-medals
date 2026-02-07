@@ -77,6 +77,9 @@ void MainWindow(const bool detached = false) {
     if (S_MainWindowShowSeasonal) {
         Tab_Seasonal(detached);
     }
+    if (S_MainWindowShowGrand) {
+        Tab_Grand(detached);
+    }
     if (S_MainWindowShowWeekly) {
         Tab_Weekly(detached);
     }
@@ -217,6 +220,10 @@ bool Tab_SingleCampaign(Campaign@ campaign, const bool selected) {
                                 clubId = "weeklyshorts";
                                 break;
 
+                            case WarriorMedals::CampaignType::Grand:
+                                clubId = "weeklygrands";
+                                break;
+
                             default:
                                 clubId = tostring(campaign.clubId);
                         }
@@ -333,6 +340,86 @@ bool Tab_SingleCampaign(Campaign@ campaign, const bool selected) {
     UI::EndTabItem();
 
     return open;
+}
+
+void Tab_Grand(const bool detached = false) {
+    if (!UI::BeginTabItem(Shadow() + Icons::Trophy + " Grands###tab-grand")) {
+        return;
+    }
+
+    const float scale = UI::GetScale();
+    int selected = -2;
+
+    TypeTotals(WarriorMedals::CampaignType::Grand);
+
+    UI::BeginTabBar("##tab-bar-grand");
+
+    if (UI::BeginTabItem(Shadow() + Icons::List + " List")) {
+        if (!detached) {
+            UI::BeginChild("##child-list-grand");
+        }
+
+        uint curWeekInYear = 0;
+        int  lastYear      = -1;
+
+        Campaign@[]@ arr = S_MainWindowOldestFirst ? campaignsArrRev : campaignsArr;
+        for (uint i = 0; i < arr.Length; i++) {
+            Campaign@ campaign = arr[i];
+            if (false
+                or campaign is null
+                or campaign.type != WarriorMedals::CampaignType::Grand
+            ) {
+                continue;
+            }
+
+            if (uint(lastYear) != campaign.year) {
+                lastYear = campaign.year;
+                curWeekInYear = 0;
+
+                UI::PushFont(UI::Font::Default, 26.0f);
+                UI::SeparatorText(Shadow() + tostring(campaign.year + 2020));
+                UI::PopFont();
+
+            } else if (curWeekInYear % 5 > 0) {
+                UI::SameLine();
+            }
+
+            UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
+            if (UI::Button(Shadow() + campaign.name, vec2(scale * 78.0f, scale * 25.0f))) {  // TODO inefficient
+                const int index = activeWeeklyGrands.FindByRef(campaign);
+                if (index > -1) {
+                    activeWeeklyGrands.RemoveAt(index);
+                }
+                activeWeeklyGrands.InsertLast(campaign);
+                selected = activeWeeklyGrands.Length - 1;
+            }
+            UI::PopStyleColor();
+            switch (selectedMedal) {
+                case Medal::Warrior:
+                    UI::SetItemTooltip(tostring(campaign.countWarrior) + " / " + campaign.mapsArr.Length);
+                    break;
+            }
+
+            curWeekInYear++;
+        }
+
+        if (!detached) {
+            UI::EndChild();
+        }
+
+        UI::EndTabItem();
+    }
+
+    for (int i = 0; i < int(activeWeeklyGrands.Length); i++) {
+        if (!Tab_SingleCampaign(activeWeeklyGrands[i], i == selected)) {
+            activeWeeklyGrands.RemoveAt(i);
+            i--;
+        }
+    }
+
+    UI::EndTabBar();
+
+    UI::EndTabItem();
 }
 
 void Tab_Other(const bool detached = false) {
@@ -645,7 +732,7 @@ void Tab_Totd(const bool detached = false) {
 }
 
 void Tab_Weekly(const bool detached = false) {
-    if (!UI::BeginTabItem(Shadow() + Icons::ClockO + " Weekly Shorts###tab-weekly")) {
+    if (!UI::BeginTabItem(Shadow() + Icons::ClockO + " Shorts###tab-weekly")) {
         return;
     }
 
@@ -778,6 +865,15 @@ void TypeTotals(const WarriorMedals::CampaignType type) {
                     case Medal::Warrior:
                         total = totalWarriorWeekly;
                         totalHave = totalWarriorWeeklyHave;
+                        break;
+                }
+                break;
+
+            case WarriorMedals::CampaignType::Grand:
+                switch (selectedMedal) {
+                    case Medal::Warrior:
+                        total = totalWarriorGrand;
+                        totalHave = totalWarriorGrandHave;
                         break;
                 }
                 break;

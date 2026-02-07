@@ -1,6 +1,7 @@
 Campaign@[]         activeOtherCampaigns;
 Campaign@[]         activeSeasonalCampaigns;
 Campaign@[]         activeTotdMonths;
+Campaign@[]         activeWeeklyGrands;
 Campaign@[]         activeWeeklyWeeks;
 Json::Value@        campaignIndices;
 dictionary          campaigns;
@@ -30,6 +31,8 @@ Medal               selectedMedal            = Medal::Warrior;
 bool                settingTotals            = false;
 Token               token;
 uint                total                    = 0;
+uint                totalWarriorGrand        = 0;
+uint                totalWarriorGrandHave    = 0;
 uint                totalWarriorHave         = 0;
 uint                totalWarriorOther        = 0;
 uint                totalWarriorOtherHave    = 0;
@@ -253,6 +256,8 @@ void SetTotals() {
     trace("setting totals");
 
     total = maps.GetKeys().Length;
+    totalWarriorGrand        = 0;
+    totalWarriorGrandHave    = 0;
     totalWarriorHave         = 0;
     totalWarriorOther        = 0;
     totalWarriorOtherHave    = 0;
@@ -282,6 +287,11 @@ void SetTotals() {
             totalWarriorHave += countWarrior;
 
             switch (campaign.type) {
+                case WarriorMedals::CampaignType::Grand:
+                    totalWarriorGrand += campaign.mapsArr.Length;
+                    totalWarriorGrandHave += countWarrior;
+                    break;
+
                 case WarriorMedals::CampaignType::Other:
                     totalWarriorOther += campaign.mapsArr.Length;
                     totalWarriorOtherHave += countWarrior;

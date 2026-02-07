@@ -72,10 +72,16 @@ class Campaign {
             return;
         }
 
+        // why does this work without verification?
         year = Text::ParseUInt(map.campaignName.SubStr(map.campaignName.Length - 4)) - 2020;
 
         switch (type) {
             case WarriorMedals::CampaignType::Seasonal:
+                /*
+                checking the map name won't work with new black maps (France 2026 etc.) but maybe
+                it's fine because seasonal campaigns should already have indices from the 01 map?
+                something to keep in mind at least
+                */
                 if (map.campaignName.StartsWith("Summer")) {
                     index = 0 + 4 * year;
                     colorIndex = 2;
@@ -96,6 +102,12 @@ class Campaign {
                 index = map.number - 1;
                 week = map.week;
                 year = 4 + ((week + 48) / 52);  // breaks at week 212 (end of 2028)
+                break;
+
+            case WarriorMedals::CampaignType::Grand:
+                index = map.number - 5;
+                week = map.week;
+                year = 6 + ((week - 1) / 52);  // breaks at week 157 (end of 2028)
                 break;
 
             case WarriorMedals::CampaignType::TrackOfTheDay: {
@@ -349,6 +361,7 @@ void SortCampaigns() {
     activeOtherCampaigns    = {};
     activeSeasonalCampaigns = {};
     activeTotdMonths        = {};
+    activeWeeklyGrands      = {};
     activeWeeklyWeeks       = {};
 
     SetTotals();
