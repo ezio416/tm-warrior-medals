@@ -342,7 +342,7 @@ bool Tab_SingleCampaign(Campaign@ campaign, const bool selected) {
     return open;
 }
 
-void Tab_Grand(const bool detached = false) {  // TODO redo tab, weeks only have one map each
+void Tab_Grand(const bool detached = false) {  // TODO redo, weeks only have one map each
     if (!UI::BeginTabItem(Shadow() + Icons::Trophy + " Grands###tab-grand")) {
         return;
     }
@@ -424,7 +424,7 @@ void Tab_Grand(const bool detached = false) {  // TODO redo tab, weeks only have
     UI::EndTabItem();
 }
 
-void Tab_Other(const bool detached = false) {
+void Tab_Other(const bool detached = false) {  // TODO redo, too many campaigns now
     if (!UI::BeginTabItem(Shadow() + Icons::QuestionCircle + " Other###tab-other")) {
         return;
     }
@@ -452,6 +452,8 @@ void Tab_Other(const bool detached = false) {
 
         float unofficialCampaignMaxLength = 0.0f;
 
+        const vec2 buttonSize = vec2(scale * 120.0f, scale * 25.0f);
+
         for (uint i = 0; i < campaignsArr.Length; i++) {
             Campaign@ campaign = campaignsArr[i];
             if (false
@@ -473,7 +475,7 @@ void Tab_Other(const bool detached = false) {
             }
 
             UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-            if (UI::Button(Shadow() + campaign.nameStripped + "###button-" + campaign.uid, vec2(scale * 120.0f, scale * 25.0f))) {
+            if (UI::Button(Shadow() + campaign.nameStripped + "###button-" + campaign.uid, buttonSize)) {
                 const int index2 = activeOtherCampaigns.FindByRef(campaign);
                 if (index2 > -1) {
                     activeOtherCampaigns.RemoveAt(index2);
@@ -499,7 +501,7 @@ void Tab_Other(const bool detached = false) {
 
             index = 0;
 
-            const vec2 buttonSize = vec2(unofficialCampaignMaxLength + scale * 15.0f, scale * 25.0f);
+            const vec2 buttonSize2 = vec2(unofficialCampaignMaxLength + scale * 15.0f, scale * 25.0f);
 
             for (uint j = 0; j < unofficialCampaigns.Length; j++) {
                 Campaign@ campaign = unofficialCampaigns[j];
@@ -512,10 +514,7 @@ void Tab_Other(const bool detached = false) {
                 }
 
                 UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-                if (UI::Button(
-                    Shadow() + campaign.nameStripped + "###button-" + campaign.uid,
-                    buttonSize
-                )) {
+                if (UI::Button(Shadow() + campaign.nameStripped + "###button-" + campaign.uid, buttonSize2)) {
                     const int index2 = activeOtherCampaigns.FindByRef(campaign);
                     if (index2 > -1) {
                         activeOtherCampaigns.RemoveAt(index2);
@@ -570,6 +569,8 @@ void Tab_Seasonal(const bool detached = false) {
 
         int lastYear = -1;
 
+        const vec2 buttonSize = vec2(scale * 100.0f, scale * 25.0f);
+
         Campaign@[]@ arr = S_MainWindowOldestFirst ? campaignsArrRev : campaignsArr;
         for (uint i = 0; i < arr.Length; i++) {
             Campaign@ campaign = arr[i];
@@ -602,7 +603,7 @@ void Tab_Seasonal(const bool detached = false) {
             }
 
             UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-            if (UI::Button(Shadow() + campaign.name.SubStr(0, campaign.name.Length - 5) + "##" + campaign.name, vec2(scale * 100.0f, scale * 25.0f))) {
+            if (UI::Button(Shadow() + campaign.name.SubStr(0, campaign.name.Length - 5) + "##" + campaign.name, buttonSize)) {
                 const int index = activeSeasonalCampaigns.FindByRef(campaign);
                 if (index > -1) {
                     activeSeasonalCampaigns.RemoveAt(index);
@@ -661,6 +662,8 @@ void Tab_Totd(const bool detached = false) {
         uint curMonthInYear = 0;
         int  lastYear       = -1;
 
+        const vec2 buttonSize = vec2(scale * 137.0f, scale * 25.0f);
+
         Campaign@[]@ arr = S_MainWindowOldestFirst ? campaignsArrRev : campaignsArr;
         for (uint i = 0; i < arr.Length; i++) {
             Campaign@ campaign = arr[i];
@@ -694,7 +697,7 @@ void Tab_Totd(const bool detached = false) {
             }
 
             UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-            if (UI::Button(Shadow() + campaign.name.SubStr(0, campaign.name.Length - 5) + "##" + campaign.name, vec2(scale * 137.0f, scale * 25.0f))) {
+            if (UI::Button(Shadow() + campaign.name.SubStr(0, campaign.name.Length - 5) + "##" + campaign.name, buttonSize)) {
                 const int index = activeTotdMonths.FindByRef(campaign);
                 if (index > -1) {
                     activeTotdMonths.RemoveAt(index);
@@ -755,6 +758,8 @@ void Tab_Weekly(const bool detached = false) {
         uint curWeekInYear = 0;
         int  lastYear      = -1;
 
+        const vec2 buttonSize = vec2(scale * 78.0f, scale * 25.0f);
+
         Campaign@[]@ arr = S_MainWindowOldestFirst ? campaignsArrRev : campaignsArr;
         for (uint i = 0; i < arr.Length; i++) {
             Campaign@ campaign = arr[i];
@@ -790,7 +795,7 @@ void Tab_Weekly(const bool detached = false) {
             }
 
             UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-            if (UI::Button(Shadow() + campaign.name, vec2(scale * 78.0f, scale * 25.0f))) {
+            if (UI::Button(Shadow() + campaign.name, buttonSize)) {
                 const int index = activeWeeklyWeeks.FindByRef(campaign);
                 if (index > -1) {
                     activeWeeklyWeeks.RemoveAt(index);
