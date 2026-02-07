@@ -24,6 +24,13 @@ Seasonal Campaigns:
     |Summer 2024 - 01|22.325      |23.524  |23.923  |
     |Summer 2024 - 25|1:07.943    |1:09.746|1:10.347|
 
+- *note: starting Winter 2026, medals are instead calculated like so:*
+    - White series: 3/4 of the way between author and world record
+    - Green: 5/8
+    - Blue: 1/2
+    - Red: 3/8
+    - Black: 1/4 (unchanged)
+
 Weekly Grands:
 -
 - 2 days after the map releases (Tuesday 18:00 CET)
