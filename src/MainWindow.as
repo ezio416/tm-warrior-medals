@@ -410,7 +410,7 @@ void Tab_Other(const bool detached = false) {
 
             index = 0;
 
-            for (uint j = 0; j < unofficialCampaigns.Length; j++) {  // inefficient but whatever
+            for (uint j = 0; j < unofficialCampaigns.Length; j++) {  // TODO inefficient
                 Campaign@ campaign = unofficialCampaigns[j];
                 if (campaign.clubName != clubName) {
                     continue;
@@ -421,7 +421,10 @@ void Tab_Other(const bool detached = false) {
                 }
 
                 UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
-                if (UI::Button(Shadow() + campaign.nameStripped + "###button-" + campaign.uid, vec2(unofficialCampaignMaxLength + scale * 15.0f, scale * 25.0f))) {
+                if (UI::Button(
+                    Shadow() + campaign.nameStripped + "###button-" + campaign.uid,
+                    vec2(unofficialCampaignMaxLength + scale * 15.0f, scale * 25.0f)  // TODO inefficient
+                )) {
                     const int index2 = activeOtherCampaigns.FindByRef(campaign);
                     if (index2 > -1) {
                         activeOtherCampaigns.RemoveAt(index2);
