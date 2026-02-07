@@ -501,7 +501,7 @@ void Tab_Other(const bool detached = false) {
 
             const vec2 buttonSize = vec2(unofficialCampaignMaxLength + scale * 15.0f, scale * 25.0f);
 
-            for (uint j = 0; j < unofficialCampaigns.Length; j++) {  // TODO inefficient
+            for (uint j = 0; j < unofficialCampaigns.Length; j++) {
                 Campaign@ campaign = unofficialCampaigns[j];
                 if (campaign.clubName != clubName) {
                     continue;
