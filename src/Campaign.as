@@ -201,6 +201,7 @@ class Campaign {
         }
 
         requesting = false;
+        dirty = true;
 
         trace("got PBs for " + nameStripped + " after " + (Time::Now - start) + "ms");
 

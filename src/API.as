@@ -567,11 +567,7 @@ namespace API {
                     campaignsArr[i].GetPBsAsync();
                 }
 
-                try {
-                    Json::ToFile(IO::FromStorageFolder("pbs2.json"), pbsById, true);
-                } catch {
-                    error("error writing all PBs to file: " + getExceptionInfo());
-                }
+                SavePBs();
 
                 trace("got all PBs (" + pbsById.Length + ") after " + (Time::Now - start) + "ms");
 
@@ -641,11 +637,7 @@ namespace API {
                 }
             }
 
-            try {
-                Json::ToFile(IO::FromStorageFolder("pbs2.json"), pbsById, true);
-            } catch {
-                error("error writing all PBs to file: " + getExceptionInfo());
-            }
+            SavePBs();
 
             trace("got all PBs (" + pbs.Length + ") after " + (Time::Now - start) + "ms");
 

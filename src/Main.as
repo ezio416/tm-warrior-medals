@@ -8,6 +8,7 @@ dictionary          campaigns;
 Campaign@[]         campaignsArr;
 Campaign@[]         campaignsArrRev;
 const vec3          colorWarriorVec          = vec3(0.18f, 0.58f, 0.8f);
+bool                dirty                    = false;
 const bool          hasPlayPermission        = Permissions::PlayLocalMap();
 int[]               hiddenMessages;
 UI::Texture@        iconWarrior32;
@@ -108,6 +109,16 @@ void OnDestroyed() {
 #if DEPENDENCY_ULTIMATEMEDALSEXTENDED
     UltimateMedalsExtended::RemoveMedal("Warrior");
 #endif
+
+    if (dirty) {
+        SavePBs();
+    }
+}
+
+void OnDisabled() {
+    if (dirty) {
+        SavePBs();
+    }
 }
 
 void OnEnabled() {
@@ -178,6 +189,8 @@ void PBLoop() {
 
             if (prevPb != map.pb) {
                 SetTotals();
+                pbsById[map.id] = map.pb;
+                dirty = true;
             }
         }
     }
@@ -244,6 +257,21 @@ void ReadPBs() {
     }
 
     trace("read all PBs (" + pbsById.Length + ") after " + (Time::Now - start) + "ms");
+}
+
+void SavePBs() {
+    const uint64 start = Time::Now;
+    trace("saving PBs to file");
+
+    try {
+        Json::ToFile(IO::FromStorageFolder("pbs2.json"), pbsById, true);
+    } catch {
+        error("error writing all PBs to file: " + getExceptionInfo());
+    }
+
+    dirty = false;
+
+    trace("saved all PBs (" + pbsById.Length + ") after " + (Time::Now - start) + "ms");
 }
 
 void SetTotals() {
