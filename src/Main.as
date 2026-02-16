@@ -20,7 +20,7 @@ dictionary          maps;
 dictionary          mapsById;
 Message@[]          messages;
 int64               nextWarriorRequest       = 0;
-Json::Value@        pbsById                  = Json::Value();
+Json::Value@        pbsById                  = Json::Object();
 const string        pluginColor              = "\\$38C";
 const string        pluginIcon               = Icons::Circle;
 Meta::Plugin@       pluginMeta               = Meta::ExecutingPlugin();
@@ -236,7 +236,7 @@ void ReadPBs() {
     try {
         @pbsById = Json::FromFile(IO::FromStorageFolder("pbs2.json"));
         if (pbsById.GetType() != Json::Type::Object) {
-            @pbsById = Json::Value();
+            @pbsById = Json::Object();
             throw("bad json");
         }
     } catch {
