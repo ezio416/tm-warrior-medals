@@ -231,7 +231,7 @@ void ReadPBs() {
     const uint64 start = Time::Now;
     trace("reading PBs from file");
 
-    @pbsById = Json::Value();
+    @pbsById = Json::Object();
 
     try {
         @pbsById = Json::FromFile(IO::FromStorageFolder("pbs2.json"));
