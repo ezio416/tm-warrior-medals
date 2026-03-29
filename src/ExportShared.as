@@ -352,7 +352,7 @@ namespace WarriorMedals {
                 or App.UserManagerScript.Users.Length == 0
                 or App.UserManagerScript.Users[0] is null
             ) {
-                pb = uint(-1);
+                // pb = uint(-1);
                 return;
             }
 
@@ -515,10 +515,10 @@ namespace WarriorMedals {
 
         void SetPBFromAPI(Json::Value@ json) {
             if (false
-                or (true
-                    and _pb != uint(-1)
-                    and _pb != 0
-                )
+                // or (true
+                //     and _pb != uint(-1)
+                //     and _pb != 0
+                // )
                 or !json.HasKey("score")
                 or json["score"].GetType() != Json::Type::Number
             ) {

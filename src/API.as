@@ -72,6 +72,10 @@ namespace API {
         const uint64 start = Time::Now;
         trace("getting all map infos");
 
+        if (dirty) {
+            SavePBs();
+        }
+
         Net::HttpRequest@ req = GetEdevAsync("/tm/warrior/all");
 
         const int respCode = req.ResponseCode();
