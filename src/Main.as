@@ -188,6 +188,7 @@ void PBLoop() {
             map.GetPBAsync();
 
             if (prevPb != map.pb) {
+                trace("new pb: " + Time::Format(map.pb));
                 SetTotals();
                 pbsById[map.id] = map.pb;
                 dirty = true;
