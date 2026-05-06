@@ -83,7 +83,14 @@ namespace WarriorMedals {
 
         private uint _pb = uint(-1);
         uint get_pb() { return _pb; }
-        void set_pb(const uint p) { _pb = p; }
+        void set_pb(const uint p) {
+            if (true
+                and p != 0
+                and p < _pb
+            ) {
+                _pb = p;
+            }
+        }
 
         private uint _author;
         uint get_author() { return _author; }
