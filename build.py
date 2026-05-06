@@ -1,5 +1,5 @@
 # c 2023-12-28
-# m 2026-01-28
+# m 2026-04-09
 
 import os
 from zipfile import ZipFile, ZIP_DEFLATED
@@ -32,7 +32,7 @@ def count_lines(src: str) -> int:
 
 
 def main() -> None:
-    dir: str = os.getcwd()
+    dir: str = os.getcwd().replace('\\', '/')
 
     src: str = f'{dir}/src'
     if not os.path.isdir(src):
@@ -62,7 +62,7 @@ def main() -> None:
 
     for line in lines:
         if 'version' in line:
-            zip_name: str = dir.split('\\')[-1] + '_' + line.split(' ')[2].replace('"', '').replace('\n', '') + '.op'
+            zip_name: str = f'{dir.split('/')[-1]}_{line.split(' ')[2].replace('"', '').replace('\n', '')}.op'
             break
 
     with ZipFile(zip_name, 'w', ZIP_DEFLATED) as z:
