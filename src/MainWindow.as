@@ -386,6 +386,15 @@ void Tab_Grand(const bool detached = false) {  // TODO redo, weeks only have one
                 UI::SameLine();
             }
 
+            bool colored = false;
+            if (campaign.week < 9) {
+                const vec3 colorNadeo = vec3(1.0f, 0.75f, 0.1f);
+                UI::PushStyleColor(UI::Col::Button,        vec4(colorNadeo * 0.9f, 1.0f));
+                UI::PushStyleColor(UI::Col::ButtonActive,  vec4(colorNadeo * 0.6f, 1.0f));
+                UI::PushStyleColor(UI::Col::ButtonHovered, vec4(colorNadeo,        1.0f));
+                colored = true;
+            }
+
             UI::PushStyleColor(UI::Col::Text, S_ColorButtonFont);
             if (UI::Button(Shadow() + campaign.name.Replace("Grand ", ""), buttonSize)) {
                 const int index = activeWeeklyGrands.FindByRef(campaign);
@@ -400,6 +409,10 @@ void Tab_Grand(const bool detached = false) {  // TODO redo, weeks only have one
                 case Medal::Warrior:
                     UI::SetItemTooltip(tostring(campaign.countWarrior) + " / " + campaign.mapsArr.Length);
                     break;
+            }
+
+            if (colored) {
+                UI::PopStyleColor(3);
             }
 
             curWeekInYear++;
